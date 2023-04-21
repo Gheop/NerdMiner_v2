@@ -35,14 +35,14 @@ const int   daylightOffset_sec = 3600;
 
 
 char timeHour[3];
-char timeMin[3];
-char timeSec[3];
-char day[3];
-char month[6];
-char year[5];
-char timeWeekDay[3];
-String dayInWeek;
-String IP;
+// char timeMin[3];
+// char timeSec[3];
+// char day[3];
+// char month[6];
+// char year[5];
+// char timeWeekDay[3];
+// String dayInWeek;
+// String IP;
 static int screenOff = HIGH;
 
 void checkScreenButton(){
