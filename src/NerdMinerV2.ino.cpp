@@ -32,8 +32,6 @@ unsigned long start = millis();
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec =3600;             //time zone * 3600 , my time zone is  +1 GTM
 const int   daylightOffset_sec = 3600;  
-
-
 char timeHour[3];
 // char timeMin[3];
 // char timeSec[3];
@@ -43,9 +41,10 @@ char timeHour[3];
 // char timeWeekDay[3];
 // String dayInWeek;
 // String IP;
-static int screenOff = HIGH;
+int screenOff = HIGH;
 
 void checkScreenButton(){
+  //extern int screenOff;
   screenOff = !screenOff; 
   digitalWrite(TFT_BL, screenOff);
 }
@@ -166,15 +165,15 @@ void loop() {
     oldStatus = newStatus;
   }
 
-  checkRemoveConfiguration();
-  printLocalTime();
-  //Serial.println(String(timeHour)); //+":"+String(timeMin));
-  if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
-    digitalWrite(TFT_BL, LOW);
-  }
-  else { 
-    digitalWrite(TFT_BL, screenOff);
-  }
+  // checkRemoveConfiguration();
+  // printLocalTime();
+  // //Serial.println(String(timeHour)); //+":"+String(timeMin));
+  // if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
+  //   digitalWrite(TFT_BL, LOW);
+  // }
+  // else { 
+  //   digitalWrite(TFT_BL, screenOff);
+  // }
 
 
 }
