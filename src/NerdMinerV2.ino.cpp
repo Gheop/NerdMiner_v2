@@ -10,7 +10,7 @@
 #include "OpenFontRender.h"
 #include "wManager.h"
 #include "mining.h"
-
+#include "time.h"
 //3 seconds WDT
 #define WDT_TIMEOUT 3
 
@@ -28,6 +28,27 @@ static int valids = 0; // increased if blockhash <= target
 
 int oldStatus = 0;
 unsigned long start = millis();
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec =3600;             //time zone * 3600 , my time zone is  +1 GTM
+const int   daylightOffset_sec = 3600;  
+
+
+char timeHour[3];
+char timeMin[3];
+char timeSec[3];
+char day[3];
+char month[6];
+char year[5];
+char timeWeekDay[3];
+String dayInWeek;
+String IP;
+static int screenOff = HIGH;
+
+void checkScreenButton(){
+  screenOff = !screenOff; 
+  digitalWrite(TFT_BL, screenOff);
+}
 
 //void runMonitor(void *name);
 
@@ -48,7 +69,7 @@ void setup()
   pinMode(PIN_BUTTON_1, INPUT);
   attachInterrupt(PIN_BUTTON_1, checkResetConfigButton, FALLING);
 
-  pinMode(PIN_BUTTON_2, INPUT);
+  pinMode(PIN_BUTTON_2, INPUT_PULLUP);
   attachInterrupt(PIN_BUTTON_2, checkScreenButton, FALLING);
   
   /******** INIT DISPLAY ************/
@@ -80,6 +101,7 @@ void setup()
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
   // Higher prio monitor task
   Serial.println("");
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   Serial.println("Initiating tasks...");
   xTaskCreate(runMonitor, "Monitor", 5000, NULL, 4, NULL);
 
@@ -93,6 +115,30 @@ void setup()
     Serial.printf("Starting %s %s!\n", name, res == pdPASS? "successful":"failed");
   }
 }
+
+void printLocalTime()
+  {
+  struct tm timeinfo;
+  
+  if(!getLocalTime(&timeinfo)){
+    
+    return;
+  }
+  
+  strftime(timeHour,3, "%H", &timeinfo);
+  // strftime(timeMin,3, "%M", &timeinfo);
+  // strftime(timeSec,3, "%S", &timeinfo);
+
+    
+  // strftime(timeWeekDay,10, "%A", &timeinfo);
+  // dayInWeek=String(timeWeekDay);
+
+  
+  // strftime(day,3, "%d", &timeinfo);
+  // strftime(month,6, "%B", &timeinfo);
+  // strftime(year,5, "%Y", &timeinfo);
+
+  }
 
 void app_error_fault_handler(void *arg) {
   // Get stack errors
@@ -121,5 +167,14 @@ void loop() {
   }
 
   checkRemoveConfiguration();
+  printLocalTime();
+  //Serial.println(String(timeHour)); //+":"+String(timeMin));
+  if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
+    digitalWrite(TFT_BL, LOW);
+  }
+  else { 
+    digitalWrite(TFT_BL, screenOff);
+  }
+
 
 }

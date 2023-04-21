@@ -31,7 +31,7 @@ static int buttonReset = 1;
 static unsigned long lastButtonPress = 0; // Última vez que se pulsó el botón
 
 volatile bool buttonPressed = false;
-volatile int screenOff = HIGH;
+//int screenOff = HIGH;
 
 extern TFT_eSPI tft;  // tft variable declared on main
 
@@ -266,11 +266,6 @@ void init_WifiManager()
   {
     saveConfigFile();
   }
-}
-
-void checkScreenButton(){
-  screenOff = !screenOff; 
-  digitalWrite(TFT_BL, screenOff);
 }
 
 void checkResetConfigButton(){
