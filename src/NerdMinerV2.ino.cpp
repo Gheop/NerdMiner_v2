@@ -47,6 +47,9 @@ void setup()
   // Setup the button
   pinMode(PIN_BUTTON_1, INPUT);
   attachInterrupt(PIN_BUTTON_1, checkResetConfigButton, FALLING);
+
+  pinMode(PIN_BUTTON_2, INPUT);
+  attachInterrupt(PIN_BUTTON_2, checkScreenButton, FALLING);
   
   /******** INIT DISPLAY ************/
   tft.init();

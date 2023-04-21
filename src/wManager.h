@@ -6,4 +6,4 @@ void init_WifiManager();
 void wifiManagerProcess();
 void checkResetConfigButton();
 void checkRemoveConfiguration();
-
+void checkScreenButton();
