@@ -22,6 +22,8 @@ bool shouldSaveConfig = false;
 char poolString[80] = "solo.ckpool.org";
 int portNumber = 3333;
 char btcString[80] = "yourBtcAddress";
+int startScreen = 8;
+int stopScreen = 20;
 
 
 // Define WiFiManager Object
@@ -45,6 +47,8 @@ void saveConfigFile()
   json["poolString"] = poolString;
   json["portNumber"] = portNumber;
   json["btcString"] = btcString;
+  json["startScreen"] = startScreen;
+  json["stopScreen"] = stopScreen;
 
   // Open config file
   File configFile = SPIFFS.open(JSON_CONFIG_FILE, "w");
@@ -97,6 +101,8 @@ bool loadConfigFile()
           strcpy(poolString, json["poolString"]);
           strcpy(btcString, json["btcString"]);
           portNumber = json["portNumber"].as<int>();
+          startScreen = json["startScreen"].as<int>();
+          stopScreen = json["stopScreen"].as<int>();
 
           return true;
         }
@@ -186,6 +192,13 @@ void init_WifiManager()
   // Need to convert numerical input to string to display the default value.
   char convertedValue[6];
   sprintf(convertedValue, "%d", portNumber); 
+
+  char convstartScreen[1];
+  sprintf(convstartScreen, "%d", startScreen);
+
+  char convstopScreen[1];
+  sprintf(convstopScreen, "%d", stopScreen);
+
   
   // Text box (Number) - 7 characters maximum
   WiFiManagerParameter port_text_box_num("Poolport", "Pool port", convertedValue, 7); 
@@ -193,11 +206,15 @@ void init_WifiManager()
   // Text box (String) - 80 characters maximum
   WiFiManagerParameter addr_text_box("btcAddress", "Your BTC address", btcString, 80);
 
+  // Text box (Number) - 2 characters maximum
+  WiFiManagerParameter startscreen_text_box("StartScreen", "Screen start at", convstartScreen, 2);
+  WiFiManagerParameter stopscreen_text_box("StopScreen", "Screen stop at", convstopScreen, 2); 
   // Add all defined parameters
   wm.addParameter(&pool_text_box);
   wm.addParameter(&port_text_box_num);
   wm.addParameter(&addr_text_box);
-
+  wm.addParameter(&startscreen_text_box);
+  wm.addParameter(&stopscreen_text_box);
   Serial.println("AllDone: ");
   if (forceConfig)
     // Run if we need a configuration
@@ -259,6 +276,17 @@ void init_WifiManager()
     strncpy(btcString, addr_text_box.getValue(), sizeof(btcString));
     Serial.print("btcString: ");
     Serial.println(btcString);
+
+    //Convert the number value
+    startScreen = atoi(startscreen_text_box.getValue());
+    Serial.print("Screen start at : ");
+    Serial.println(startScreen);
+
+    //Convert the number value
+    stopScreen = atoi(stopscreen_text_box.getValue());
+    Serial.print("Screen stop at : ");
+    Serial.println(stopScreen);
+
   }
   
   // Save the custom parameters to FS

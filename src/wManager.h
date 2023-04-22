@@ -7,3 +7,6 @@ void wifiManagerProcess();
 void checkResetConfigButton();
 void checkRemoveConfiguration();
 //void checkScreenButton();
+
+extern int stopScreen;
+extern int startScreen;

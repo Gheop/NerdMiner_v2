@@ -178,12 +178,13 @@ void loop() {
     oldStatus = newStatus;
   }
 
-    // checkRemoveConfiguration();
+  checkRemoveConfiguration();
+  
   if(nowmillis < millis() - 60000) {
     nowmillis = millis();
   printLocalTime();
   Serial.println(String(timeHour)+":"+String(timeMin));
-  if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
+  if(String(timeHour).toInt() >= stopScreen || String(timeHour).toInt() < startScreen) {
     digitalWrite(TFT_BL, LOW);
   }
   else { 
