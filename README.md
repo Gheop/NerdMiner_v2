@@ -8,8 +8,7 @@ The main aim of this project is to let you **learn more about minery** and to ha
 
 Original project https://github.com/valerio-vaccaro/HAN
 
-![image](images/NerdMinerv2.jpg)
-![image](https://twitter.com/i/status/1650141584619438086)
+![video](images/FuZ7BFXWIAAmLTu.gif)
 
 ## Requirements
 - TTGO T-Display S3
