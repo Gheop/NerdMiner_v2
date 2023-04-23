@@ -10,3 +10,4 @@ void checkRemoveConfiguration();
 
 extern int stopScreen;
 extern int startScreen;
+extern int portNumber;

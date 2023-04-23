@@ -20,7 +20,7 @@ bool shouldSaveConfig = false;
 
 // Variables to hold data from custom textboxes
 char poolString[80] = "solo.ckpool.org";
-int portNumber = 3333;
+//int portNumber = 3333;
 char btcString[80] = "yourBtcAddress";
 int startScreen = 8;
 int stopScreen = 20;
@@ -45,10 +45,10 @@ void saveConfigFile()
   // Create a JSON document
   StaticJsonDocument<512> json;
   json["poolString"] = poolString;
-  json["portNumber"] = portNumber;
+  json["portNumber"] = 3333;
   json["btcString"] = btcString;
-  json["startScreen"] = startScreen;
-  json["stopScreen"] = stopScreen;
+  // json["startScreen"] = startScreen;
+  // json["stopScreen"] = stopScreen;
 
   // Open config file
   File configFile = SPIFFS.open(JSON_CONFIG_FILE, "w");
@@ -100,7 +100,9 @@ bool loadConfigFile()
 
           strcpy(poolString, json["poolString"]);
           strcpy(btcString, json["btcString"]);
-          portNumber = json["portNumber"].as<int>();
+         // portNumber = json["portNumber"].as<int>();
+          //don't work !
+          //portNumber = 3333;
           startScreen = json["startScreen"].as<int>();
           stopScreen = json["stopScreen"].as<int>();
 
@@ -191,7 +193,7 @@ void init_WifiManager()
 
   // Need to convert numerical input to string to display the default value.
   char convertedValue[6];
-  sprintf(convertedValue, "%d", portNumber); 
+  sprintf(convertedValue, "%d", 3333); 
 
   char convstartScreen[1];
   sprintf(convstartScreen, "%d", startScreen);
@@ -268,9 +270,9 @@ void init_WifiManager()
     Serial.println(poolString);
   
     //Convert the number value
-    portNumber = atoi(port_text_box_num.getValue());
-    Serial.print("portNumber: ");
-    Serial.println(portNumber);
+    // portNumber = 3333; //atoi(port_text_box_num.getValue());
+    // Serial.print("portNumber: ");
+    // Serial.println(portNumber);
   
     // Copy the string value
     strncpy(btcString, addr_text_box.getValue(), sizeof(btcString));

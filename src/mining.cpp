@@ -8,6 +8,7 @@
 #include "mbedtls/md.h"
 #include "OpenFontRender.h"
 #include "mining.h"
+#include "wManager.h"
 
 #define TARGET_BUFFER_SIZE 64
 
@@ -21,7 +22,6 @@ int valids; // increased if blockhash <= target
 
 // Variables to hold data from custom textboxes
 extern char poolString[80];
-extern int portNumber;
 extern char btcString[80];
 
 extern OpenFontRender render;
@@ -139,7 +139,7 @@ void runWorker(void *name) {
     DynamicJsonDocument doc(4 * 1024);
     String payload;
     
-    if (!client.connect(poolString, portNumber)) {
+    if (!client.connect(poolString, 3333)) {
       continue;
     }
     // STEP 1: Pool server connection
@@ -453,7 +453,7 @@ void runWorker(void *name) {
             valids++;
             Serial.printf("[WORKER]  %s  Submiting work valid!\n", (char *)name);
             while (!client.connected()) {
-              client.connect(poolString, portNumber);
+              client.connect(poolString, 3333);
               vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
             // STEP 3: Submit mining job
@@ -483,7 +483,7 @@ void runWorker(void *name) {
     if (nonce == MAX_NONCE) {
         Serial.printf("[WORKER] %s SUBMITING WORK... MAX Nonce reached > MAX_NONCE\n", (char *)name);
         // STEP 3: Submit mining job
-        if (client.connect(poolString, portNumber)) {
+        if (client.connect(poolString, 3333)) {
           payload = "{\"params\": [\"" + ADDRESS + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
           Serial.print("  Sending  : "); Serial.println(payload);
           client.print(payload.c_str());
