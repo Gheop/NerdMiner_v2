@@ -74,6 +74,8 @@ Optional you can select other pool:
 - [x]  Move project to platformIO
 - [x]  Bug rectangle on screen when 1milion shares
 - [x]  Bug memory leaks
+- [x]  Turn off the screen with second button
+- [x]  Turn off the screen on a time slot
 - [x]  Bug Reboots when received JSON contains some null values
 - [ ]  Improve hashrate using Blockstream Jade miner code
 - [ ]  Add blockHeight to screen
