@@ -29,11 +29,10 @@ extern TFT_eSprite background;
 //int screenOff;
 
 bool checkHalfShare(unsigned char* hash) {
-  bool valid = true;
+  //bool valid = true;
   for(uint8_t i=31; i>31-2; i--) {
     if(hash[i] != 0) {
-      valid = false;
-      break;
+      return false;
     }
   }
   #ifdef DEBUG_MINING
@@ -44,7 +43,7 @@ bool checkHalfShare(unsigned char* hash) {
     Serial.println();
   }
   #endif
-  return valid;
+  return true;
 }
 
 bool checkShare(unsigned char* hash) {
@@ -424,6 +423,7 @@ void runWorker(void *name) {
     // search a valid nonce
     uint32_t nonce = 0;
     uint32_t startT = micros();
+    bytearray_blockheader[79] = 0; //We only mine until 1MHashes this will allways be zero
     Serial.println(">>> STARTING TO HASH NONCES");
     while(true) {
       bytearray_blockheader[76] = (nonce >> 0) & 0xFF;
