@@ -181,17 +181,17 @@ void loop() {
 
   checkRemoveConfiguration();
   
-  // if(nowmillis < millis() - 60000) {
-  //   nowmillis = millis();
-  // printLocalTime();
-  // Serial.println(String(timeHour)+":"+String(timeMin));
-  // Serial.println("Start : "+String(startScreen)+"\tStop : "+String(stopScreen));
-  // if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
-  //   digitalWrite(TFT_BL, LOW);
-  // }
-  // else { 
-  //   digitalWrite(TFT_BL, screenOff);
-  // }
-  // }
+  if(nowmillis < millis() - 60000) {
+    nowmillis = millis();
+  printLocalTime();
+  Serial.println(String(timeHour)+":"+String(timeMin));
+  Serial.println("Start : "+String(startScreen)+"\tStop : "+String(stopScreen));
+  if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
+    digitalWrite(TFT_BL, LOW);
+  }
+  else { 
+    digitalWrite(TFT_BL, screenOff);
+  }
+  }
 
 }
