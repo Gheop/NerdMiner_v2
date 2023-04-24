@@ -100,9 +100,7 @@ bool loadConfigFile()
 
           strcpy(poolString, json["poolString"]);
           strcpy(btcString, json["btcString"]);
-         // portNumber = json["portNumber"].as<int>();
-          //don't work !
-          //portNumber = 3333;
+          portNumber = json["portNumber"].as<int>();
           startScreen = json["startScreen"].as<int>();
           stopScreen = json["stopScreen"].as<int>();
 
@@ -193,7 +191,7 @@ void init_WifiManager()
 
   // Need to convert numerical input to string to display the default value.
   char convertedValue[6];
-  sprintf(convertedValue, "%d", 3333); 
+  sprintf(convertedValue, "%d", portNumber); 
 
   char convstartScreen[1];
   sprintf(convstartScreen, "%d", startScreen);
@@ -270,9 +268,9 @@ void init_WifiManager()
     Serial.println(poolString);
   
     //Convert the number value
-    // portNumber = 3333; //atoi(port_text_box_num.getValue());
-    // Serial.print("portNumber: ");
-    // Serial.println(portNumber);
+    portNumber = atoi(port_text_box_num.getValue());
+    Serial.print("portNumber: ");
+    Serial.println(portNumber);
   
     // Copy the string value
     strncpy(btcString, addr_text_box.getValue(), sizeof(btcString));

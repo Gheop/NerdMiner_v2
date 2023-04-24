@@ -55,7 +55,7 @@ void checkScreenButton()
 void setup()
 {
   Serial.begin(115200);
-  
+  Serial.println("------------------------\n| Hello #TeamNerdMiner |\n------------------------\n\n");
   //test power on the screen
   pinMode(PIN_POWER_ON, OUTPUT);
   digitalWrite(PIN_POWER_ON, HIGH);
