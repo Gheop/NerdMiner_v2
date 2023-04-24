@@ -39,7 +39,7 @@ static unsigned long lastButton2Press = 0;
 
 void checkScreenButton()
 {
-  if ((millis() - lastButton2Press) > 100)
+  if ((millis() - lastButton2Press) > 250)
   {
     screenOff = !screenOff;
     digitalWrite(TFT_BL, screenOff);
