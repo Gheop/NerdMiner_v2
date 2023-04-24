@@ -188,13 +188,15 @@ void loop()
  //   printLocalTime();
     // Serial.println(String(timeHour) + ":" + String(timeMin));
     // Serial.println("Start : " + String(startScreen) + "\tStop : " + String(stopScreen));
-    if (hour < startScreen || hour >= stopScreen)
+    if ((hour < startScreen || hour >= stopScreen))
     {
       digitalWrite(TFT_BL, LOW);
+      digitalWrite(PIN_POWER_ON, LOW);
     }
     else
     {
       digitalWrite(TFT_BL, screenOff);
+      digitalWrite(PIN_POWER_ON, screenOff);
     }
   }
 }
