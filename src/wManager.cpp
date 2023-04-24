@@ -20,7 +20,7 @@ bool shouldSaveConfig = false;
 
 // Variables to hold data from custom textboxes
 char poolString[80] = "solo.ckpool.org";
-//int portNumber = 3333;
+int portNumber = 3333;
 char btcString[80] = "yourBtcAddress";
 int startScreen = 8;
 int stopScreen = 20;
@@ -45,7 +45,7 @@ void saveConfigFile()
   // Create a JSON document
   StaticJsonDocument<512> json;
   json["poolString"] = poolString;
-  json["portNumber"] = 3333;
+  json["portNumber"] = portNumber;
   json["btcString"] = btcString;
   // json["startScreen"] = startScreen;
   // json["stopScreen"] = stopScreen;

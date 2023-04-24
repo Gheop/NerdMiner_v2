@@ -14,6 +14,7 @@
 //3 seconds WDT
 #define WDT_TIMEOUT 3
 
+
 OpenFontRender render;
 
 /**********************⚡ GLOBAL Vars *******************************/
@@ -29,31 +30,23 @@ static int valids = 0; // increased if blockhash <= target
 int oldStatus = 0;
 unsigned long start = millis();
 
-// const char* ntpServer = "pool.ntp.org";
-// const long  gmtOffset_sec =3600;             //time zone * 3600 , my time zone is  +1 GTM
-// const int   daylightOffset_sec = 3600;  
 char timeHour[3];
 char timeMin[3];
-// char timeSec[3];
-// char day[3];
-// char month[6];
-// char year[5];
-// char timeWeekDay[3];
-// String dayInWeek;
-// String IP;
+
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 //int portNumber = 3333;
 
 void checkScreenButton()
 {
-  unsigned int last_time = (millis() - lastButton2Press);
-  lastButton2Press = millis();
-  if (last_time > 500)
+  if ((millis() - lastButton2Press) > 100)
   {
     screenOff = !screenOff;
     digitalWrite(TFT_BL, screenOff);
+    digitalWrite(PIN_POWER_ON, screenOff);
   }
+  lastButton2Press = millis();
+ 
 }
 
 //void runMonitor(void *name);
@@ -62,6 +55,11 @@ void checkScreenButton()
 void setup()
 {
   Serial.begin(115200);
+  
+  //test power on the screen
+  pinMode(PIN_POWER_ON, OUTPUT);
+  digitalWrite(PIN_POWER_ON, HIGH);
+
   Serial.setTimeout(0);
   delay(100);
 
@@ -107,11 +105,6 @@ void setup()
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
   // Higher prio monitor task
   Serial.println("");
-  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  // configTzTime(ntpServer);
-
-  const char* ntpServer = "pool.ntp.org";
-  configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", ntpServer);
 
   Serial.println("Initiating tasks...");
   xTaskCreate(runMonitor, "Monitor", 5000, NULL, 4, NULL);
@@ -125,31 +118,33 @@ void setup()
     BaseType_t res = xTaskCreate(runWorker, name, 30000, (void*)name, 1, NULL);
     Serial.printf("Starting %s %s!\n", name, res == pdPASS? "successful":"failed");
   }
+
+  //const char* ntpServer = "pool.ntp.org";
+  configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", "pool.ntp.org");
 }
 
-void printLocalTime()
-  {
+// void printLocalTime()
+//   {
+
+//   struct tm timeinfo;
+  
+//   if(!getLocalTime(&timeinfo)){
+    
+//     return;
+//   }
+//   strftime(timeHour,3, "%H", &timeinfo);
+//   strftime(timeMin,3, "%M", &timeinfo);
+//   }
+
+int getHour()
+{
   struct tm timeinfo;
-  
-  if(!getLocalTime(&timeinfo)){
-    
-    return;
+  if(!getLocalTime(&timeinfo))
+  {
+    return -1;
   }
-  
-  strftime(timeHour,3, "%H", &timeinfo);
-  strftime(timeMin,3, "%M", &timeinfo);
-  // strftime(timeSec,3, "%S", &timeinfo);
-
-    
-  // strftime(timeWeekDay,10, "%A", &timeinfo);
-  // dayInWeek=String(timeWeekDay);
-
-  
-  // strftime(day,3, "%d", &timeinfo);
-  // strftime(month,6, "%B", &timeinfo);
-  // strftime(year,5, "%Y", &timeinfo);
-
-  }
+  return String(strftime(timeHour,3, "%H", &timeinfo)).toInt();
+}
 
 void app_error_fault_handler(void *arg) {
   // Get stack errors
@@ -164,15 +159,20 @@ void app_error_fault_handler(void *arg) {
 
 unsigned long nowmillis = millis();
 
-void loop() {
+void loop()
+{
 
-  wifiManagerProcess(); // avoid delays() in loop when non-blocking and other long running code  
-  
+  wifiManagerProcess(); // avoid delays() in loop when non-blocking and other long running code
+
   int newStatus = WiFi.status();
-  if (newStatus != oldStatus) {
-    if (newStatus == WL_CONNECTED) {
+  if (newStatus != oldStatus)
+  {
+    if (newStatus == WL_CONNECTED)
+    {
       Serial.println("CONNECTED - Current ip: " + WiFi.localIP().toString());
-    } else {
+    }
+    else
+    {
       Serial.print("[Error] - current status: ");
       Serial.println(newStatus);
     }
@@ -180,18 +180,21 @@ void loop() {
   }
 
   checkRemoveConfiguration();
-  
-  if(nowmillis < millis() - 60000) {
-    nowmillis = millis();
-  printLocalTime();
-  Serial.println(String(timeHour)+":"+String(timeMin));
-  Serial.println("Start : "+String(startScreen)+"\tStop : "+String(stopScreen));
-  if(String(timeHour).toInt() >= 20 || String(timeHour).toInt() < 8) {
-    digitalWrite(TFT_BL, LOW);
-  }
-  else { 
-    digitalWrite(TFT_BL, screenOff);
-  }
-  }
 
+  if (nowmillis + 60000 < millis())
+  {
+    nowmillis = millis();
+    int hour = getHour();
+ //   printLocalTime();
+    // Serial.println(String(timeHour) + ":" + String(timeMin));
+    // Serial.println("Start : " + String(startScreen) + "\tStop : " + String(stopScreen));
+    if (hour < startScreen || hour >= stopScreen)
+    {
+      digitalWrite(TFT_BL, LOW);
+    }
+    else
+    {
+      digitalWrite(TFT_BL, screenOff);
+    }
+  }
 }

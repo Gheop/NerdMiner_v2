@@ -2,6 +2,7 @@
 // Mining
 #define THREADS 1
 #define MAX_NONCE 1000000
+#define PIN_POWER_ON 15
 // #define MAX_NONCE    1.215.752.192
 
 // Pool
