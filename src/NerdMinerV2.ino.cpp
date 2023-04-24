@@ -35,7 +35,7 @@ char timeMin[3];
 
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
-//int portNumber = 3333;
+
 
 void checkScreenButton()
 {
