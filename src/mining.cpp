@@ -541,17 +541,20 @@ void runMonitor(void *name)
         render.drawString(String(shares).c_str(), 186, 73, 0xDEDB);
         // Hores
         unsigned long secElapsed = mElapsed / 1000;
-        int hr = secElapsed / 3600;                 // Number of seconds in an hour
-        int mins = (secElapsed - (hr * 3600)) / 60; // Remove the number of hours and calculate the minutes.
-        int sec = secElapsed - (hr * 3600) - (mins * 60);
+        //int hr = secElapsed / 3600;                 // Number of seconds in an hour
+        //int mins = (secElapsed - (hr * 3600)) / 60; // Remove the number of hours and calculate the minutes.
+        //int sec = secElapsed - (hr * 3600) - (mins * 60);
+        // int hr = numberOfHours(secElapsed);
+        // int mins = numberOfMinutes(secElapsed);
+        // int sec = numberOfSeconds(secElapsed);
         render.setFontSize(36);
-        render.rdrawString(String(hr).c_str(), 208, 99, 0xDEDB);
+        render.rdrawString(String(numberOfHours(secElapsed)).c_str(), 208, 99, 0xDEDB);
         // Minutss
         render.setFontSize(36);
-        render.rdrawString(String(mins).c_str(), 253, 99, 0xDEDB);
+        render.rdrawString(String(numberOfMinutes(secElapsed)).c_str(), 253, 99, 0xDEDB);
         // Segons
         render.setFontSize(36);
-        render.rdrawString(String(sec).c_str(), 298, 99, 0xDEDB);
+        render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
         // Valid Blocks
         render.setFontSize(48);
         render.drawString(String(valids).c_str(), 281, 55, 0xDEDB);
