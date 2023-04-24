@@ -43,9 +43,9 @@ void checkScreenButton()
   {
     screenOff = !screenOff;
     digitalWrite(TFT_BL, screenOff);
-    digitalWrite(PIN_POWER_ON, screenOff);
+    //digitalWrite(PIN_POWER_ON, screenOff);
+    lastButton2Press = millis();
   }
-  lastButton2Press = millis();
  
 }
 
@@ -57,8 +57,8 @@ void setup()
   Serial.begin(115200);
   Serial.println("------------------------\n| Hello #TeamNerdMiner |\n------------------------\n\n");
   //test power on the screen
-  pinMode(PIN_POWER_ON, OUTPUT);
-  digitalWrite(PIN_POWER_ON, HIGH);
+  // pinMode(PIN_POWER_ON, OUTPUT);
+  // digitalWrite(PIN_POWER_ON, HIGH);
 
   Serial.setTimeout(0);
   delay(100);
@@ -121,6 +121,8 @@ void setup()
 
   //const char* ntpServer = "pool.ntp.org";
   configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", "pool.ntp.org");
+  startScreen = 8;
+  stopScreen = 20;
 }
 
 // void printLocalTime()
@@ -185,18 +187,19 @@ void loop()
   {
     nowmillis = millis();
     int hour = getHour();
+    Serial.println("Hour:"+String(hour));
  //   printLocalTime();
     // Serial.println(String(timeHour) + ":" + String(timeMin));
     // Serial.println("Start : " + String(startScreen) + "\tStop : " + String(stopScreen));
-    if ((hour < startScreen || hour >= stopScreen))
-    {
-      digitalWrite(TFT_BL, LOW);
-      digitalWrite(PIN_POWER_ON, LOW);
-    }
-    else
-    {
-      digitalWrite(TFT_BL, screenOff);
-      digitalWrite(PIN_POWER_ON, screenOff);
-    }
+    // if (screenOff != LOW && (hour < startScreen || hour >= stopScreen))
+    // {
+    //   digitalWrite(TFT_BL, LOW);
+    //   //digitalWrite(PIN_POWER_ON, LOW);
+    // }
+    // else
+    // {
+    //   digitalWrite(TFT_BL, screenOff);
+    //   //digitalWrite(PIN_POWER_ON, screenOff);
+    // }
   }
 }

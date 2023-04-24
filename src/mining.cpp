@@ -559,11 +559,11 @@ void runMonitor(void *name)
         // Push prepared background to screen
         background.pushSprite(0, 0);
     }
-    else
-    {
-      digitalWrite(TFT_BL, screenOff);
-      digitalWrite(PIN_POWER_ON, screenOff);
-    }
+    // else
+    // {
+    //   digitalWrite(TFT_BL, screenOff);
+    //   digitalWrite(PIN_POWER_ON, screenOff);
+    // }
     // Pause the task for 5000ms
     vTaskDelay(5000 / portTICK_PERIOD_MS);
   }
