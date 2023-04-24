@@ -1,11 +1,8 @@
 #define ESP_DRD_USE_SPIFFS true
 
-// Include Libraries
-//#include ".h"
 #include <WiFi.h>
 #include <SPIFFS.h>
 #include <FS.h>
-
 #include <WiFiManager.h>
 #include <ArduinoJson.h>
 #include "media/images.h"
