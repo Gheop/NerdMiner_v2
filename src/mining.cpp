@@ -510,63 +510,34 @@ void runMonitor(void *name)
   unsigned long mStart = millis();
   while (1)
   {
+  //      if (digitalRead(TFT_BL) != LOW)
+   // {
 
-    unsigned long mElapsed = millis() - mStart;
+//    unsigned long mElapsed = millis() - mStart;
+    unsigned long secElapsed = (millis() - mStart) / 1000;
     unsigned long totalKHashes = (Mhashes * 1000) + hashes / 1000;
-    // extern int screenOff;
-    // Serial.println("[runMonitor Task] -> Printing results on screen ");
-    Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %.3f KH/s\n",
-                  shares, totalKHashes, (1.0 * (totalKHashes * 1000)) / mElapsed);
-    if (screenOff != LOW)
-    {
+    char hashrate[6] = {0};
+    sprintf(hashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
+    Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
+                  shares, totalKHashes, hashrate);
+
         background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
-        // Hashrate
         render.setFontSize(70);
         render.setCursor(19, 118);
         render.setFontColor(TFT_BLACK);
-        char tmp[10] = {0};
-        sprintf(tmp, "%.2f", (1.0 * (totalKHashes * 1000)) / mElapsed);
-        render.rdrawString(tmp, 118, 114, TFT_BLACK);
-        // Total hashes
+        render.rdrawString(hashrate, 118, 114, TFT_BLACK);
         render.setFontSize(36);
         render.rdrawString(String(Mhashes).c_str(), 268, 138, TFT_BLACK);
-        // Block templates
-        render.setFontSize(36);
         render.drawString(String(templates).c_str(), 186, 17, 0xDEDB);
-        // 16Bit shares
-        render.setFontSize(36);
         render.drawString(String(halfshares).c_str(), 186, 45, 0xDEDB);
-        // 32Bit shares
-        render.setFontSize(36);
         render.drawString(String(shares).c_str(), 186, 73, 0xDEDB);
-        // Hores
-        unsigned long secElapsed = mElapsed / 1000;
-        //int hr = secElapsed / 3600;                 // Number of seconds in an hour
-        //int mins = (secElapsed - (hr * 3600)) / 60; // Remove the number of hours and calculate the minutes.
-        //int sec = secElapsed - (hr * 3600) - (mins * 60);
-        // int hr = numberOfHours(secElapsed);
-        // int mins = numberOfMinutes(secElapsed);
-        // int sec = numberOfSeconds(secElapsed);
-        render.setFontSize(36);
         render.rdrawString(String(numberOfHours(secElapsed)).c_str(), 208, 99, 0xDEDB);
-        // Minutss
-        render.setFontSize(36);
         render.rdrawString(String(numberOfMinutes(secElapsed)).c_str(), 253, 99, 0xDEDB);
-        // Segons
-        render.setFontSize(36);
         render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
-        // Valid Blocks
         render.setFontSize(48);
         render.drawString(String(valids).c_str(), 281, 55, 0xDEDB);
-
-        // Push prepared background to screen
         background.pushSprite(0, 0);
-    }
-    // else
-    // {
-    //   digitalWrite(TFT_BL, screenOff);
-    //   digitalWrite(PIN_POWER_ON, screenOff);
-    // }
+   // }
     // Pause the task for 5000ms
     vTaskDelay(5000 / portTICK_PERIOD_MS);
   }

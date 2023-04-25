@@ -41,9 +41,8 @@ void checkScreenButton()
 {
   if ((millis() - lastButton2Press) > 250)
   {
-    screenOff = !screenOff;
+    screenOff = !digitalRead(TFT_BL);
     digitalWrite(TFT_BL, screenOff);
-    //digitalWrite(PIN_POWER_ON, screenOff);
     lastButton2Press = millis();
   }
  

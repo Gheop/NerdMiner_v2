@@ -10,7 +10,7 @@
 //#define POOL_PORT 3333  //6057 //3333
 
 
-extern int screenOff;
+//extern int screenOff;
 
 
 void runMonitor(void *name);
