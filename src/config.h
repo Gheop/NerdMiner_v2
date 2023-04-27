@@ -19,7 +19,7 @@
 
 #define PIN_BUTTON_1 0
 #define PIN_BUTTON_2 14
-//#define PIN_POWER_ON 15
+#define PIN_POWER_ON 15
 
 #define ESP_DRD_USE_SPIFFS true
 #define FS_NO_GLOBALS
