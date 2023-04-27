@@ -1,7 +1,7 @@
 #pragma once
 
 //my BTC address
-#define BTC_ADDRESS     String("bc.......")
+#define BTC_ADDRESS "bc1qudl2ymqr2x5f3e8ur3cezc2427vprx5zndqj2q"
 
 // Pool
 #define POOL_URL "51.81.56.15" //"solo.ckpool.org" //"btc.zsolo.bid" "eu.stratum.slushpool.com"

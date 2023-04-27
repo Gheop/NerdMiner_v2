@@ -50,3 +50,6 @@ debug_custom.json
 Network Trash Folder
 Temporary Items
 .apdisk
+
+#config
+src/config.h
