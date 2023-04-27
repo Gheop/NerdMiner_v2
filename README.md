@@ -7,8 +7,8 @@ The main aim of this project is to let you **learn more about minery** and to ha
 
 
 Original project https://github.com/valerio-vaccaro/HAN
+![image](images/IMG_8746.jpg)
 
-![video](images/FuZ7BFXWIAAmLTu.gif)
 
 ## Requirements
 - TTGO T-Display S3
@@ -28,27 +28,16 @@ This miner is multicore and multithreads, each thread mine a different block tem
 - TTGO T-Display S3 > Buy it on aliexpress or amazon
 - 3D BOX
 
-### Flash firmware
-Create your own miner using the online tool **ESPtool** and the **binary files** that you will find in the src/bin folder.
-If you want you can compile the entire project using Arduino, PlatformIO or Expressif IDF.
-
-1. Get a TTGO T-display S3
-1. Download this repository
-1. Go to ESPtool online: https://espressif.github.io/esptool-js/
-1. Load the firmware with the binaries from the src/bin folder.
-1. Plug your board and select each file from src/bin with its address 
+### Software Tutorial
+1. Clone this git
+1. Change your setup in the src/config.h
+1. Launch Visual Studio Code in this project repository (will install all the need)
+1. Go in the PlatformIO and lauch "Upload and Monitor"
 
 #### Build troubleshooting
-1. Online ESPtool works with chrome, chromium, brave
-1. ESPtool recommendations: use 115200bps
-1. Build errors > If during firmware download upload stops, it's recommended to enter the board in boot mode. Unplug cable, hold right bottom button and then plug cable. Try programming
+1. Build errors > If during firmware download upload stops, it's recommended to enter the board in boot mode. Unplug cable, hold left bottom button and then plug cable. Try programming
 
 ### NerdMiner configuration
-After programming, you will only need to setup your Wifi and BTC address.
-
-1. Connect to NerdMinerAP
-1. Setup your Wifi Network
-1. Add your BTCaddress
 
 Optional you can select other pool:
 
@@ -57,11 +46,6 @@ Optional you can select other pool:
 | solo.ckpool.org          | 3333 | https://solo.ckpool.org/ |
 | btc.zsolo.bid            | 6057 | https://zsolo.bid/en/btc-solo-mining-pool |
 | eu.stratum.slushpool.com | 3333 | https://braiins.com/pool |
-
-**If you need to reboot your currentConfig**, hold right top button during 5 seconds and config will be deleted.
-
-#### Build video
-[![Ver video aquí](https://img.youtube.com/vi/POUT2R_opDs/0.jpg)](https://youtu.be/POUT2R_opDs)
 
 ## Developers
 ### Project guidelines
@@ -76,6 +60,7 @@ Optional you can select other pool:
 - [x]  Bug memory leaks
 - [x]  Turn off the screen with second button
 - [x]  Turn off the screen on a time slot
+- [x]  Add internal temperature and worker name on screen
 - [x]  Bug Reboots when received JSON contains some null values
 - [ ]  Improve hashrate using Blockstream Jade miner code
 - [ ]  Add blockHeight to screen
