@@ -7,8 +7,12 @@
 #include "media/images.h"
 #include "mbedtls/md.h"
 #include "OpenFontRender.h"
-#include "mining.h"
-#include "wManager.h"
+#include "config.h"
+//#include "media/images.h"
+#include "media/myFonts.h"
+//#include "OpenFontRender.h"
+// #include "wManager.h"
+
 
 #define TARGET_BUFFER_SIZE 64
 
@@ -20,13 +24,8 @@ int halfshares; // increase if blockhash has 16 bits of zeroes
 int shares; // increase if blockhash has 32 bits of zeroes
 int valids; // increased if blockhash <= target
 
-// Variables to hold data from custom textboxes
-extern char poolString[80];
-extern char btcString[80];
-
 extern OpenFontRender render;
 extern TFT_eSprite background;
-//int screenOff;
 
 bool checkHalfShare(unsigned char* hash) {
   //bool valid = true;
@@ -120,7 +119,7 @@ void runWorker(void *name) {
   Serial.printf("\n[WORKER] Started. Running %s on core %d\n", (char *)name, xPortGetCoreID());
   Serial.printf("### [Total Heap / Free heap]: %d / %d \n", ESP.getHeapSize(), ESP.getFreeHeap());
   
-  String ADDRESS = String(btcString);
+  //String ADDRESS = "bc1qpa4jyf26xd89dpsvdy98cjquklz3jj4axr0pkl";
 
   mbedtls_md_context_t ctx;
   // connect to pool
@@ -132,17 +131,17 @@ void runWorker(void *name) {
 
   while(true) {
       
-    if(WiFi.status() != WL_CONNECTED) continue;
+   // if(WiFi.status() != WL_CONNECTED) continue;
 
     // get template
     DynamicJsonDocument doc(4 * 1024);
     String payload;
     
-    if (!client.connect(poolString, 3333)) {
+    if (!client.connect(POOL_URL, POOL_PORT)) {
       continue;
     }
     // STEP 1: Pool server connection
-    payload = "{\"id\": "+ String(id++) +", \"method\": \"mining.subscribe\", \"params\": [\"" + ADDRESS + "\", \"password\"]}\n";
+    payload = "{\"id\": "+ String(id++) +", \"method\": \"mining.subscribe\", \"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + POOL_PWD + "\"]}\n";
     Serial.printf("[WORKER] %s ==> Mining subscribe\n", (char *)name);
     Serial.print("  Sending  : "); Serial.println(payload);
     client.print(payload.c_str());
@@ -170,7 +169,7 @@ void runWorker(void *name) {
     }
   
     // STEP 2: Pool authorize work
-    payload = "{\"params\": [\"" + ADDRESS + "\", \"password\"], \"id\": "+ String(id++) +", \"method\": \"mining.authorize\"}\n";
+    payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + POOL_PWD + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.authorize\"}\n";
     Serial.printf("[WORKER] %s ==> Autorize work\n", (char *)name);
     Serial.print("  Sending  : "); Serial.println(payload);
     client.print(payload.c_str());
@@ -453,11 +452,11 @@ void runWorker(void *name) {
             valids++;
             Serial.printf("[WORKER]  %s  Submiting work valid!\n", (char *)name);
             while (!client.connected()) {
-              client.connect(poolString, 3333);
+              client.connect(POOL_URL, POOL_PORT);
               vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
             // STEP 3: Submit mining job
-            payload = "{\"params\": [\"" + ADDRESS + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
+            payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
             Serial.print("  Sending  : "); Serial.println(payload);
             client.print(payload.c_str());
             line = client.readStringUntil('\n');
@@ -483,8 +482,8 @@ void runWorker(void *name) {
     if (nonce == MAX_NONCE) {
         Serial.printf("[WORKER] %s SUBMITING WORK... MAX Nonce reached > MAX_NONCE\n", (char *)name);
         // STEP 3: Submit mining job
-        if (client.connect(poolString, 3333)) {
-          payload = "{\"params\": [\"" + ADDRESS + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
+        if (client.connect(POOL_URL, POOL_PORT)) {
+          payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
           Serial.print("  Sending  : "); Serial.println(payload);
           client.print(payload.c_str());
           Serial.print("  Receiving: "); Serial.println(client.readStringUntil('\n'));
@@ -520,8 +519,12 @@ void runMonitor(void *name)
     sprintf(hashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
     Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
                   shares, totalKHashes, hashrate);
-
+    String tmp = String(temperatureRead(), 0) + String(" C");
+    // char msg[42] = {0};
+    // sprintf(msg, "%s", "Mineur de Théo !");
+    //tmp.concat("°C");
         background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
+        render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
         render.setFontSize(70);
         render.setCursor(19, 118);
         render.setFontColor(TFT_BLACK);
@@ -535,7 +538,13 @@ void runMonitor(void *name)
         render.rdrawString(String(numberOfMinutes(secElapsed)).c_str(), 253, 99, 0xDEDB);
         render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
         render.setFontSize(48);
-        render.drawString(String(valids).c_str(), 281, 55, 0xDEDB);
+        render.drawString(String(valids).c_str(), 281, 55, TFT_GOLD);
+        render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold));
+        render.setFontSize(12);
+        render.rdrawString(String(POOL_WORKER).c_str(), 110, 4, TFT_GOLD);
+        render.rdrawString(tmp.c_str(), 292, 3, TFT_RED);
+
+
         background.pushSprite(0, 0);
    // }
     // Pause the task for 5000ms

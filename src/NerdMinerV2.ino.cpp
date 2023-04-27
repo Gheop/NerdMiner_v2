@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <WebServer.h>
+//#include <WebServer.h>
+#include <WiFiManager.h>
+
 #include <esp_task_wdt.h>
 #include <TFT_eSPI.h> // Graphics and font library
 
@@ -8,12 +10,31 @@
 #include "media/images.h"
 #include "media/myFonts.h"
 #include "OpenFontRender.h"
-#include "wManager.h"
-#include "mining.h"
+#include "config.h"
+//#include "mining.h"
 #include "time.h"
 //3 seconds WDT
 #define WDT_TIMEOUT 3
 
+
+// //  #ifdef __cplusplus
+// //   extern "C" {
+// //  #endif
+
+// //   uint8_t temprature_sens_read();
+
+// // #ifdef __cplusplus
+// // }
+// // #endif
+
+// //uint8_t temprature_sens_read();
+
+// temperature_sensor_handle_t temp_handle = NULL;
+// temperature_sensor_config_t temp_sensor = {
+//     .range_min = 20,
+//     .range_max = 50,
+// };
+// ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor, &temp_handle));
 
 OpenFontRender render;
 
@@ -36,6 +57,25 @@ char timeHour[3];
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 
+#include <WiFi.h>
+
+// Replace with your network credentials (STATION)
+// const char* ssid = "GHEOP";
+// const char* password = "00C0FFEE00";
+
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
+
+void initWiFi() {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PWD);
+  Serial.print("Connecting to WiFi ..");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print('.');
+    delay(1000);
+  }
+  Serial.println(WiFi.localIP());
+}
 
 void checkScreenButton()
 {
@@ -43,7 +83,7 @@ void checkScreenButton()
   {
     screenOff = !digitalRead(TFT_BL);
     digitalWrite(TFT_BL, screenOff);
-    lastButton2Press = millis();
+    previousMillis =  lastButton2Press = millis();
   }
  
 }
@@ -68,9 +108,9 @@ void setup()
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
 
-  // Setup the button
-  pinMode(PIN_BUTTON_1, INPUT);
-  attachInterrupt(PIN_BUTTON_1, checkResetConfigButton, FALLING);
+  // // Setup the button
+  // pinMode(PIN_BUTTON_1, INPUT);
+  // attachInterrupt(PIN_BUTTON_1, checkResetConfigButton, FALLING);
 
   pinMode(PIN_BUTTON_2, INPUT_PULLUP);
   attachInterrupt(PIN_BUTTON_2, checkScreenButton, FALLING);
@@ -78,6 +118,11 @@ void setup()
   /******** INIT DISPLAY ************/
   tft.init();
   tft.setRotation(1);
+  if(!SPIFFS.begin()) {
+    Serial.println("SPIFFS initialisation failed!");
+  }
+  Serial.println("Initialisation done!");
+  delay(5000);
   tft.setSwapBytes(true);// Swap the colour byte order when rendering
   background.createSprite(initWidth,initHeight); //Background Sprite
   background.setSwapBytes(true);
@@ -87,7 +132,7 @@ void setup()
   // Load the font and check it can be read OK
   //if (render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold))) {
   if (render.loadFont(DigitalNumbers, sizeof(DigitalNumbers))){
-    Serial.println("Initialise error");
+    Serial.println("Initialise font error");
     return;
   }
   
@@ -95,10 +140,13 @@ void setup()
   tft.fillScreen(TFT_BLACK);
   tft.pushImage(0, 0, initWidth, initHeight, initScreen);
 
-  delay(2000);
+  //delay(2000);
+  initWiFi();
+  Serial.print("RSSI: ");
+  Serial.println(WiFi.RSSI());
 
   /******** INIT WIFI ************/
-  init_WifiManager();
+  //init_WifiManager();
   
   /******** CREATE TASK TO PRINT SCREEN *****/
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
@@ -120,8 +168,9 @@ void setup()
     Serial.printf("Starting %s %s!\n", name, res == pdPASS? "successful":"failed");
   }
 
-  startScreen = 8;
-  stopScreen = 20;
+  // startScreen = 8;
+  // stopScreen = 20;
+
 }
 
 int getHour()
@@ -146,36 +195,35 @@ void app_error_fault_handler(void *arg) {
   esp_restart();
 }
 
-unsigned long nowmillis = millis();
-
 void loop()
 {
+  unsigned long currentMillis = millis();
 
-  wifiManagerProcess(); // avoid delays() in loop when non-blocking and other long running code
-
-  int newStatus = WiFi.status();
-  if (newStatus != oldStatus)
-  {
-    if (newStatus == WL_CONNECTED)
-    {
-      Serial.println("CONNECTED - Current ip: " + WiFi.localIP().toString());
-    }
-    else
-    {
-      Serial.print("[Error] - current status: ");
-      Serial.println(newStatus);
-    }
-    oldStatus = newStatus;
+  if(previousMillis + interval  < currentMillis) {
+     // Enable temperature sensor
+// ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+// // Get converted sensor data
+// float tsens_out;
+// ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+// printf("Temperature in %f °C\n", tsens_out);
+// // Disable the temperature sensor if it's not needed and save the power
+// ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+  
+  // // Convert raw temperature in F to Celsius degrees
+  Serial.print("Internal Temperature : ");
+  Serial.print(temperatureRead());
+  Serial.println("°C");
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
+    
   }
 
-  checkRemoveConfiguration();
-
-  if (nowmillis + 60000 < millis())
-  {
-    nowmillis = millis();
     int hour = getHour();
     Serial.println("Hour:"+String(hour));
-    if (screenOff != LOW && (hour < startScreen || hour >= stopScreen))
+    if (screenOff != LOW && (hour < 8 || hour >= 20))
     {
       digitalWrite(TFT_BL, LOW);
     }
@@ -183,5 +231,6 @@ void loop()
     {
       digitalWrite(TFT_BL, screenOff);
     }
+    previousMillis = currentMillis;
   }
 }
