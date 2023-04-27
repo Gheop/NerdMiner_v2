@@ -16,26 +16,6 @@
 //3 seconds WDT
 #define WDT_TIMEOUT 3
 
-
-// //  #ifdef __cplusplus
-// //   extern "C" {
-// //  #endif
-
-// //   uint8_t temprature_sens_read();
-
-// // #ifdef __cplusplus
-// // }
-// // #endif
-
-// //uint8_t temprature_sens_read();
-
-// temperature_sensor_handle_t temp_handle = NULL;
-// temperature_sensor_config_t temp_sensor = {
-//     .range_min = 20,
-//     .range_max = 50,
-// };
-// ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor, &temp_handle));
-
 OpenFontRender render;
 
 /**********************⚡ GLOBAL Vars *******************************/
@@ -59,10 +39,6 @@ static unsigned long lastButton2Press = 0;
 
 #include <WiFi.h>
 
-// Replace with your network credentials (STATION)
-// const char* ssid = "GHEOP";
-// const char* password = "00C0FFEE00";
-
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
@@ -72,7 +48,7 @@ void initWiFi() {
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
-    delay(1000);
+    delay(500);
   }
   Serial.println(WiFi.localIP());
 }
@@ -88,19 +64,16 @@ void checkScreenButton()
  
 }
 
-//void runMonitor(void *name);
-
-/********* INIT *****/
 void setup()
 {
   Serial.begin(115200);
   Serial.println("------------------------\n| Hello #TeamNerdMiner |\n------------------------\n\n");
-  //test power on the screen
-  // pinMode(PIN_POWER_ON, OUTPUT);
-  // digitalWrite(PIN_POWER_ON, HIGH);
+  //battery on
+  pinMode(PIN_POWER_ON, OUTPUT);
+  digitalWrite(PIN_POWER_ON, HIGH);
 
   Serial.setTimeout(0);
-  delay(100);
+ // delay(100);
 
   // Idle task that would reset WDT never runs, because core 0 gets fully utilized
   disableCore0WDT();
@@ -118,11 +91,7 @@ void setup()
   /******** INIT DISPLAY ************/
   tft.init();
   tft.setRotation(1);
-  if(!SPIFFS.begin()) {
-    Serial.println("SPIFFS initialisation failed!");
-  }
-  Serial.println("Initialisation done!");
-  delay(5000);
+  //SPIFFS.begin();
   tft.setSwapBytes(true);// Swap the colour byte order when rendering
   background.createSprite(initWidth,initHeight); //Background Sprite
   background.setSwapBytes(true);
@@ -144,9 +113,6 @@ void setup()
   initWiFi();
   Serial.print("RSSI: ");
   Serial.println(WiFi.RSSI());
-
-  /******** INIT WIFI ************/
-  //init_WifiManager();
   
   /******** CREATE TASK TO PRINT SCREEN *****/
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
@@ -167,10 +133,6 @@ void setup()
     BaseType_t res = xTaskCreate(runWorker, name, 30000, (void*)name, 1, NULL);
     Serial.printf("Starting %s %s!\n", name, res == pdPASS? "successful":"failed");
   }
-
-  // startScreen = 8;
-  // stopScreen = 20;
-
 }
 
 int getHour()
@@ -185,13 +147,8 @@ int getHour()
 }
 
 void app_error_fault_handler(void *arg) {
-  // Get stack errors
   char *stack = (char *)arg;
-
-  // Print the stack errors in the console
   esp_log_write(ESP_LOG_ERROR, "APP_ERROR", "Pila de errores:\n%s", stack);
-
-  // restart ESP32
   esp_restart();
 }
 
@@ -200,19 +157,6 @@ void loop()
   unsigned long currentMillis = millis();
 
   if(previousMillis + interval  < currentMillis) {
-     // Enable temperature sensor
-// ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
-// // Get converted sensor data
-// float tsens_out;
-// ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
-// printf("Temperature in %f °C\n", tsens_out);
-// // Disable the temperature sensor if it's not needed and save the power
-// ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
-  
-  // // Convert raw temperature in F to Celsius degrees
-  Serial.print("Internal Temperature : ");
-  Serial.print(temperatureRead());
-  Serial.println("°C");
   if (WiFi.status() != WL_CONNECTED) {
     Serial.print(millis());
     Serial.println("Reconnecting to WiFi...");
@@ -220,7 +164,6 @@ void loop()
     WiFi.reconnect();
     
   }
-
     int hour = getHour();
     Serial.println("Hour:"+String(hour));
     if (screenOff != LOW && (hour < 8 || hour >= 20))

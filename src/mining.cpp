@@ -8,10 +8,7 @@
 #include "mbedtls/md.h"
 #include "OpenFontRender.h"
 #include "config.h"
-//#include "media/images.h"
 #include "media/myFonts.h"
-//#include "OpenFontRender.h"
-// #include "wManager.h"
 
 
 #define TARGET_BUFFER_SIZE 64
@@ -541,7 +538,7 @@ void runMonitor(void *name)
         render.drawString(String(valids).c_str(), 281, 55, TFT_GOLD);
         render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold));
         render.setFontSize(12);
-        render.rdrawString(String(POOL_WORKER).c_str(), 110, 4, TFT_GOLD);
+        render.rdrawString((String("Mineur de ")+String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
         render.rdrawString(tmp.c_str(), 292, 3, TFT_RED);
 
 
