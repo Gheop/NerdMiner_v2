@@ -7,8 +7,8 @@ The main aim of this project is to let you **learn more about minery** and to ha
 
 
 Original project https://github.com/valerio-vaccaro/HAN
+![image](images/IMG_8746.jpg)
 
-![video](images/FuZ7BFXWIAAmLTu.gif)
 
 ## Requirements
 - TTGO T-Display S3
