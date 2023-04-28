@@ -33,7 +33,8 @@ unsigned long start = millis();
 
 char timeHour[3];
 char timeMin[3];
-
+String tmp;
+String hourString;
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 
@@ -166,8 +167,9 @@ void loop()
   }
   getHour();
     int hour = String(timeHour).toInt();
-
-    Serial.println("Hour "+String(timeHour)+":"+String(timeMin));
+    tmp = String(temperatureRead(), 0) + String(" C");
+    hourString = String(timeHour)+String(":")+String(timeMin);
+    //Serial.println("Hour "+hourString);
     if (screenOff != LOW && (hour < 8 || hour >= 20))
     {
       digitalWrite(TFT_BL, LOW);
