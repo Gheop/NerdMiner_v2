@@ -118,10 +118,9 @@ void runWorker(void *name) {
 
   Serial.println("");
   Serial.printf("\n[WORKER] Started. Running %s on core %d\n", (char *)name, xPortGetCoreID());
-  Serial.printf("### [Total Heap / Free heap]: %d / %d \n", ESP.getHeapSize(), ESP.getFreeHeap());
+  ;Serial.printf("### [Total Heap / Free heap]: %d / %d \n", ESP.getHeapSize(), ESP.getFreeHeap());
   
-  //String ADDRESS = "bc1qpa4jyf26xd89dpsvdy98cjquklz3jj4axr0pkl";
-
+  String ADDRESS = BTC_ADDRESS;
   mbedtls_md_context_t ctx;
   // connect to pool
   WiFiClient client;
@@ -132,7 +131,7 @@ void runWorker(void *name) {
 
   while(true) {
       
-   // if(WiFi.status() != WL_CONNECTED) continue;
+    if(WiFi.status() != WL_CONNECTED) continue;
 
     // get template
     DynamicJsonDocument doc(4 * 1024);
@@ -142,7 +141,7 @@ void runWorker(void *name) {
       continue;
     }
     // STEP 1: Pool server connection
-    payload = "{\"id\": "+ String(id++) +", \"method\": \"mining.subscribe\", \"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + POOL_PWD + "\"]}\n";
+    payload = "{\"id\": "+ String(id++) +", \"method\": \"mining.subscribe\", \"params\": [\"" + ADDRESS + "\", \"" + POOL_PWD + "\"]}\n";
     Serial.printf("[WORKER] %s ==> Mining subscribe\n", (char *)name);
     Serial.print("  Sending  : "); Serial.println(payload);
     client.print(payload.c_str());
@@ -170,7 +169,7 @@ void runWorker(void *name) {
     }
   
     // STEP 2: Pool authorize work
-    payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + POOL_PWD + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.authorize\"}\n";
+    payload = "{\"params\": [\"" + ADDRESS + "\", \"" + POOL_PWD + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.authorize\"}\n";
     Serial.printf("[WORKER] %s ==> Autorize work\n", (char *)name);
     Serial.print("  Sending  : "); Serial.println(payload);
     client.print(payload.c_str());
@@ -457,7 +456,7 @@ void runWorker(void *name) {
               vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
             // STEP 3: Submit mining job
-            payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
+            payload = "{\"params\": [\"" + ADDRESS + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
             Serial.print("  Sending  : "); Serial.println(payload);
             client.print(payload.c_str());
             line = client.readStringUntil('\n');
@@ -484,7 +483,7 @@ void runWorker(void *name) {
         Serial.printf("[WORKER] %s SUBMITING WORK... MAX Nonce reached > MAX_NONCE\n", (char *)name);
         // STEP 3: Submit mining job
         if (client.connect(POOL_URL, POOL_PORT)) {
-          payload = "{\"params\": [\"" + POOL_ADDRESS_WORKER + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
+          payload = "{\"params\": [\"" + ADDRESS + "\", \"" + job_id + "\", \"" + extranonce2 + "\", \"" + ntime + "\", \"" + String(nonce, HEX) + "\"], \"id\": "+ String(id++) +", \"method\": \"mining.submit\"}";
           Serial.print("  Sending  : "); Serial.println(payload);
           client.print(payload.c_str());
           Serial.print("  Receiving: "); Serial.println(client.readStringUntil('\n'));
@@ -494,7 +493,7 @@ void runWorker(void *name) {
           client.stop();
         }
     }
-    //uint32_t duration = micros() - startT;
+    uint32_t duration = micros() - startT;
   }
   mbedtls_md_free(&ctx);
 }
@@ -516,7 +515,7 @@ void runMonitor(void *name)
 //    unsigned long mElapsed = millis() - mStart;
     unsigned long secElapsed = (millis() - mStart) / 1000;
     unsigned long totalKHashes = (Mhashes * 1000) + hashes / 1000;
-    char hashrate[6] = {0};
+    char hashrate[10] = {0};
     sprintf(hashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
     Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
                   shares, totalKHashes, hashrate);

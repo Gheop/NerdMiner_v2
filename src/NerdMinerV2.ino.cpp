@@ -142,9 +142,7 @@ void getHour()
   {
     strftime(timeHour,3, "%H", &timeinfo);
     strftime(timeMin,3, "%M", &timeinfo);
- // return String(timeHour).toInt();
   }
-  else {}
 }
 
 void app_error_fault_handler(void *arg) {
@@ -165,8 +163,9 @@ void loop()
     WiFi.reconnect();
     
   }
-  getHour();
+    getHour();
     int hour = String(timeHour).toInt();
+    //int hour = 12;
     tmp = String(temperatureRead(), 0) + String(" C");
     hourString = String(timeHour)+String(":")+String(timeMin);
     //Serial.println("Hour "+hourString);
