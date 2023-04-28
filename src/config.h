@@ -1,15 +1,17 @@
 #pragma once
 
 //my BTC address
-#define BTC_ADDRESS "bc1abcde....."
+#define BTC_ADDRESS "bc1xxx"
 
 // Pool
 #define POOL_URL "51.81.56.15" //"solo.ckpool.org" //"btc.zsolo.bid" "eu.stratum.slushpool.com"
 #define POOL_PORT String("3333").toInt()  //6057 //3333
+//#define POOL_URL "23.94.107.214" //"btc.zsolo.bid" // "eu.stratum.slushpool.com"
+//#define POOL_PORT String("6057").toInt()  //6057 //3333
 #define POOL_PWD "x"
-#define POOL_WORKER "worker1"
+#define POOL_WORKER "esp32"
 
-#define POOL_ADDRESS_WORKER String(BTC_ADDRESS+"."+POOL_WORKER)
+#define POOL_ADDRESS_WORKER String(BTC_ADDRESS) //+"."+POOL_WORKER)
 
 
 
