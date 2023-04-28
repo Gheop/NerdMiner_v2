@@ -32,7 +32,7 @@ int oldStatus = 0;
 unsigned long start = millis();
 
 char timeHour[3];
-//char timeMin[3];
+char timeMin[3];
 
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
@@ -119,7 +119,6 @@ void setup()
   // Higher prio monitor task
   Serial.println("");
 
-  //const char* ntpServer = "pool.ntp.org";
   configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", "pool.ntp.org");
   Serial.println("Initiating tasks...");
   xTaskCreate(runMonitor, "Monitor", 5000, NULL, 4, NULL);
@@ -135,15 +134,16 @@ void setup()
   }
 }
 
-int getHour()
+void getHour()
 {
   struct tm timeinfo;
-  if(!getLocalTime(&timeinfo))
+  if(getLocalTime(&timeinfo))
   {
-    return -1;
+    strftime(timeHour,3, "%H", &timeinfo);
+    strftime(timeMin,3, "%M", &timeinfo);
+ // return String(timeHour).toInt();
   }
-  strftime(timeHour,3, "%H", &timeinfo);
-  return String(timeHour).toInt();
+  else {}
 }
 
 void app_error_fault_handler(void *arg) {
@@ -164,8 +164,10 @@ void loop()
     WiFi.reconnect();
     
   }
-    int hour = getHour();
-    Serial.println("Hour:"+String(hour));
+  getHour();
+    int hour = String(timeHour).toInt();
+
+    Serial.println("Hour "+String(timeHour)+":"+String(timeMin));
     if (screenOff != LOW && (hour < 8 || hour >= 20))
     {
       digitalWrite(TFT_BL, LOW);

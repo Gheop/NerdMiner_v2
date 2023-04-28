@@ -23,6 +23,8 @@ int valids; // increased if blockhash <= target
 
 extern OpenFontRender render;
 extern TFT_eSprite background;
+extern char timeHour[3];
+extern char timeMin[3];
 
 bool checkHalfShare(unsigned char* hash) {
   //bool valid = true;
@@ -540,6 +542,7 @@ void runMonitor(void *name)
         render.setFontSize(12);
         render.rdrawString((String("Mineur de ")+String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
         render.rdrawString(tmp.c_str(), 292, 3, TFT_RED);
+        render.drawString((String(timeHour)+String(":")+String(timeMin)).c_str(), 165, 3, 0xDEDB);
 
 
         background.pushSprite(0, 0);
