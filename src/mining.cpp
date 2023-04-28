@@ -23,8 +23,10 @@ int valids; // increased if blockhash <= target
 
 extern OpenFontRender render;
 extern TFT_eSprite background;
-extern char timeHour[3];
-extern char timeMin[3];
+// extern char timeHour[3];
+// extern char timeMin[3];
+extern String tmp;
+extern String hourString;
 
 bool checkHalfShare(unsigned char* hash) {
   //bool valid = true;
@@ -518,10 +520,6 @@ void runMonitor(void *name)
     sprintf(hashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
     Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
                   shares, totalKHashes, hashrate);
-    String tmp = String(temperatureRead(), 0) + String(" C");
-    // char msg[42] = {0};
-    // sprintf(msg, "%s", "Mineur de Théo !");
-    //tmp.concat("°C");
         background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
         render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
         render.setFontSize(70);
@@ -542,7 +540,7 @@ void runMonitor(void *name)
         render.setFontSize(12);
         render.rdrawString((String("Mineur de ")+String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
         render.rdrawString(tmp.c_str(), 292, 3, TFT_RED);
-        render.drawString((String(timeHour)+String(":")+String(timeMin)).c_str(), 165, 3, 0xDEDB);
+        render.drawString((hourString).c_str(), 165, 3, 0xDEDB);
 
 
         background.pushSprite(0, 0);
