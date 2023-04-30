@@ -1,17 +1,13 @@
 #include <Arduino.h>
 #include <WiFi.h>
-//#include <WebServer.h>
 #include <WiFiManager.h>
-
 #include <esp_task_wdt.h>
 #include <TFT_eSPI.h> // Graphics and font library
-
 #include "mbedtls/md.h"
 #include "media/images.h"
 #include "media/myFonts.h"
 #include "OpenFontRender.h"
 #include "config.h"
-//#include "mining.h"
 #include "time.h"
 //3 seconds WDT
 #define WDT_TIMEOUT 3
