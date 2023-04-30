@@ -38,8 +38,6 @@ String hourString;
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 
-#include <WiFi.h>
-
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 

@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <WiFiManager.h>
 #include <algorithm>
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
 #include "media/Free_Fonts.h"
@@ -512,19 +513,33 @@ void runMonitor(void *name)
   //      if (digitalRead(TFT_BL) != LOW)
    // {
 
-//    unsigned long mElapsed = millis() - mStart;
+   unsigned long mElapsed = millis() - mStart;
     unsigned long secElapsed = (millis() - mStart) / 1000;
     unsigned long totalKHashes = (Mhashes * 1000) + hashes / 1000;
-    char hashrate[10] = {0};
-    sprintf(hashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
+    char myhashrate[19] = {0};
+    sprintf(myhashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
     Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
-                  shares, totalKHashes, hashrate);
+                  shares, totalKHashes, myhashrate);
+
+    // unsigned long mElapsed = millis()-mStart;
+    // unsigned long totalKHashes = (Mhashes*1000) + hashes/1000; 
+    // //Serial.println("[runMonitor Task] -> Printing results on screen ");
+    // Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %.3f KH/s\n",
+    //   shares, totalKHashes, (1.0*(totalKHashes*1000))/mElapsed);
+
+    // //Hashrate
+    // render.setFontSize(70);
+    // render.setCursor(19, 118);
+    // render.setFontColor(TFT_BLACK);
+    // char tmp[10] = {0};
+    // sprintf(tmp, "%.2f", (1.0*(totalKHashes*1000))/mElapsed);
+
         background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
         render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
         render.setFontSize(70);
         render.setCursor(19, 118);
         render.setFontColor(TFT_BLACK);
-        render.rdrawString(hashrate, 118, 114, TFT_BLACK);
+        render.rdrawString(myhashrate, 118, 114, TFT_BLACK);
         render.setFontSize(36);
         render.rdrawString(String(Mhashes).c_str(), 268, 138, TFT_BLACK);
         render.drawString(String(templates).c_str(), 186, 17, 0xDEDB);
