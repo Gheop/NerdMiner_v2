@@ -107,9 +107,10 @@ void runWorker(void *name) {
   while(true) {
       
     if(WiFi.status() != WL_CONNECTED) {
-         WiFi.disconnect();
-    WiFi.reconnect();
-    delay(5000);
+     Serial.print(millis());
+     Serial.println("Reconnecting to WiFi...");
+     WiFi.disconnect();
+     WiFi.reconnect();
       continue;
     }
 
