@@ -106,7 +106,12 @@ void runWorker(void *name) {
 
   while(true) {
       
-    if(WiFi.status() != WL_CONNECTED) continue;
+    if(WiFi.status() != WL_CONNECTED) {
+         WiFi.disconnect();
+    WiFi.reconnect();
+    delay(5000);
+      continue;
+    }
 
     // get template
     DynamicJsonDocument doc(4 * 1024);
@@ -605,6 +610,6 @@ void runMonitor(void *name)
         background.pushSprite(0, 0);
    // }
     // Pause the task for 5000ms
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
