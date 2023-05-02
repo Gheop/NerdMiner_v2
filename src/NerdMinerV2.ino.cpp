@@ -72,7 +72,8 @@ void setup()
 
   // Idle task that would reset WDT never runs, because core 0 gets fully utilized
   disableCore0WDT();
-  
+  disableCore1WDT();
+
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
 
