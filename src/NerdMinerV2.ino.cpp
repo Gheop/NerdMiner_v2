@@ -179,4 +179,7 @@ void loop()
     }
     previousMillis = currentMillis;
   }
+
+    //Run miner on main core when there is time --Currently on test
+  runMiner();
 }
