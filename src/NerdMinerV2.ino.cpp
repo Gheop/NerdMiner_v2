@@ -151,13 +151,13 @@ void loop()
   unsigned long currentMillis = millis();
 
   if(previousMillis + interval  < currentMillis) {
-  // if (WiFi.status() != WL_CONNECTED) {
-  //   Serial.print(millis());
-  //   Serial.println("Reconnecting to WiFi...");
-  //   WiFi.disconnect();
-  //   WiFi.reconnect();
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
     
-  // }
+  }
     getHour();
     int hour = String(timeHour).toInt();
     //int hour = 12;
