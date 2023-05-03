@@ -34,11 +34,11 @@ String hourString;
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 
-unsigned long previousMillis = 0;
 unsigned long interval = 30000;
+unsigned long previousMillis = millis()+interval;
 
 void initWiFi() {
-  WiFi.mode(WIFI_STA);
+  //WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PWD);
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
@@ -155,9 +155,18 @@ void loop()
     Serial.print(millis());
     Serial.println("Reconnecting to WiFi...");
     WiFi.disconnect();
+    delay(5000);
     WiFi.reconnect();
+    delay(5000);
     
   }
+    long rssi = WiFi.RSSI();
+
+
+  Serial.print("signal strength (RSSI):");
+
+
+  Serial.println(rssi);
     getHour();
     int hour = String(timeHour).toInt();
     //int hour = 12;
