@@ -25,8 +25,6 @@ bool enableGlobalHash = false;
 
 extern OpenFontRender render;
 extern TFT_eSprite background;
-// extern char timeHour[3];
-// extern char timeMin[3];
 extern String tmp;
 extern String hourString;
 
@@ -656,7 +654,7 @@ void runMonitor(void *name)
                   shares, totalKHashes, myhashrate);
 
     background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
-    render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
+    //render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
     render.setFontSize(70);
     render.setCursor(19, 118);
     render.setFontColor(TFT_BLACK);
@@ -671,11 +669,11 @@ void runMonitor(void *name)
     render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
     render.setFontSize(48);
     render.drawString(String(valids).c_str(), 281, 55, TFT_GOLD);
-    render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold));
-    render.setFontSize(12);
-    render.rdrawString((String("Mineur de ") + String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
-    render.rdrawString(tmp.c_str(), 292, 3, TFT_RED);
-    render.drawString((hourString).c_str(), 165, 3, 0xDEDB);
+    //render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold));
+    render.setFontSize(18);
+    // render.rdrawString((String("Mineur de ") + String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
+    render.rdrawString(String(tmp).c_str(), 292, 3, TFT_RED);
+    render.drawString(String(hourString).c_str(), 165, 3, 0xDEDB);
 
     background.pushSprite(0, 0);
     // }

@@ -35,7 +35,7 @@ int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
 
 unsigned long interval = 30000;
-unsigned long previousMillis = millis()+interval;
+unsigned long previousMillis = millis()-interval;
 
 void initWiFi() {
   //WiFi.mode(WIFI_STA);
@@ -62,17 +62,17 @@ void checkScreenButton()
 void setup()
 {
   Serial.begin(115200);
+  Serial.setTimeout(0);
+
   Serial.println("------------------------\n| Hello #TeamNerdMiner |\n------------------------\n\n");
   //battery on
   pinMode(PIN_POWER_ON, OUTPUT);
   digitalWrite(PIN_POWER_ON, HIGH);
 
-  Serial.setTimeout(0);
- // delay(100);
 
   // Idle task that would reset WDT never runs, because core 0 gets fully utilized
-  disableCore0WDT();
-  disableCore1WDT();
+  //disableCore0WDT();
+  //disableCore1WDT();
 
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
@@ -110,12 +110,14 @@ void setup()
   Serial.print("RSSI: ");
   Serial.println(WiFi.RSSI());
   
+  configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", "pool.ntp.org");
+
+
+
   /******** CREATE TASK TO PRINT SCREEN *****/
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
   // Higher prio monitor task
   Serial.println("");
-
-  configTzTime("CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", "pool.ntp.org");
   Serial.println("Initiating tasks...");
   xTaskCreate(runMonitor, "Monitor", 5000, NULL, 4, NULL);
 
