@@ -1,7 +1,7 @@
 //#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <WiFiManager.h>
+//#include <WiFiManager.h>
 //#include <algorithm>
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
 //#include "media/Free_Fonts.h"
