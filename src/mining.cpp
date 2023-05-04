@@ -1,16 +1,16 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <WiFiManager.h>
-#include <algorithm>
+//#include <algorithm>
 #include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
-#include "media/Free_Fonts.h"
+//#include "media/Free_Fonts.h"
 #include "media/images.h"
 #include "mbedtls/md.h"
 #include "mbedtls/sha256.h"
 #include "OpenFontRender.h"
 #include "config.h"
-#include "media/myFonts.h"
+//#include "media/myFonts.h"
 
 #define TARGET_BUFFER_SIZE 64
 
