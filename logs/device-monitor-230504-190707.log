@@ -1,0 +1,1788 @@
+19:07:08.312 > Connecting to WiFi ........192.168.0.226
+19:07:10.517 > RSSI: -89
+19:07:10.517 > 
+19:07:10.517 > Initiating tasks...
+19:07:10.517 > [MONITOR] started
+19:07:10.517 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate nan KH/s
+19:07:10.517 > Starting (0) successful!
+19:07:10.518 > 
+19:07:10.518 > 
+19:07:10.518 > [WORKER] Started. Running (0) on core 0
+19:07:10.518 > ### [Total Heap / Free heap]: 351320 / 250156 
+19:07:10.568 > signal strength (RSSI):-89
+19:07:11.568 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:12.613 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:13.657 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:14.701 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:15.744 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:16.799 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:17.844 > >>> Completed 0 share(s), 0 Khashes, avg. hashrate 0.00 KH/s
+19:07:18.323 > [WORKER] (0) ==> Mining subscribe
+19:07:18.323 >   Sending  : {"id": 1, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:07:18.323 > 
+19:07:18.542 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQCSV"],["mining.notify","0HMQ5LR8VQCSV"]],"800940ec",4],"error":null,"id":1}
+19:07:18.543 >     sub_details: 0HMQ5LR8VQCSV
+19:07:18.543 >     extranonce1: 800940ec
+19:07:18.543 >     extranonce2_size: 4
+19:07:18.543 >     error: 0
+19:07:18.544 > [WORKER] (0) ==> Autorize work
+19:07:18.544 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 2, "method": "mining.authorize"}
+19:07:18.544 > 
+19:07:18.548 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132a0","e04c6df98992a8e36b095a7ae28b9ed27d81e24704609c850000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff140389120c043ee6536400","016800000000013e944525000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["191a8999f6ba2ca60ae0e84c524c9dfcddf64749b5b158765bf4d5f16488d501","7c89dd636719c7a96c7cfcab524bdd0b1ea8d467adb8cab12f1d650c47cd6ec5","397730a089e1c7fd606a5c9f9afb1c0232cfcd53d8d44b111b3e3a3df78b9a3c","f11836665347495fad905df92d7cf75442918f3b50c74ae188174784bc02cbe1","15b40e5b362a0faf5081735f6a605c0e8b63c6f41d35f0ee87a55867dc56df8e","c00e9a71c6aa591f7fe1c43424db6e66d4f4fc613d86cb08ea8d75edb4c95726","04e0a443b7ec6ab0fd18a6a24b9198619dbf88230440f9c6e6a4ec0d047731bd","c721227e3204e7c2546b3323e948a0abb60f603610b19f1f156783d138222f97"],"20000000","18060300","6453e63e",false],"id":null}
+19:07:18.550 >   Receiving: {"result":true,"error":null,"id":2}
+19:07:18.585 >   Receiving: 
+19:07:19.587 >     job_id: 000132a0
+19:07:19.587 >     prevhash: e04c6df98992a8e36b095a7ae28b9ed27d81e24704609c850000000000000000
+19:07:19.587 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff140389120c043ee6536400
+19:07:19.587 >     coinb2: 016800000000013e944525000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:07:19.587 >     merkle_branch size: 8
+19:07:19.587 >     version: 20000000
+19:07:19.587 >     nbits: 18060300
+19:07:19.587 >     ntime: 6453e63e
+19:07:19.587 >     clean_jobs: 0
+19:07:19.587 >     target: 0000000000000000000060300000000000000000000000000000000000000000�
+19:07:19.587 >     extranonce2: 3a148e67
+19:07:19.588 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff140389120c043ee6536400800940ec3a148e67016800000000013e944525000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:07:19.588 >     coinbase bytes - size: 106
+19:07:19.588 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 89 12 0c 04 3e e6 53 64 00 80 09 40 ec 3a 14 8e 67 60 16 80 00 00 00 00 13 e9 44 52 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:07:19.590 >     coinbase double sha: 6df4cd2acd64a2890ad0091d4a5cf557e013f36766ca535d8129ed9d3c116787
+19:07:19.591 >     merkle element    0: 191a8999f6ba2ca60ae0e84c524c9dfcddf64749b5b158765bf4d5f16488d501
+19:07:19.591 >     merkle element    0: 191a8999f6ba2ca60ae0e84c524c9dfcddf64749b5b158765bf4d5f16488d501
+19:07:19.591 >     merkle concatenated: 6df4cd2acd64a2890ad0091d4a5cf557e013f36766ca535d8129ed9d3c116787191a8999f6ba2ca60ae0e84c524c9dfcddf64749b5b158765bf4d5f16488d501
+19:07:19.592 >     merkle sha         : ed96ac3cd0bf668dcd9df2c46f46939695c48aa1e2fcca174c288443dfaca0fe
+19:07:19.592 >     merkle element    1: 7c89dd636719c7a96c7cfcab524bdd0b1ea8d467adb8cab12f1d650c47cd6ec5
+19:07:19.593 >     merkle element    1: 7c89dd636719c7a96c7cfcab524bdd0b1ea8d467adb8cab12f1d650c47cd6ec5
+19:07:19.593 >     merkle concatenated: ed96ac3cd0bf668dcd9df2c46f46939695c48aa1e2fcca174c288443dfaca0fe7c89dd636719c7a96c7cfcab524bdd0b1ea8d467adb8cab12f1d650c47cd6ec5
+19:07:19.593 >     merkle sha         : 5064dc04d9ae38db1d11bdfd730da19af7b27dac7b4b5bfc5e95faa068a04a93
+19:07:19.594 >     merkle element    2: 397730a089e1c7fd606a5c9f9afb1c0232cfcd53d8d44b111b3e3a3df78b9a3c
+19:07:19.594 >     merkle element    2: 397730a089e1c7fd606a5c9f9afb1c0232cfcd53d8d44b111b3e3a3df78b9a3c
+19:07:19.595 >     merkle concatenated: 5064dc04d9ae38db1d11bdfd730da19af7b27dac7b4b5bfc5e95faa068a04a93397730a089e1c7fd606a5c9f9afb1c0232cfcd53d8d44b111b3e3a3df78b9a3c
+19:07:19.595 >     merkle sha         : 6fc2fb3dba85891accc81c553eeafb9784065dc183c1b0b49234e437aad91da0
+19:07:19.596 >     merkle element    3: f11836665347495fad905df92d7cf75442918f3b50c74ae188174784bc02cbe1
+19:07:19.596 >     merkle element    3: f11836665347495fad905df92d7cf75442918f3b50c74ae188174784bc02cbe1
+19:07:19.596 >     merkle concatenated: 6fc2fb3dba85891accc81c553eeafb9784065dc183c1b0b49234e437aad91da0f11836665347495fad905df92d7cf75442918f3b50c74ae188174784bc02cbe1
+19:07:19.597 >     merkle sha         : 221db77ac0a189f832ba2a483f29c6ba9d603a89321c695e7366126c99691289
+19:07:19.597 >     merkle element    4: 15b40e5b362a0faf5081735f6a605c0e8b63c6f41d35f0ee87a55867dc56df8e
+19:07:19.598 >     merkle element    4: 15b40e5b362a0faf5081735f6a605c0e8b63c6f41d35f0ee87a55867dc56df8e
+19:07:19.598 >     merkle concatenated: 221db77ac0a189f832ba2a483f29c6ba9d603a89321c695e7366126c9969128915b40e5b362a0faf5081735f6a605c0e8b63c6f41d35f0ee87a55867dc56df8e
+19:07:19.598 >     merkle sha         : 960f1adfac10365793d4199864f1c1a582af3a582ca21b6f19a11d8da5ac98c5
+19:07:19.599 >     merkle element    5: c00e9a71c6aa591f7fe1c43424db6e66d4f4fc613d86cb08ea8d75edb4c95726
+19:07:19.599 >     merkle element    5: c00e9a71c6aa591f7fe1c43424db6e66d4f4fc613d86cb08ea8d75edb4c95726
+19:07:19.599 >     merkle concatenated: 960f1adfac10365793d4199864f1c1a582af3a582ca21b6f19a11d8da5ac98c5c00e9a71c6aa591f7fe1c43424db6e66d4f4fc613d86cb08ea8d75edb4c95726
+19:07:19.600 >     merkle sha         : 43e5394fd0a2a6895b402920f10d84edd987f9dbbd484f17b9ac5e5e45b40c52
+19:07:19.601 >     merkle element    6: 04e0a443b7ec6ab0fd18a6a24b9198619dbf88230440f9c6e6a4ec0d047731bd
+19:07:19.601 >     merkle element    6: 04e0a443b7ec6ab0fd18a6a24b9198619dbf88230440f9c6e6a4ec0d047731bd
+19:07:19.601 >     merkle concatenated: 43e5394fd0a2a6895b402920f10d84edd987f9dbbd484f17b9ac5e5e45b40c5204e0a443b7ec6ab0fd18a6a24b9198619dbf88230440f9c6e6a4ec0d047731bd
+19:07:19.602 >     merkle sha         : ebd76c47c46957bbcd7692e5b5dc0976be465fc087c7934a8c599d2cbf2e33c2
+19:07:19.603 >     merkle element    7: c721227e3204e7c2546b3323e948a0abb60f603610b19f1f156783d138222f97
+19:07:19.603 >     merkle element    7: c721227e3204e7c2546b3323e948a0abb60f603610b19f1f156783d138222f97
+19:07:19.603 >     merkle concatenated: ebd76c47c46957bbcd7692e5b5dc0976be465fc087c7934a8c599d2cbf2e33c2c721227e3204e7c2546b3323e948a0abb60f603610b19f1f156783d138222f97
+19:07:19.604 >     merkle sha         : 098b9efdb3492f3eabeb2461c0f2030048cc6896a45a3120b761d006faa02992
+19:07:19.604 >     merkle sha         : 098b9efdb3492f3eabeb2461c0f2030048cc6896a45a3120b761d006faa02992
+19:07:19.605 >     blockheader bytes 
+19:07:19.605 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:07:19.605 > version
+19:07:19.605 > 00000020
+19:07:19.605 > prev hash
+19:07:19.605 > e04c6df98992a8e36b095a7ae28b9ed27d81e24704609c850000000000000000
+19:07:19.605 > merkle root
+19:07:19.606 > 9229a0fa06d061b720315aa49668cc480003f2c06124ebab3e2f49b3fd9e8b09
+19:07:19.607 > time
+19:07:19.607 > 18060300
+19:07:19.607 > difficulty
+19:07:19.607 > 3ee65364
+19:07:19.607 > nonce
+19:07:19.607 > 00000000
+19:07:19.607 > >>> STARTING TO HASH NONCES
+19:07:19.944 > >>> Completed 0 share(s), 7 Khashes, avg. hashrate 0.78 KH/s
+19:07:20.996 > >>> Completed 0 share(s), 30 Khashes, avg. hashrate 3.00 KH/s
+19:07:23.285 > >>> Completed 0 share(s), 53 Khashes, avg. hashrate 4.82 KH/s
+19:07:23.285 > >>> Completed 0 share(s), 76 Khashes, avg. hashrate 6.33 KH/s
+19:07:24.142 > >>> Completed 0 share(s), 98 Khashes, avg. hashrate 7.54 KH/s
+19:07:25.191 > >>> Completed 0 share(s), 121 Khashes, avg. hashrate 8.64 KH/s
+19:07:26.238 > >>> Completed 0 share(s), 144 Khashes, avg. hashrate 9.60 KH/s
+19:07:27.287 > >>> Completed 0 share(s), 167 Khashes, avg. hashrate 10.44 KH/s
+19:07:29.384 > >>> Completed 0 share(s), 190 Khashes, avg. hashrate 11.18 KH/s
+19:07:29.384 > >>> Completed 0 share(s), 213 Khashes, avg. hashrate 11.83 KH/s
+19:07:31.479 > >>> Completed 0 share(s), 236 Khashes, avg. hashrate 12.42 KH/s
+19:07:31.479 > >>> Completed 0 share(s), 258 Khashes, avg. hashrate 12.90 KH/s
+19:07:33.574 > >>> Completed 0 share(s), 281 Khashes, avg. hashrate 12.77 KH/s
+19:07:33.574 > >>> Completed 0 share(s), 304 Khashes, avg. hashrate 13.22 KH/s
+19:07:35.669 > >>> Completed 0 share(s), 327 Khashes, avg. hashrate 13.62 KH/s
+19:07:35.669 > >>> Completed 0 share(s), 350 Khashes, avg. hashrate 14.00 KH/s
+19:07:37.765 > >>> Completed 0 share(s), 373 Khashes, avg. hashrate 14.35 KH/s
+19:07:37.765 > >>> Completed 0 share(s), 396 Khashes, avg. hashrate 14.67 KH/s
+19:07:39.860 > >>> Completed 0 share(s), 419 Khashes, avg. hashrate 14.96 KH/s
+19:07:39.860 > >>> Completed 0 share(s), 442 Khashes, avg. hashrate 15.24 KH/s
+19:07:41.955 > >>> Completed 0 share(s), 464 Khashes, avg. hashrate 15.47 KH/s
+19:07:41.955 > >>> Completed 0 share(s), 487 Khashes, avg. hashrate 15.71 KH/s
+19:07:44.050 > >>> Completed 0 share(s), 510 Khashes, avg. hashrate 15.94 KH/s
+19:07:44.050 > >>> Completed 0 share(s), 533 Khashes, avg. hashrate 16.15 KH/s
+19:07:46.147 > >>> Completed 0 share(s), 556 Khashes, avg. hashrate 16.35 KH/s
+19:07:46.147 > >>> Completed 0 share(s), 579 Khashes, avg. hashrate 16.54 KH/s
+19:07:48.243 > >>> Completed 0 share(s), 602 Khashes, avg. hashrate 16.72 KH/s
+19:07:48.243 > >>> Completed 0 share(s), 625 Khashes, avg. hashrate 16.89 KH/s
+19:07:50.339 > >>> Completed 0 share(s), 647 Khashes, avg. hashrate 17.03 KH/s
+19:07:50.339 > >>> Completed 0 share(s), 670 Khashes, avg. hashrate 17.18 KH/s
+19:07:52.435 > >>> Completed 0 share(s), 693 Khashes, avg. hashrate 17.32 KH/s
+19:07:52.435 > >>> Completed 0 share(s), 716 Khashes, avg. hashrate 17.46 KH/s
+19:07:54.531 > >>> Completed 0 share(s), 739 Khashes, avg. hashrate 17.60 KH/s
+19:07:54.531 > >>> Completed 0 share(s), 762 Khashes, avg. hashrate 17.32 KH/s
+19:07:56.627 > >>> Completed 0 share(s), 785 Khashes, avg. hashrate 17.44 KH/s
+19:07:56.627 > >>> Completed 0 share(s), 808 Khashes, avg. hashrate 17.57 KH/s
+19:07:58.723 > >>> Completed 0 share(s), 831 Khashes, avg. hashrate 17.68 KH/s
+19:07:58.723 > >>> Completed 0 share(s), 853 Khashes, avg. hashrate 17.77 KH/s
+19:08:00.820 > >>> Completed 0 share(s), 876 Khashes, avg. hashrate 17.88 KH/s
+19:08:00.820 > >>> Completed 0 share(s), 899 Khashes, avg. hashrate 17.98 KH/s
+19:08:02.916 > >>> Completed 0 share(s), 922 Khashes, avg. hashrate 18.08 KH/s
+19:08:02.916 > >>> Completed 0 share(s), 945 Khashes, avg. hashrate 18.17 KH/s
+19:08:05.013 > >>> Completed 0 share(s), 968 Khashes, avg. hashrate 18.26 KH/s
+19:08:05.013 > >>> Completed 0 share(s), 991 Khashes, avg. hashrate 18.35 KH/s
+19:08:06.061 > >>> Completed 0 share(s), 1014 Khashes, avg. hashrate 18.44 KH/s
+19:08:07.109 > >>> Completed 0 share(s), 1037 Khashes, avg. hashrate 18.52 KH/s
+19:08:08.156 > >>> Completed 0 share(s), 1059 Khashes, avg. hashrate 18.58 KH/s
+19:08:09.206 > >>> Completed 0 share(s), 1082 Khashes, avg. hashrate 18.66 KH/s
+19:08:10.254 > >>> Completed 0 share(s), 1105 Khashes, avg. hashrate 18.73 KH/s
+19:08:11.302 > >>> Completed 0 share(s), 1128 Khashes, avg. hashrate 18.80 KH/s
+19:08:12.350 > >>> Completed 0 share(s), 1151 Khashes, avg. hashrate 18.87 KH/s
+19:08:13.397 > >>> Completed 0 share(s), 1174 Khashes, avg. hashrate 18.94 KH/s
+19:08:13.445 > signal strength (RSSI):-89
+19:08:14.445 > >>> Completed 0 share(s), 1196 Khashes, avg. hashrate 18.98 KH/s
+19:08:15.497 > >>> Completed 0 share(s), 1219 Khashes, avg. hashrate 19.05 KH/s
+19:08:16.544 > >>> Completed 0 share(s), 1242 Khashes, avg. hashrate 18.82 KH/s
+19:08:17.592 > >>> Completed 0 share(s), 1265 Khashes, avg. hashrate 18.88 KH/s
+19:08:18.640 > >>> Completed 0 share(s), 1288 Khashes, avg. hashrate 18.94 KH/s
+19:08:19.688 > >>> Completed 0 share(s), 1311 Khashes, avg. hashrate 19.00 KH/s
+19:08:20.733 > >>> Completed 0 share(s), 1333 Khashes, avg. hashrate 19.04 KH/s
+19:08:21.781 > >>> Completed 0 share(s), 1356 Khashes, avg. hashrate 19.10 KH/s
+19:08:22.830 > >>> Completed 0 share(s), 1379 Khashes, avg. hashrate 19.15 KH/s
+19:08:23.877 > >>> Completed 0 share(s), 1402 Khashes, avg. hashrate 19.21 KH/s
+19:08:24.925 > >>> Completed 0 share(s), 1425 Khashes, avg. hashrate 19.26 KH/s
+19:08:25.974 > >>> Completed 0 share(s), 1448 Khashes, avg. hashrate 19.31 KH/s
+19:08:27.021 > >>> Completed 0 share(s), 1470 Khashes, avg. hashrate 19.34 KH/s
+19:08:28.069 > >>> Completed 0 share(s), 1493 Khashes, avg. hashrate 19.39 KH/s
+19:08:29.117 > >>> Completed 0 share(s), 1516 Khashes, avg. hashrate 19.44 KH/s
+19:08:30.165 > >>> Completed 0 share(s), 1539 Khashes, avg. hashrate 19.48 KH/s
+19:08:31.214 > >>> Completed 0 share(s), 1562 Khashes, avg. hashrate 19.52 KH/s
+19:08:32.261 > >>> Completed 0 share(s), 1585 Khashes, avg. hashrate 19.57 KH/s
+19:08:33.309 > >>> Completed 0 share(s), 1608 Khashes, avg. hashrate 19.61 KH/s
+19:08:34.357 > >>> Completed 0 share(s), 1630 Khashes, avg. hashrate 19.64 KH/s
+19:08:35.405 > 
+19:08:36.453 > >>> Completed 0 share(s), 1676 Khashes, avg. hashrate 19.72 KH/s
+19:08:37.501 > >>> Completed 0 share(s), 1699 Khashes, avg. hashrate 19.76 KH/s
+19:08:38.549 > >>> Completed 0 share(s), 1722 Khashes, avg. hashrate 19.57 KH/s
+19:08:39.597 > >>> Completed 0 share(s), 1745 Khashes, avg. hashrate 19.61 KH/s
+19:08:40.645 > >>> Completed 0 share(s), 1768 Khashes, avg. hashrate 19.64 KH/s
+19:08:41.693 > >>> Completed 0 share(s), 1791 Khashes, avg. hashrate 19.68 KH/s
+19:08:42.741 > >>> Completed 0 share(s), 1814 Khashes, avg. hashrate 19.72 KH/s
+19:08:43.789 > >>> Completed 0 share(s), 1836 Khashes, avg. hashrate 19.74 KH/s
+19:08:44.837 > >>> Completed 0 share(s), 1859 Khashes, avg. hashrate 19.78 KH/s
+19:08:45.885 > >>> Completed 0 share(s), 1882 Khashes, avg. hashrate 19.81 KH/s
+19:08:46.933 > >>> Completed 0 share(s), 1905 Khashes, avg. hashrate 19.84 KH/s
+19:08:47.981 > >>> Completed 0 share(s), 1928 Khashes, avg. hashrate 19.88 KH/s
+19:08:49.029 > >>> Completed 0 share(s), 1951 Khashes, avg. hashrate 19.91 KH/s
+19:08:50.077 > >>> Completed 0 share(s), 1974 Khashes, avg. hashrate 19.94 KH/s
+19:08:50.125 > signal strength (RSSI):-87
+19:08:51.125 > >>> Completed 0 share(s), 1997 Khashes, avg. hashrate 19.97 KH/s
+19:08:52.174 > >>> Completed 0 share(s), 2019 Khashes, avg. hashrate 19.99 KH/s
+19:08:53.222 > >>> Completed 0 share(s), 2042 Khashes, avg. hashrate 20.02 KH/s
+19:08:54.270 > >>> Completed 0 share(s), 2065 Khashes, avg. hashrate 20.05 KH/s
+19:08:55.318 > >>> Completed 0 share(s), 2088 Khashes, avg. hashrate 20.08 KH/s
+19:08:56.367 > >>> Completed 0 share(s), 2111 Khashes, avg. hashrate 20.10 KH/s
+19:08:57.415 > >>> Completed 0 share(s), 2134 Khashes, avg. hashrate 20.13 KH/s
+19:08:58.463 > >>> Completed 0 share(s), 2157 Khashes, avg. hashrate 20.16 KH/s
+19:08:59.511 > >>> Completed 0 share(s), 2180 Khashes, avg. hashrate 20.19 KH/s
+19:09:00.560 > >>> Completed 0 share(s), 2203 Khashes, avg. hashrate 20.03 KH/s
+19:09:01.608 > >>> Completed 0 share(s), 2225 Khashes, avg. hashrate 20.05 KH/s
+19:09:02.656 > >>> Completed 0 share(s), 2248 Khashes, avg. hashrate 20.07 KH/s
+19:09:03.704 > >>> Completed 0 share(s), 2271 Khashes, avg. hashrate 20.10 KH/s
+19:09:04.752 > >>> Completed 0 share(s), 2294 Khashes, avg. hashrate 20.12 KH/s
+19:09:05.800 > >>> Completed 0 share(s), 2317 Khashes, avg. hashrate 20.15 KH/s
+19:09:06.848 > >>> Completed 0 share(s), 2340 Khashes, avg. hashrate 20.17 KH/s
+19:09:07.896 > >>> Completed 0 share(s), 2363 Khashes, avg. hashrate 20.20 KH/s
+19:09:08.944 > >>> Completed 0 share(s), 2386 Khashes, avg. hashrate 20.22 KH/s
+19:09:09.992 > >>> Completed 0 share(s), 2409 Khashes, avg. hashrate 20.24 KH/s
+19:09:11.040 > >>> Completed 0 share(s), 2431 Khashes, avg. hashrate 20.26 KH/s
+19:09:12.087 > >>> Completed 0 share(s), 2454 Khashes, avg. hashrate 20.28 KH/s
+19:09:13.135 > >>> Completed 0 share(s), 2477 Khashes, avg. hashrate 20.30 KH/s
+19:09:14.183 > >>> Completed 0 share(s), 2500 Khashes, avg. hashrate 20.33 KH/s
+19:09:15.231 > >>> Completed 0 share(s), 2523 Khashes, avg. hashrate 20.35 KH/s
+19:09:16.280 > >>> Completed 0 share(s), 2546 Khashes, avg. hashrate 20.37 KH/s
+19:09:17.328 > >>> Completed 0 share(s), 2569 Khashes, avg. hashrate 20.39 KH/s
+19:09:18.376 > >>> Completed 0 share(s), 2591 Khashes, avg. hashrate 20.40 KH/s
+19:09:19.424 > >>> Completed 0 share(s), 2614 Khashes, avg. hashrate 20.42 KH/s
+19:09:20.469 > >>> Completed 0 share(s), 2636 Khashes, avg. hashrate 20.43 KH/s
+19:09:21.517 > >>> Completed 0 share(s), 2659 Khashes, avg. hashrate 20.30 KH/s
+19:09:22.565 > >>> Completed 0 share(s), 2682 Khashes, avg. hashrate 20.32 KH/s
+19:09:23.613 > >>> Completed 0 share(s), 2705 Khashes, avg. hashrate 20.34 KH/s
+19:09:24.661 > >>> Completed 0 share(s), 2728 Khashes, avg. hashrate 20.36 KH/s
+19:09:25.709 > >>> Completed 0 share(s), 2751 Khashes, avg. hashrate 20.38 KH/s
+19:09:26.757 > >>> Completed 0 share(s), 2774 Khashes, avg. hashrate 20.40 KH/s
+19:09:27.805 > >>> Completed 0 share(s), 2797 Khashes, avg. hashrate 20.42 KH/s
+19:09:28.853 > >>> Completed 0 share(s), 2819 Khashes, avg. hashrate 20.43 KH/s
+19:09:29.901 > >>> Completed 0 share(s), 2842 Khashes, avg. hashrate 20.45 KH/s
+19:09:29.949 > signal strength (RSSI):-82
+19:09:30.949 > >>> Completed 0 share(s), 2865 Khashes, avg. hashrate 20.46 KH/s
+19:09:31.996 > >>> Completed 0 share(s), 2888 Khashes, avg. hashrate 20.48 KH/s
+19:09:33.044 > >>> Completed 0 share(s), 2911 Khashes, avg. hashrate 20.50 KH/s
+19:09:34.092 > >>> Completed 0 share(s), 2934 Khashes, avg. hashrate 20.52 KH/s
+19:09:35.140 > >>> Completed 0 share(s), 2957 Khashes, avg. hashrate 20.53 KH/s
+19:09:36.189 > >>> Completed 0 share(s), 2979 Khashes, avg. hashrate 20.54 KH/s
+19:09:37.237 > >>> Completed 0 share(s), 3002 Khashes, avg. hashrate 20.56 KH/s
+19:09:38.285 > >>> Completed 0 share(s), 3025 Khashes, avg. hashrate 20.58 KH/s
+19:09:39.333 > >>> Completed 0 share(s), 3048 Khashes, avg. hashrate 20.59 KH/s
+19:09:40.381 > >>> Completed 0 share(s), 3071 Khashes, avg. hashrate 20.61 KH/s
+19:09:40.599 > [WORKER] (0) ==> Mining subscribe
+19:09:40.599 >   Sending  : {"id": 3, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:09:40.599 > 
+19:09:40.627 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQD43"],["mining.notify","0HMQ5LR8VQD43"]],"8009415e",4],"error":null,"id":3}
+19:09:40.629 >     sub_details: 0HMQ5LR8VQD43
+19:09:40.629 >     extranonce1: 8009415e
+19:09:40.629 >     extranonce2_size: 4
+19:09:40.629 >     error: 0
+19:09:40.629 > [WORKER] (0) ==> Autorize work
+19:09:40.630 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 4, "method": "mining.authorize"}
+19:09:40.630 > 
+19:09:40.638 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132af","e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04d1e6536400","01680000000001dddf4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["9f50a7befd1ee14f95c62a582f929e95e43e09c91b57ba01ecefbc1cca783331","7cc9e92f1341e9a188ed431f4c6c848f057701bbadc94af6ab1b59589cff0894","20ec91edae01a84b9ac5d20cf14b77f0a429f2336d857e16ca8747b3a8497e45","6a04df912ef1d9edb820232e05f91440cf6d4ac8759133127ecf303b1dc8279c","9319bd285a3baaf59ba24fd1b6208419da36ea49b76a6b5c33227e7b3828d337"],"20000000","18060564","6453e6d1",false],"id":null}
+19:09:40.639 >   Receiving: {"result":true,"error":null,"id":4}
+19:09:40.661 >   Receiving: >>> Completed 0 share(s), 3079 Khashes, avg. hashrate 20.53 KH/s
+19:09:41.660 > 
+19:09:41.662 >     job_id: 000132af
+19:09:41.662 >     prevhash: e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:09:41.662 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04d1e6536400
+19:09:41.663 >     coinb2: 01680000000001dddf4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:09:41.663 >     merkle_branch size: 5
+19:09:41.663 >     version: 20000000
+19:09:41.663 >     nbits: 18060564
+19:09:41.663 >     ntime: 6453e6d1
+19:09:41.663 >     clean_jobs: 0
+19:09:41.663 >     target: 0000000000000000000060564000000000000000000000000000000000000000�
+19:09:41.663 >     extranonce2: 685962fb
+19:09:41.663 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04d1e65364008009415e685962fb01680000000001dddf4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:09:41.663 >     coinbase bytes - size: 106
+19:09:41.664 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8a 12 0c 04 d1 e6 53 64 00 80 09 41 5e 68 59 62 fb 60 16 80 00 00 00 00 1d dd f4 02 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:09:41.665 >     coinbase double sha: a942caa5f5a16ca105f32e308d1aa4957338e98645beffb70617a91667e336e9
+19:09:41.666 >     merkle element    0: 9f50a7befd1ee14f95c62a582f929e95e43e09c91b57ba01ecefbc1cca783331
+19:09:41.666 >     merkle element    0: 9f50a7befd1ee14f95c62a582f929e95e43e09c91b57ba01ecefbc1cca783331
+19:09:41.666 >     merkle concatenated: a942caa5f5a16ca105f32e308d1aa4957338e98645beffb70617a91667e336e99f50a7befd1ee14f95c62a582f929e95e43e09c91b57ba01ecefbc1cca783331
+19:09:41.667 >     merkle sha         : f678a6e87a5b81f3dc3294339d9eb884a4ce225c96f2eb4010ddb25959c998e1
+19:09:41.668 >     merkle element    1: 7cc9e92f1341e9a188ed431f4c6c848f057701bbadc94af6ab1b59589cff0894
+19:09:41.668 >     merkle element    1: 7cc9e92f1341e9a188ed431f4c6c848f057701bbadc94af6ab1b59589cff0894
+19:09:41.668 >     merkle concatenated: f678a6e87a5b81f3dc3294339d9eb884a4ce225c96f2eb4010ddb25959c998e17cc9e92f1341e9a188ed431f4c6c848f057701bbadc94af6ab1b59589cff0894
+19:09:41.669 >     merkle sha         : 555d7d35bae2c757485b42811193318d434e5ff835663c99cebd0492810c56da
+19:09:41.669 >     merkle element    2: 20ec91edae01a84b9ac5d20cf14b77f0a429f2336d857e16ca8747b3a8497e45
+19:09:41.670 >     merkle element    2: 20ec91edae01a84b9ac5d20cf14b77f0a429f2336d857e16ca8747b3a8497e45
+19:09:41.670 >     merkle concatenated: 555d7d35bae2c757485b42811193318d434e5ff835663c99cebd0492810c56da20ec91edae01a84b9ac5d20cf14b77f0a429f2336d857e16ca8747b3a8497e45
+19:09:41.671 >     merkle sha         : a93be3eb4aa9c54c9aab546d38634cd2a02d30919fe608af9f9ada84cdf50eec
+19:09:41.671 >     merkle element    3: 6a04df912ef1d9edb820232e05f91440cf6d4ac8759133127ecf303b1dc8279c
+19:09:41.671 >     merkle element    3: 6a04df912ef1d9edb820232e05f91440cf6d4ac8759133127ecf303b1dc8279c
+19:09:41.672 >     merkle concatenated: a93be3eb4aa9c54c9aab546d38634cd2a02d30919fe608af9f9ada84cdf50eec6a04df912ef1d9edb820232e05f91440cf6d4ac8759133127ecf303b1dc8279c
+19:09:41.672 >     merkle sha         : 04ad74418d2e2577ce19f7143291d0c1bf5b323e9c381cc2e0970196ac4b920c
+19:09:41.674 >     merkle element    4: 9319bd285a3baaf59ba24fd1b6208419da36ea49b76a6b5c33227e7b3828d337
+19:09:41.674 >     merkle element    4: 9319bd285a3baaf59ba24fd1b6208419da36ea49b76a6b5c33227e7b3828d337
+19:09:41.674 >     merkle concatenated: 04ad74418d2e2577ce19f7143291d0c1bf5b323e9c381cc2e0970196ac4b920c9319bd285a3baaf59ba24fd1b6208419da36ea49b76a6b5c33227e7b3828d337
+19:09:41.674 >     merkle sha         : a4c1eb4d9c2a283ff3734df11c8ef42c751295a4e2c7364eb2e32c9ae097179a
+19:09:41.675 >     merkle sha         : a4c1eb4d9c2a283ff3734df11c8ef42c751295a4e2c7364eb2e32c9ae097179a
+19:09:41.675 >     blockheader bytes 
+19:09:41.676 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:09:41.676 > version
+19:09:41.676 > 00000020
+19:09:41.676 > prev hash
+19:09:41.676 > e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:09:41.676 > merkle root
+19:09:41.676 > 9a1797e09a2ce3b24e36c7e2a49512752cf48e1cf14d73f33f282a9c4debc1a4
+19:09:41.677 > time
+19:09:41.677 > 18060564
+19:09:41.677 > difficulty
+19:09:41.677 > d1e65364
+19:09:41.677 > nonce
+19:09:41.677 > 00000000
+19:09:41.677 > >>> STARTING TO HASH NONCES
+19:09:42.477 > >>> Completed 0 share(s), 3097 Khashes, avg. hashrate 20.51 KH/s
+19:09:43.525 > >>> Completed 0 share(s), 3120 Khashes, avg. hashrate 20.39 KH/s
+19:09:44.573 > >>> Completed 0 share(s), 3143 Khashes, avg. hashrate 20.41 KH/s
+19:09:45.621 > >>> Completed 0 share(s), 3166 Khashes, avg. hashrate 20.43 KH/s
+19:09:46.669 > >>> Completed 0 share(s), 3188 Khashes, avg. hashrate 20.44 KH/s
+19:09:47.718 > >>> Completed 0 share(s), 3211 Khashes, avg. hashrate 20.45 KH/s
+19:09:48.766 > >>> Completed 0 share(s), 3234 Khashes, avg. hashrate 20.47 KH/s
+19:09:49.814 > >>> Completed 0 share(s), 3257 Khashes, avg. hashrate 20.48 KH/s
+19:09:50.862 > >>> Completed 0 share(s), 3280 Khashes, avg. hashrate 20.50 KH/s
+19:09:51.911 > >>> Completed 0 share(s), 3303 Khashes, avg. hashrate 20.52 KH/s
+19:09:52.959 > >>> Completed 0 share(s), 3326 Khashes, avg. hashrate 20.53 KH/s
+19:09:54.007 > >>> Completed 0 share(s), 3349 Khashes, avg. hashrate 20.55 KH/s
+19:09:55.055 > >>> Completed 0 share(s), 3372 Khashes, avg. hashrate 20.56 KH/s
+19:09:56.100 > >>> Completed 0 share(s), 3394 Khashes, avg. hashrate 20.57 KH/s
+19:09:57.148 > >>> Completed 0 share(s), 3417 Khashes, avg. hashrate 20.58 KH/s
+19:09:58.196 > >>> Completed 0 share(s), 3439 Khashes, avg. hashrate 20.59 KH/s
+19:09:59.244 > >>> Completed 0 share(s), 3462 Khashes, avg. hashrate 20.61 KH/s
+19:10:00.292 > >>> Completed 0 share(s), 3485 Khashes, avg. hashrate 20.62 KH/s
+19:10:01.340 > >>> Completed 0 share(s), 3508 Khashes, avg. hashrate 20.64 KH/s
+19:10:01.388 > signal strength (RSSI):-87
+19:10:02.388 > >>> Completed 0 share(s), 3531 Khashes, avg. hashrate 20.65 KH/s
+19:10:03.438 > >>> Completed 0 share(s), 3554 Khashes, avg. hashrate 20.66 KH/s
+19:10:04.488 > >>> Completed 0 share(s), 3577 Khashes, avg. hashrate 20.68 KH/s
+19:10:05.535 > >>> Completed 0 share(s), 3600 Khashes, avg. hashrate 20.57 KH/s
+19:10:06.584 > >>> Completed 0 share(s), 3623 Khashes, avg. hashrate 20.59 KH/s
+19:10:07.633 > >>> Completed 0 share(s), 3646 Khashes, avg. hashrate 20.60 KH/s
+19:10:08.680 > >>> Completed 0 share(s), 3668 Khashes, avg. hashrate 20.61 KH/s
+19:10:09.728 > >>> Completed 0 share(s), 3691 Khashes, avg. hashrate 20.62 KH/s
+19:10:10.777 > >>> Completed 0 share(s), 3714 Khashes, avg. hashrate 20.63 KH/s
+19:10:11.823 > >>> Completed 0 share(s), 3737 Khashes, avg. hashrate 20.65 KH/s
+19:10:12.871 > >>> Completed 0 share(s), 3759 Khashes, avg. hashrate 20.65 KH/s
+19:10:13.918 > >>> Completed 0 share(s), 3782 Khashes, avg. hashrate 20.67 KH/s
+19:10:14.966 > >>> Completed 0 share(s), 3805 Khashes, avg. hashrate 20.68 KH/s
+19:10:16.015 > >>> Completed 0 share(s), 3828 Khashes, avg. hashrate 20.69 KH/s
+19:10:17.062 > >>> Completed 0 share(s), 3851 Khashes, avg. hashrate 20.70 KH/s
+19:10:18.110 > >>> Completed 0 share(s), 3874 Khashes, avg. hashrate 20.72 KH/s
+19:10:19.158 > >>> Completed 0 share(s), 3897 Khashes, avg. hashrate 20.73 KH/s
+19:10:20.206 > >>> Completed 0 share(s), 3920 Khashes, avg. hashrate 20.74 KH/s
+19:10:21.255 > >>> Completed 0 share(s), 3943 Khashes, avg. hashrate 20.75 KH/s
+19:10:22.302 > >>> Completed 0 share(s), 3965 Khashes, avg. hashrate 20.76 KH/s
+19:10:23.351 > >>> Completed 0 share(s), 3988 Khashes, avg. hashrate 20.77 KH/s
+19:10:24.400 > >>> Completed 0 share(s), 4011 Khashes, avg. hashrate 20.78 KH/s
+19:10:25.448 > >>> Completed 0 share(s), 4034 Khashes, avg. hashrate 20.79 KH/s
+19:10:26.495 > >>> Completed 0 share(s), 4057 Khashes, avg. hashrate 20.81 KH/s
+19:10:27.544 > >>> Completed 0 share(s), 4080 Khashes, avg. hashrate 20.71 KH/s
+19:10:28.592 > >>> Completed 0 share(s), 4103 Khashes, avg. hashrate 20.72 KH/s
+19:10:29.640 > >>> Completed 0 share(s), 4126 Khashes, avg. hashrate 20.73 KH/s
+19:10:30.688 > >>> Completed 0 share(s), 4149 Khashes, avg. hashrate 20.75 KH/s
+19:10:31.738 > >>> Completed 0 share(s), 4172 Khashes, avg. hashrate 20.76 KH/s
+19:10:32.786 > >>> Completed 0 share(s), 4194 Khashes, avg. hashrate 20.76 KH/s
+19:10:33.834 > >>> Completed 0 share(s), 4217 Khashes, avg. hashrate 20.77 KH/s
+19:10:34.881 > >>> Completed 0 share(s), 4240 Khashes, avg. hashrate 20.78 KH/s
+19:10:35.929 > >>> Completed 0 share(s), 4263 Khashes, avg. hashrate 20.80 KH/s
+19:10:36.978 > >>> Completed 0 share(s), 4286 Khashes, avg. hashrate 20.81 KH/s
+19:10:38.025 > >>> Completed 0 share(s), 4309 Khashes, avg. hashrate 20.82 KH/s
+19:10:38.074 > signal strength (RSSI):-84
+19:10:39.074 > >>> Completed 0 share(s), 4332 Khashes, avg. hashrate 20.83 KH/s
+19:10:40.122 > >>> Completed 0 share(s), 4355 Khashes, avg. hashrate 20.84 KH/s
+19:10:41.170 > >>> Completed 0 share(s), 4378 Khashes, avg. hashrate 20.85 KH/s
+19:10:42.218 > >>> Completed 0 share(s), 4401 Khashes, avg. hashrate 20.86 KH/s
+19:10:43.266 > >>> Completed 0 share(s), 4423 Khashes, avg. hashrate 20.86 KH/s
+19:10:44.315 > >>> Completed 0 share(s), 4446 Khashes, avg. hashrate 20.87 KH/s
+19:10:45.363 > >>> Completed 0 share(s), 4469 Khashes, avg. hashrate 20.88 KH/s
+19:10:46.412 > >>> Completed 0 share(s), 4492 Khashes, avg. hashrate 20.89 KH/s
+19:10:47.461 > >>> Completed 0 share(s), 4515 Khashes, avg. hashrate 20.90 KH/s
+19:10:48.509 > >>> Completed 0 share(s), 4538 Khashes, avg. hashrate 20.91 KH/s
+19:10:49.557 > >>> Completed 0 share(s), 4561 Khashes, avg. hashrate 20.83 KH/s
+19:10:50.605 > >>> Completed 0 share(s), 4584 Khashes, avg. hashrate 20.84 KH/s
+19:10:51.654 > >>> Completed 0 share(s), 4607 Khashes, avg. hashrate 20.85 KH/s
+19:10:52.702 > >>> Completed 0 share(s), 4629 Khashes, avg. hashrate 20.85 KH/s
+19:10:53.750 > >>> Completed 0 share(s), 4652 Khashes, avg. hashrate 20.86 KH/s
+19:10:54.799 > >>> Completed 0 share(s), 4675 Khashes, avg. hashrate 20.87 KH/s
+19:10:55.847 > >>> Completed 0 share(s), 4698 Khashes, avg. hashrate 20.88 KH/s
+19:10:56.896 > >>> Completed 0 share(s), 4721 Khashes, avg. hashrate 20.89 KH/s
+19:10:57.944 > >>> Completed 0 share(s), 4744 Khashes, avg. hashrate 20.90 KH/s
+19:10:58.991 > >>> Completed 0 share(s), 4766 Khashes, avg. hashrate 20.90 KH/s
+19:11:00.040 > >>> Completed 0 share(s), 4789 Khashes, avg. hashrate 20.91 KH/s
+19:11:01.088 > >>> Completed 0 share(s), 4812 Khashes, avg. hashrate 20.92 KH/s
+19:11:02.136 > >>> Completed 0 share(s), 4835 Khashes, avg. hashrate 20.93 KH/s
+19:11:03.185 > >>> Completed 0 share(s), 4858 Khashes, avg. hashrate 20.94 KH/s
+19:11:04.233 > >>> Completed 0 share(s), 4881 Khashes, avg. hashrate 20.95 KH/s
+19:11:05.281 > >>> Completed 0 share(s), 4904 Khashes, avg. hashrate 20.96 KH/s
+19:11:06.329 > >>> Completed 0 share(s), 4927 Khashes, avg. hashrate 20.97 KH/s
+19:11:07.378 > >>> Completed 0 share(s), 4950 Khashes, avg. hashrate 20.97 KH/s
+19:11:08.426 > >>> Completed 0 share(s), 4973 Khashes, avg. hashrate 20.98 KH/s
+19:11:09.474 > >>> Completed 0 share(s), 4995 Khashes, avg. hashrate 20.99 KH/s
+19:11:10.522 > >>> Completed 0 share(s), 5018 Khashes, avg. hashrate 20.91 KH/s
+19:11:11.570 > >>> Completed 0 share(s), 5041 Khashes, avg. hashrate 20.92 KH/s
+19:11:12.618 > >>> Completed 0 share(s), 5064 Khashes, avg. hashrate 20.93 KH/s
+19:11:13.666 > >>> Completed 0 share(s), 5087 Khashes, avg. hashrate 20.93 KH/s
+19:11:14.714 > >>> Completed 0 share(s), 5110 Khashes, avg. hashrate 20.94 KH/s
+19:11:15.762 > >>> Completed 0 share(s), 5133 Khashes, avg. hashrate 20.95 KH/s
+19:11:16.810 > >>> Completed 0 share(s), 5156 Khashes, avg. hashrate 20.96 KH/s
+19:11:17.858 > >>> Completed 0 share(s), 5178 Khashes, avg. hashrate 20.96 KH/s
+19:11:17.907 > signal strength (RSSI):-86
+19:11:18.906 > >>> Completed 0 share(s), 5201 Khashes, avg. hashrate 20.97 KH/s
+19:11:19.954 > >>> Completed 0 share(s), 5224 Khashes, avg. hashrate 20.98 KH/s
+19:11:21.002 > >>> Completed 0 share(s), 5247 Khashes, avg. hashrate 20.99 KH/s
+19:11:22.050 > >>> Completed 0 share(s), 5270 Khashes, avg. hashrate 21.00 KH/s
+19:11:23.095 > >>> Completed 0 share(s), 5292 Khashes, avg. hashrate 21.00 KH/s
+19:11:24.143 > >>> Completed 0 share(s), 5315 Khashes, avg. hashrate 21.01 KH/s
+19:11:25.191 > >>> Completed 0 share(s), 5338 Khashes, avg. hashrate 21.02 KH/s
+19:11:26.239 > >>> Completed 0 share(s), 5361 Khashes, avg. hashrate 21.02 KH/s
+19:11:27.287 > >>> Completed 0 share(s), 5384 Khashes, avg. hashrate 21.03 KH/s
+19:11:28.335 > >>> Completed 0 share(s), 5407 Khashes, avg. hashrate 21.04 KH/s
+19:11:29.383 > >>> Completed 0 share(s), 5430 Khashes, avg. hashrate 21.05 KH/s
+19:11:30.431 > >>> Completed 0 share(s), 5452 Khashes, avg. hashrate 21.05 KH/s
+19:11:31.479 > >>> Completed 0 share(s), 5475 Khashes, avg. hashrate 21.06 KH/s
+19:11:32.527 > >>> Completed 0 share(s), 5498 Khashes, avg. hashrate 20.98 KH/s
+19:11:33.576 > >>> Completed 0 share(s), 5521 Khashes, avg. hashrate 20.99 KH/s
+19:11:34.625 > >>> Completed 0 share(s), 5544 Khashes, avg. hashrate 21.00 KH/s
+19:11:35.673 > >>> Completed 0 share(s), 5567 Khashes, avg. hashrate 21.01 KH/s
+19:11:36.721 > >>> Completed 0 share(s), 5590 Khashes, avg. hashrate 21.02 KH/s
+19:11:37.769 > >>> Completed 0 share(s), 5613 Khashes, avg. hashrate 21.02 KH/s
+19:11:38.818 > >>> Completed 0 share(s), 5636 Khashes, avg. hashrate 21.03 KH/s
+19:11:39.866 > >>> Completed 0 share(s), 5659 Khashes, avg. hashrate 21.04 KH/s
+19:11:40.914 > >>> Completed 0 share(s), 5681 Khashes, avg. hashrate 21.04 KH/s
+19:11:41.962 > >>> Completed 0 share(s), 5704 Khashes, avg. hashrate 21.05 KH/s
+19:11:43.007 > >>> Completed 0 share(s), 5726 Khashes, avg. hashrate 21.05 KH/s
+19:11:44.055 > >>> Completed 0 share(s), 5749 Khashes, avg. hashrate 21.06 KH/s
+19:11:45.103 > >>> Completed 0 share(s), 5772 Khashes, avg. hashrate 21.07 KH/s
+19:11:46.151 > >>> Completed 0 share(s), 5795 Khashes, avg. hashrate 21.07 KH/s
+19:11:47.199 > >>> Completed 0 share(s), 5818 Khashes, avg. hashrate 21.08 KH/s
+19:11:48.247 > >>> Completed 0 share(s), 5841 Khashes, avg. hashrate 21.09 KH/s
+19:11:49.295 > >>> Completed 0 share(s), 5864 Khashes, avg. hashrate 21.09 KH/s
+19:11:50.343 > >>> Completed 0 share(s), 5887 Khashes, avg. hashrate 21.10 KH/s
+19:11:51.391 > >>> Completed 0 share(s), 5910 Khashes, avg. hashrate 21.11 KH/s
+19:11:52.439 > >>> Completed 0 share(s), 5933 Khashes, avg. hashrate 21.11 KH/s
+19:11:53.487 > >>> Completed 0 share(s), 5956 Khashes, avg. hashrate 21.12 KH/s
+19:11:54.535 > >>> Completed 0 share(s), 5978 Khashes, avg. hashrate 21.05 KH/s
+19:11:55.583 > >>> Completed 0 share(s), 6001 Khashes, avg. hashrate 21.06 KH/s
+19:11:56.631 > >>> Completed 0 share(s), 6024 Khashes, avg. hashrate 21.06 KH/s
+19:11:57.679 > >>> Completed 0 share(s), 6047 Khashes, avg. hashrate 21.07 KH/s
+19:11:57.727 > signal strength (RSSI):-83
+19:11:58.728 > >>> Completed 0 share(s), 6070 Khashes, avg. hashrate 21.08 KH/s
+19:11:59.776 > >>> Completed 0 share(s), 6093 Khashes, avg. hashrate 21.08 KH/s
+19:12:00.824 > >>> Completed 0 share(s), 6116 Khashes, avg. hashrate 21.09 KH/s
+19:12:01.872 > >>> Completed 0 share(s), 6139 Khashes, avg. hashrate 21.10 KH/s
+19:12:02.509 > [WORKER] (0) ==> Mining subscribe
+19:12:02.510 >   Sending  : {"id": 5, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:12:02.510 > 
+19:12:02.541 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQDBE"],["mining.notify","0HMQ5LR8VQDBE"]],"800941d9",4],"error":null,"id":5}
+19:12:02.545 >     sub_details: 0HMQ5LR8VQDBE
+19:12:02.545 >     extranonce1: 800941d9
+19:12:02.545 >     extranonce2_size: 4
+19:12:02.545 >     error: 0
+19:12:02.546 > [WORKER] (0) ==> Autorize work
+19:12:02.546 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 6, "method": "mining.authorize"}
+19:12:02.546 > 
+19:12:02.552 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132bd","e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c045de7536400","0168000000000125294125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["05a72458d13329cb5574821359c06b66c97b7a5ae41b08ab81777f0637e51616","514ff5e4870f5f80faabc5318ef6cb0bd62138196158664f420a73204f66caad","dde189df4396d8376ee6b0a6ad776791c2b0b872759f1d8246603140ba61688c","91b8479d74b60ab6ac8fa214bc8a40dc22b5b1d4e6ab8990317fb1d9694c1b23","a9cca4a721f24e34e437f4c6d4530895544467ae3ce3d5e41e2c158a200f7b2e","10f2e527c5ddb39306d49e662bee08a49424def547a2f016848f7f91a67ca5a8"],"20000000","18060564","6453e75d",false],"id":null}
+19:12:02.554 >   Receiving: {"result":true,"error":null,"id":6}
+19:12:02.582 >   Receiving: >>> Completed 0 share(s), 6159 Khashes, avg. hashrate 21.09 KH/s
+19:12:03.581 > 
+19:12:03.583 >     job_id: 000132bd
+19:12:03.583 >     prevhash: e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:12:03.583 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c045de7536400
+19:12:03.584 >     coinb2: 0168000000000125294125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:12:03.584 >     merkle_branch size: 6
+19:12:03.584 >     version: 20000000
+19:12:03.584 >     nbits: 18060564
+19:12:03.584 >     ntime: 6453e75d
+19:12:03.584 >     clean_jobs: 0
+19:12:03.584 >     target: 0000000000000000000060564000000000000000000000000000000000000000�
+19:12:03.584 >     extranonce2: 10661917
+19:12:03.585 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c045de7536400800941d9106619170168000000000125294125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:12:03.585 >     coinbase bytes - size: 106
+19:12:03.585 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8a 12 0c 04 5d e7 53 64 00 80 09 41 d9 10 66 19 17 60 16 80 00 00 00 00 12 52 94 12 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:12:03.586 >     coinbase double sha: 4c408ef24306a1d46bf8b600e43cad05f9716d79664e681b58d81ca435b4889d
+19:12:03.587 >     merkle element    0: 05a72458d13329cb5574821359c06b66c97b7a5ae41b08ab81777f0637e51616
+19:12:03.587 >     merkle element    0: 05a72458d13329cb5574821359c06b66c97b7a5ae41b08ab81777f0637e51616
+19:12:03.587 >     merkle concatenated: 4c408ef24306a1d46bf8b600e43cad05f9716d79664e681b58d81ca435b4889d05a72458d13329cb5574821359c06b66c97b7a5ae41b08ab81777f0637e51616
+19:12:03.588 >     merkle sha         : 951d4d29b834e5079334212481828b549b99bd883f1430835f7063456bcb948a
+19:12:03.589 >     merkle element    1: 514ff5e4870f5f80faabc5318ef6cb0bd62138196158664f420a73204f66caad
+19:12:03.590 >     merkle element    1: 514ff5e4870f5f80faabc5318ef6cb0bd62138196158664f420a73204f66caad
+19:12:03.590 >     merkle concatenated: 951d4d29b834e5079334212481828b549b99bd883f1430835f7063456bcb948a514ff5e4870f5f80faabc5318ef6cb0bd62138196158664f420a73204f66caad
+19:12:03.590 >     merkle sha         : 831c931314623e0a95dab3910dc4faeced4ccaef213f1583f2a8e41f2cfa537d
+19:12:03.590 >     merkle element    2: dde189df4396d8376ee6b0a6ad776791c2b0b872759f1d8246603140ba61688c
+19:12:03.590 >     merkle element    2: dde189df4396d8376ee6b0a6ad776791c2b0b872759f1d8246603140ba61688c
+19:12:03.591 >     merkle concatenated: 831c931314623e0a95dab3910dc4faeced4ccaef213f1583f2a8e41f2cfa537ddde189df4396d8376ee6b0a6ad776791c2b0b872759f1d8246603140ba61688c
+19:12:03.591 >     merkle sha         : 356d00be2a3104021c69e9d08d874f801eccd1d4cf3763051295ec00006c7860
+19:12:03.592 >     merkle element    3: 91b8479d74b60ab6ac8fa214bc8a40dc22b5b1d4e6ab8990317fb1d9694c1b23
+19:12:03.592 >     merkle element    3: 91b8479d74b60ab6ac8fa214bc8a40dc22b5b1d4e6ab8990317fb1d9694c1b23
+19:12:03.593 >     merkle concatenated: 356d00be2a3104021c69e9d08d874f801eccd1d4cf3763051295ec00006c786091b8479d74b60ab6ac8fa214bc8a40dc22b5b1d4e6ab8990317fb1d9694c1b23
+19:12:03.593 >     merkle sha         : f86a813eec47172d4ed4b712beef30e379091add40fbbc59b34876256315774e
+19:12:03.594 >     merkle element    4: a9cca4a721f24e34e437f4c6d4530895544467ae3ce3d5e41e2c158a200f7b2e
+19:12:03.594 >     merkle element    4: a9cca4a721f24e34e437f4c6d4530895544467ae3ce3d5e41e2c158a200f7b2e
+19:12:03.594 >     merkle concatenated: f86a813eec47172d4ed4b712beef30e379091add40fbbc59b34876256315774ea9cca4a721f24e34e437f4c6d4530895544467ae3ce3d5e41e2c158a200f7b2e
+19:12:03.595 >     merkle sha         : a6bf97514e9b8baf08bd411ef1a5522134ff50283c48f39d9269f9c1bf8cb088
+19:12:03.596 >     merkle element    5: 10f2e527c5ddb39306d49e662bee08a49424def547a2f016848f7f91a67ca5a8
+19:12:03.596 >     merkle element    5: 10f2e527c5ddb39306d49e662bee08a49424def547a2f016848f7f91a67ca5a8
+19:12:03.596 >     merkle concatenated: a6bf97514e9b8baf08bd411ef1a5522134ff50283c48f39d9269f9c1bf8cb08810f2e527c5ddb39306d49e662bee08a49424def547a2f016848f7f91a67ca5a8
+19:12:03.596 >     merkle sha         : a35868fd525fa1404edf35e0d0b71834b7cacd98d025e21d4c6abd869be9c228
+19:12:03.597 >     merkle sha         : a35868fd525fa1404edf35e0d0b71834b7cacd98d025e21d4c6abd869be9c228
+19:12:03.598 >     blockheader bytes 
+19:12:03.598 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:12:03.598 > version
+19:12:03.598 > 00000020
+19:12:03.598 > prev hash
+19:12:03.598 > e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:12:03.599 > merkle root
+19:12:03.599 > 28c2e99b86bd6a4c1de225d098cdcab73418b7d0e035df4e40a15f52fd6858a3
+19:12:03.599 > time
+19:12:03.599 > 18060564
+19:12:03.599 > difficulty
+19:12:03.599 > 5de75364
+19:12:03.599 > nonce
+19:12:03.599 > 00000000
+19:12:03.599 > >>> STARTING TO HASH NONCES
+19:12:03.965 > >>> Completed 0 share(s), 6167 Khashes, avg. hashrate 21.05 KH/s
+19:12:05.013 > >>> Completed 0 share(s), 6190 Khashes, avg. hashrate 21.05 KH/s
+19:12:06.061 > >>> Completed 0 share(s), 6213 Khashes, avg. hashrate 21.06 KH/s
+19:12:07.110 > >>> Completed 0 share(s), 6236 Khashes, avg. hashrate 21.07 KH/s
+19:12:08.158 > >>> Completed 0 share(s), 6259 Khashes, avg. hashrate 21.07 KH/s
+19:12:09.206 > >>> Completed 0 share(s), 6282 Khashes, avg. hashrate 21.08 KH/s
+19:12:10.255 > >>> Completed 0 share(s), 6305 Khashes, avg. hashrate 21.09 KH/s
+19:12:11.303 > >>> Completed 0 share(s), 6328 Khashes, avg. hashrate 21.09 KH/s
+19:12:12.351 > >>> Completed 0 share(s), 6350 Khashes, avg. hashrate 21.10 KH/s
+19:12:13.399 > >>> Completed 0 share(s), 6373 Khashes, avg. hashrate 21.10 KH/s
+19:12:14.445 > >>> Completed 0 share(s), 6396 Khashes, avg. hashrate 21.11 KH/s
+19:12:15.494 > >>> Completed 0 share(s), 6419 Khashes, avg. hashrate 21.12 KH/s
+19:12:16.542 > >>> Completed 0 share(s), 6442 Khashes, avg. hashrate 21.05 KH/s
+19:12:17.589 > >>> Completed 0 share(s), 6464 Khashes, avg. hashrate 21.06 KH/s
+19:12:18.635 > >>> Completed 0 share(s), 6487 Khashes, avg. hashrate 21.06 KH/s
+19:12:19.683 > >>> Completed 0 share(s), 6510 Khashes, avg. hashrate 21.07 KH/s
+19:12:20.731 > >>> Completed 0 share(s), 6532 Khashes, avg. hashrate 21.07 KH/s
+19:12:21.779 > >>> Completed 0 share(s), 6555 Khashes, avg. hashrate 21.08 KH/s
+19:12:22.827 > >>> Completed 0 share(s), 6578 Khashes, avg. hashrate 21.08 KH/s
+19:12:23.875 > >>> Completed 0 share(s), 6601 Khashes, avg. hashrate 21.09 KH/s
+19:12:24.924 > >>> Completed 0 share(s), 6624 Khashes, avg. hashrate 21.10 KH/s
+19:12:25.972 > >>> Completed 0 share(s), 6647 Khashes, avg. hashrate 21.10 KH/s
+19:12:27.020 > >>> Completed 0 share(s), 6670 Khashes, avg. hashrate 21.11 KH/s
+19:12:28.067 > >>> Completed 0 share(s), 6693 Khashes, avg. hashrate 21.11 KH/s
+19:12:29.115 > >>> Completed 0 share(s), 6716 Khashes, avg. hashrate 21.12 KH/s
+19:12:30.163 > >>> Completed 0 share(s), 6738 Khashes, avg. hashrate 21.12 KH/s
+19:12:31.211 > >>> Completed 0 share(s), 6761 Khashes, avg. hashrate 21.13 KH/s
+19:12:32.260 > >>> Completed 0 share(s), 6784 Khashes, avg. hashrate 21.13 KH/s
+19:12:33.307 > >>> Completed 0 share(s), 6807 Khashes, avg. hashrate 21.14 KH/s
+19:12:34.355 > >>> Completed 0 share(s), 6830 Khashes, avg. hashrate 21.15 KH/s
+19:12:35.403 > >>> Completed 0 share(s), 6853 Khashes, avg. hashrate 21.15 KH/s
+19:12:36.451 > >>> Completed 0 share(s), 6876 Khashes, avg. hashrate 21.16 KH/s
+19:12:37.499 > >>> Completed 0 share(s), 6899 Khashes, avg. hashrate 21.16 KH/s
+19:12:38.547 > >>> Completed 0 share(s), 6922 Khashes, avg. hashrate 21.10 KH/s
+19:12:39.595 > >>> Completed 0 share(s), 6945 Khashes, avg. hashrate 21.11 KH/s
+19:12:40.643 > >>> Completed 0 share(s), 6967 Khashes, avg. hashrate 21.11 KH/s
+19:12:40.691 > signal strength (RSSI):-83
+19:12:41.691 > >>> Completed 0 share(s), 6990 Khashes, avg. hashrate 21.12 KH/s
+19:12:42.741 > >>> Completed 0 share(s), 7013 Khashes, avg. hashrate 21.12 KH/s
+19:12:43.788 > >>> Completed 0 share(s), 7036 Khashes, avg. hashrate 21.13 KH/s
+19:12:44.836 > >>> Completed 0 share(s), 7059 Khashes, avg. hashrate 21.13 KH/s
+19:12:45.884 > >>> Completed 0 share(s), 7082 Khashes, avg. hashrate 21.14 KH/s
+19:12:46.932 > >>> Completed 0 share(s), 7105 Khashes, avg. hashrate 21.15 KH/s
+19:12:47.980 > >>> Completed 0 share(s), 7128 Khashes, avg. hashrate 21.15 KH/s
+19:12:49.028 > >>> Completed 0 share(s), 7151 Khashes, avg. hashrate 21.16 KH/s
+19:12:50.076 > >>> Completed 0 share(s), 7173 Khashes, avg. hashrate 21.16 KH/s
+19:12:51.124 > >>> Completed 0 share(s), 7196 Khashes, avg. hashrate 21.16 KH/s
+19:12:52.172 > >>> Completed 0 share(s), 7219 Khashes, avg. hashrate 21.17 KH/s
+19:12:53.220 > >>> Completed 0 share(s), 7242 Khashes, avg. hashrate 21.18 KH/s
+19:12:54.269 > >>> Completed 0 share(s), 7265 Khashes, avg. hashrate 21.18 KH/s
+19:12:55.317 > >>> Completed 0 share(s), 7288 Khashes, avg. hashrate 21.19 KH/s
+19:12:56.365 > >>> Completed 0 share(s), 7311 Khashes, avg. hashrate 21.19 KH/s
+19:12:57.413 > >>> Completed 0 share(s), 7334 Khashes, avg. hashrate 21.20 KH/s
+19:12:58.461 > >>> Completed 0 share(s), 7357 Khashes, avg. hashrate 21.20 KH/s
+19:12:59.509 > >>> Completed 0 share(s), 7380 Khashes, avg. hashrate 21.21 KH/s
+19:13:00.557 > >>> Completed 0 share(s), 7402 Khashes, avg. hashrate 21.15 KH/s
+19:13:01.605 > >>> Completed 0 share(s), 7425 Khashes, avg. hashrate 21.15 KH/s
+19:13:02.653 > >>> Completed 0 share(s), 7448 Khashes, avg. hashrate 21.16 KH/s
+19:13:03.701 > >>> Completed 0 share(s), 7471 Khashes, avg. hashrate 21.16 KH/s
+19:13:04.749 > >>> Completed 0 share(s), 7494 Khashes, avg. hashrate 21.17 KH/s
+19:13:05.797 > >>> Completed 0 share(s), 7517 Khashes, avg. hashrate 21.17 KH/s
+19:13:06.845 > >>> Completed 0 share(s), 7540 Khashes, avg. hashrate 21.18 KH/s
+19:13:07.893 > >>> Completed 0 share(s), 7563 Khashes, avg. hashrate 21.18 KH/s
+19:13:08.942 > >>> Completed 0 share(s), 7586 Khashes, avg. hashrate 21.19 KH/s
+19:13:09.989 > >>> Completed 0 share(s), 7609 Khashes, avg. hashrate 21.19 KH/s
+19:13:11.037 > >>> Completed 0 share(s), 7631 Khashes, avg. hashrate 21.20 KH/s
+19:13:12.085 > >>> Completed 0 share(s), 7654 Khashes, avg. hashrate 21.20 KH/s
+19:13:13.133 > >>> Completed 0 share(s), 7677 Khashes, avg. hashrate 21.21 KH/s
+19:13:14.177 > >>> Completed 0 share(s), 7699 Khashes, avg. hashrate 21.21 KH/s
+19:13:15.225 > >>> Completed 0 share(s), 7722 Khashes, avg. hashrate 21.21 KH/s
+19:13:16.273 > >>> Completed 0 share(s), 7745 Khashes, avg. hashrate 21.22 KH/s
+19:13:17.321 > >>> Completed 0 share(s), 7768 Khashes, avg. hashrate 21.22 KH/s
+19:13:17.371 > signal strength (RSSI):-83
+19:13:18.369 > >>> Completed 0 share(s), 7791 Khashes, avg. hashrate 21.23 KH/s
+19:13:19.419 > >>> Completed 0 share(s), 7814 Khashes, avg. hashrate 21.23 KH/s
+19:13:20.466 > >>> Completed 0 share(s), 7837 Khashes, avg. hashrate 21.24 KH/s
+19:13:21.514 > >>> Completed 0 share(s), 7859 Khashes, avg. hashrate 21.18 KH/s
+19:13:22.562 > >>> Completed 0 share(s), 7882 Khashes, avg. hashrate 21.19 KH/s
+19:13:23.610 > >>> Completed 0 share(s), 7905 Khashes, avg. hashrate 21.19 KH/s
+19:13:24.658 > >>> Completed 0 share(s), 7928 Khashes, avg. hashrate 21.20 KH/s
+19:13:25.705 > >>> Completed 0 share(s), 7951 Khashes, avg. hashrate 21.20 KH/s
+19:13:26.753 > >>> Completed 0 share(s), 7974 Khashes, avg. hashrate 21.21 KH/s
+19:13:27.801 > >>> Completed 0 share(s), 7997 Khashes, avg. hashrate 21.21 KH/s
+19:13:28.849 > >>> Completed 0 share(s), 8019 Khashes, avg. hashrate 21.21 KH/s
+19:13:29.895 > >>> Completed 0 share(s), 8042 Khashes, avg. hashrate 21.22 KH/s
+19:13:30.943 > >>> Completed 0 share(s), 8065 Khashes, avg. hashrate 21.22 KH/s
+19:13:31.991 > >>> Completed 0 share(s), 8088 Khashes, avg. hashrate 21.23 KH/s
+19:13:33.039 > >>> Completed 0 share(s), 8110 Khashes, avg. hashrate 21.23 KH/s
+19:13:34.089 > >>> Completed 0 share(s), 8133 Khashes, avg. hashrate 21.23 KH/s
+19:13:35.137 > >>> Completed 0 share(s), 8156 Khashes, avg. hashrate 21.24 KH/s
+19:13:36.185 > >>> Completed 0 share(s), 8179 Khashes, avg. hashrate 21.24 KH/s
+19:13:37.233 > >>> Completed 0 share(s), 8202 Khashes, avg. hashrate 21.25 KH/s
+19:13:38.282 > >>> Completed 0 share(s), 8225 Khashes, avg. hashrate 21.25 KH/s
+19:13:39.330 > >>> Completed 0 share(s), 8248 Khashes, avg. hashrate 21.26 KH/s
+19:13:40.378 > >>> Completed 0 share(s), 8271 Khashes, avg. hashrate 21.26 KH/s
+19:13:41.426 > >>> Completed 0 share(s), 8294 Khashes, avg. hashrate 21.27 KH/s
+19:13:42.474 > >>> Completed 0 share(s), 8317 Khashes, avg. hashrate 21.27 KH/s
+19:13:43.522 > >>> Completed 0 share(s), 8339 Khashes, avg. hashrate 21.22 KH/s
+19:13:44.570 > >>> Completed 0 share(s), 8362 Khashes, avg. hashrate 21.22 KH/s
+19:13:45.619 > >>> Completed 0 share(s), 8385 Khashes, avg. hashrate 21.23 KH/s
+19:13:46.667 > >>> Completed 0 share(s), 8408 Khashes, avg. hashrate 21.23 KH/s
+19:13:47.715 > >>> Completed 0 share(s), 8431 Khashes, avg. hashrate 21.24 KH/s
+19:13:48.763 > >>> Completed 0 share(s), 8454 Khashes, avg. hashrate 21.24 KH/s
+19:13:49.809 > >>> Completed 0 share(s), 8476 Khashes, avg. hashrate 21.24 KH/s
+19:13:50.857 > >>> Completed 0 share(s), 8499 Khashes, avg. hashrate 21.25 KH/s
+19:13:51.905 > >>> Completed 0 share(s), 8522 Khashes, avg. hashrate 21.25 KH/s
+19:13:52.953 > >>> Completed 0 share(s), 8545 Khashes, avg. hashrate 21.26 KH/s
+19:13:54.002 > >>> Completed 0 share(s), 8568 Khashes, avg. hashrate 21.26 KH/s
+19:13:55.050 > >>> Completed 0 share(s), 8591 Khashes, avg. hashrate 21.26 KH/s
+19:13:55.098 > signal strength (RSSI):-82
+19:13:56.098 > >>> Completed 0 share(s), 8614 Khashes, avg. hashrate 21.27 KH/s
+19:13:57.146 > >>> Completed 0 share(s), 8637 Khashes, avg. hashrate 21.27 KH/s
+19:13:58.194 > >>> Completed 0 share(s), 8659 Khashes, avg. hashrate 21.28 KH/s
+19:13:59.243 > >>> Completed 0 share(s), 8682 Khashes, avg. hashrate 21.28 KH/s
+19:14:00.291 > >>> Completed 0 share(s), 8705 Khashes, avg. hashrate 21.28 KH/s
+19:14:01.340 > >>> Completed 0 share(s), 8728 Khashes, avg. hashrate 21.29 KH/s
+19:14:02.390 > >>> Completed 0 share(s), 8751 Khashes, avg. hashrate 21.29 KH/s
+19:14:03.436 > >>> Completed 0 share(s), 8774 Khashes, avg. hashrate 21.30 KH/s
+19:14:04.485 > >>> Completed 0 share(s), 8797 Khashes, avg. hashrate 21.30 KH/s
+19:14:05.534 > >>> Completed 0 share(s), 8820 Khashes, avg. hashrate 21.25 KH/s
+19:14:06.582 > >>> Completed 0 share(s), 8843 Khashes, avg. hashrate 21.26 KH/s
+19:14:07.630 > >>> Completed 0 share(s), 8866 Khashes, avg. hashrate 21.26 KH/s
+19:14:08.678 > >>> Completed 0 share(s), 8889 Khashes, avg. hashrate 21.27 KH/s
+19:14:09.727 > >>> Completed 0 share(s), 8911 Khashes, avg. hashrate 21.27 KH/s
+19:14:10.775 > >>> Completed 0 share(s), 8934 Khashes, avg. hashrate 21.27 KH/s
+19:14:11.823 > >>> Completed 0 share(s), 8957 Khashes, avg. hashrate 21.28 KH/s
+19:14:12.871 > >>> Completed 0 share(s), 8980 Khashes, avg. hashrate 21.28 KH/s
+19:14:13.919 > >>> Completed 0 share(s), 9003 Khashes, avg. hashrate 21.28 KH/s
+19:14:14.967 > >>> Completed 0 share(s), 9026 Khashes, avg. hashrate 21.29 KH/s
+19:14:16.015 > >>> Completed 0 share(s), 9049 Khashes, avg. hashrate 21.29 KH/s
+19:14:17.063 > >>> Completed 0 share(s), 9072 Khashes, avg. hashrate 21.30 KH/s
+19:14:18.111 > >>> Completed 0 share(s), 9095 Khashes, avg. hashrate 21.30 KH/s
+19:14:19.159 > >>> Completed 0 share(s), 9118 Khashes, avg. hashrate 21.30 KH/s
+19:14:20.207 > >>> Completed 0 share(s), 9140 Khashes, avg. hashrate 21.31 KH/s
+19:14:21.256 > >>> Completed 0 share(s), 9163 Khashes, avg. hashrate 21.31 KH/s
+19:14:22.304 > >>> Completed 0 share(s), 9186 Khashes, avg. hashrate 21.31 KH/s
+19:14:23.352 > >>> Completed 0 share(s), 9209 Khashes, avg. hashrate 21.32 KH/s
+19:14:24.400 > >>> Completed 0 share(s), 9232 Khashes, avg. hashrate 21.32 KH/s
+19:14:24.544 > [WORKER] (0) ==> Mining subscribe
+19:14:24.545 >   Sending  : {"id": 7, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:14:24.545 > 
+19:14:24.570 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQDIH"],["mining.notify","0HMQ5LR8VQDIH"]],"8009424e",4],"error":null,"id":7}
+19:14:24.572 >     sub_details: 0HMQ5LR8VQDIH
+19:14:24.572 >     extranonce1: 8009424e
+19:14:24.572 >     extranonce2_size: 4
+19:14:24.572 >     error: 0
+19:14:24.573 > [WORKER] (0) ==> Autorize work
+19:14:24.573 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 8, "method": "mining.authorize"}
+19:14:24.573 > 
+19:14:24.582 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132cb","e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04e9e7536400","0168000000000122a64125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["80fc90932831d1d9730d39502408a3ba6c7025d19ce67fda17978a2c4587a80a","0278e89deb30fab6d8590acffb534098030b0d389e9e2ac043cfb67132395c27","5e2c5a05a09d9fe571378d7ed62285bdc07222688911d2723f151fafc401466b","eef9071e5d01f55e38c7344087af7339d2d8f4e2030e4e71fb6678d84c703f69","19f27b3b18049f8cf5da22f818718c4056f323f919de00cc6239bf74ba334060","1306157594fc3f05e0ec4ed6ccec280959c3b8575f81aafd56ac5dd30e29053b","210a650589f3255507ad98886219f2c08c3817c44863e73c1bf9fa70d73b9d02"],"20000000","18060564","6453e7e9",false],"id":null}
+19:14:24.584 >   Receiving: {"result":true,"error":null,"id":8}
+19:14:24.602 >   Receiving: signal strength (RSSI):-83
+19:14:25.449 > >>> Completed 0 share(s), 9239 Khashes, avg. hashrate 21.29 KH/s
+19:14:25.600 > 
+19:14:25.602 >     job_id: 000132cb
+19:14:25.603 >     prevhash: e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:14:25.603 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04e9e7536400
+19:14:25.603 >     coinb2: 0168000000000122a64125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:14:25.603 >     merkle_branch size: 7
+19:14:25.603 >     version: 20000000
+19:14:25.603 >     nbits: 18060564
+19:14:25.603 >     ntime: 6453e7e9
+19:14:25.603 >     clean_jobs: 0
+19:14:25.604 >     target: 0000000000000000000060564000000000000000000000000000000000000000�
+19:14:25.604 >     extranonce2: 9b47e4720
+19:14:25.604 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038a120c04e9e75364008009424e9b47e47200168000000000122a64125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:14:25.604 >     coinbase bytes - size: 106
+19:14:25.604 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8a 12 0c 04 e9 e7 53 64 00 80 09 42 4e 9b 47 e4 72 00 16 80 00 00 00 00 12 2a 64 12 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:14:25.606 >     coinbase double sha: 38ca3ec2f4a1a40d282f27e9a89974a696494a607d102927a08919fd97c25b84
+19:14:25.607 >     merkle element    0: 80fc90932831d1d9730d39502408a3ba6c7025d19ce67fda17978a2c4587a80a
+19:14:25.607 >     merkle element    0: 80fc90932831d1d9730d39502408a3ba6c7025d19ce67fda17978a2c4587a80a
+19:14:25.607 >     merkle concatenated: 38ca3ec2f4a1a40d282f27e9a89974a696494a607d102927a08919fd97c25b8480fc90932831d1d9730d39502408a3ba6c7025d19ce67fda17978a2c4587a80a
+19:14:25.608 >     merkle sha         : 09071b3bb7945f08efaf418ac9cf057eeab36fbef0ce151b7ee3e5975e85a374
+19:14:25.608 >     merkle element    1: 0278e89deb30fab6d8590acffb534098030b0d389e9e2ac043cfb67132395c27
+19:14:25.608 >     merkle element    1: 0278e89deb30fab6d8590acffb534098030b0d389e9e2ac043cfb67132395c27
+19:14:25.609 >     merkle concatenated: 09071b3bb7945f08efaf418ac9cf057eeab36fbef0ce151b7ee3e5975e85a3740278e89deb30fab6d8590acffb534098030b0d389e9e2ac043cfb67132395c27
+19:14:25.609 >     merkle sha         : 01759d9bc41ffe412ec8316a3c780eef6dfdd9345aa66f8d8b6b8e0a1de4ee4d
+19:14:25.610 >     merkle element    2: 5e2c5a05a09d9fe571378d7ed62285bdc07222688911d2723f151fafc401466b
+19:14:25.610 >     merkle element    2: 5e2c5a05a09d9fe571378d7ed62285bdc07222688911d2723f151fafc401466b
+19:14:25.610 >     merkle concatenated: 01759d9bc41ffe412ec8316a3c780eef6dfdd9345aa66f8d8b6b8e0a1de4ee4d5e2c5a05a09d9fe571378d7ed62285bdc07222688911d2723f151fafc401466b
+19:14:25.611 >     merkle sha         : 16caf1817fdc5554826a5e095a884347d6edd2235658986ac48c7aad55f16911
+19:14:25.612 >     merkle element    3: eef9071e5d01f55e38c7344087af7339d2d8f4e2030e4e71fb6678d84c703f69
+19:14:25.612 >     merkle element    3: eef9071e5d01f55e38c7344087af7339d2d8f4e2030e4e71fb6678d84c703f69
+19:14:25.612 >     merkle concatenated: 16caf1817fdc5554826a5e095a884347d6edd2235658986ac48c7aad55f16911eef9071e5d01f55e38c7344087af7339d2d8f4e2030e4e71fb6678d84c703f69
+19:14:25.613 >     merkle sha         : df04a1e0489c36ed2c304c9de49f283eac24d920591b8c5eda0e612e2a7f5e08
+19:14:25.613 >     merkle element    4: 19f27b3b18049f8cf5da22f818718c4056f323f919de00cc6239bf74ba334060
+19:14:25.614 >     merkle element    4: 19f27b3b18049f8cf5da22f818718c4056f323f919de00cc6239bf74ba334060
+19:14:25.614 >     merkle concatenated: df04a1e0489c36ed2c304c9de49f283eac24d920591b8c5eda0e612e2a7f5e0819f27b3b18049f8cf5da22f818718c4056f323f919de00cc6239bf74ba334060
+19:14:25.614 >     merkle sha         : 4d9c64efc046716526802988b1e96d67c8bc69d1b3fcaf1d2ac2ce41fb23db8d
+19:14:25.615 >     merkle element    5: 1306157594fc3f05e0ec4ed6ccec280959c3b8575f81aafd56ac5dd30e29053b
+19:14:25.615 >     merkle element    5: 1306157594fc3f05e0ec4ed6ccec280959c3b8575f81aafd56ac5dd30e29053b
+19:14:25.615 >     merkle concatenated: 4d9c64efc046716526802988b1e96d67c8bc69d1b3fcaf1d2ac2ce41fb23db8d1306157594fc3f05e0ec4ed6ccec280959c3b8575f81aafd56ac5dd30e29053b
+19:14:25.616 >     merkle sha         : d1142223400b2e04883b1489bdb22003be00b0cb121a13883ebc4fd25c7f5c08
+19:14:25.617 >     merkle element    6: 210a650589f3255507ad98886219f2c08c3817c44863e73c1bf9fa70d73b9d02
+19:14:25.617 >     merkle element    6: 210a650589f3255507ad98886219f2c08c3817c44863e73c1bf9fa70d73b9d02
+19:14:25.617 >     merkle concatenated: d1142223400b2e04883b1489bdb22003be00b0cb121a13883ebc4fd25c7f5c08210a650589f3255507ad98886219f2c08c3817c44863e73c1bf9fa70d73b9d02
+19:14:25.618 >     merkle sha         : 13c93415623a9b7bcbc2d4fb5911a8f5ca6378afb0de43ef0d687bb1ccf040c9
+19:14:25.618 >     merkle sha         : 13c93415623a9b7bcbc2d4fb5911a8f5ca6378afb0de43ef0d687bb1ccf040c9
+19:14:25.619 >     blockheader bytes 
+19:14:25.619 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:14:25.619 > version
+19:14:25.619 > 00000020
+19:14:25.619 > prev hash
+19:14:25.619 > e77ec57d9edb2e8909d924e31f074ab849068c1905dbc5e20000000000000000
+19:14:25.620 > merkle root
+19:14:25.620 > c940f0ccb17b680def43deb0af7863caf5a81159fbd4c2cb7b9b3a621534c913
+19:14:25.620 > time
+19:14:25.620 > 18060564
+19:14:25.620 > difficulty
+19:14:25.620 > e9e75364
+19:14:25.620 > nonce
+19:14:25.620 > 00000000
+19:14:25.621 > >>> STARTING TO HASH NONCES
+19:14:26.494 > >>> Completed 0 share(s), 9258 Khashes, avg. hashrate 21.28 KH/s
+19:14:27.542 > >>> Completed 0 share(s), 9281 Khashes, avg. hashrate 21.24 KH/s
+19:14:28.590 > >>> Completed 0 share(s), 9304 Khashes, avg. hashrate 21.24 KH/s
+19:14:29.638 > >>> Completed 0 share(s), 9327 Khashes, avg. hashrate 21.25 KH/s
+19:14:30.686 > >>> Completed 0 share(s), 9350 Khashes, avg. hashrate 21.25 KH/s
+19:14:31.734 > >>> Completed 0 share(s), 9373 Khashes, avg. hashrate 21.25 KH/s
+19:14:32.782 > >>> Completed 0 share(s), 9396 Khashes, avg. hashrate 21.26 KH/s
+19:14:33.830 > >>> Completed 0 share(s), 9419 Khashes, avg. hashrate 21.26 KH/s
+19:14:34.878 > >>> Completed 0 share(s), 9442 Khashes, avg. hashrate 21.27 KH/s
+19:14:35.926 > >>> Completed 0 share(s), 9464 Khashes, avg. hashrate 21.27 KH/s
+19:14:36.975 > >>> Completed 0 share(s), 9487 Khashes, avg. hashrate 21.27 KH/s
+19:14:38.023 > >>> Completed 0 share(s), 9510 Khashes, avg. hashrate 21.28 KH/s
+19:14:39.071 > >>> Completed 0 share(s), 9533 Khashes, avg. hashrate 21.28 KH/s
+19:14:40.119 > >>> Completed 0 share(s), 9556 Khashes, avg. hashrate 21.28 KH/s
+19:14:41.168 > >>> Completed 0 share(s), 9579 Khashes, avg. hashrate 21.29 KH/s
+19:14:42.216 > >>> Completed 0 share(s), 9602 Khashes, avg. hashrate 21.29 KH/s
+19:14:43.264 > >>> Completed 0 share(s), 9625 Khashes, avg. hashrate 21.29 KH/s
+19:14:44.312 > >>> Completed 0 share(s), 9648 Khashes, avg. hashrate 21.30 KH/s
+19:14:45.361 > >>> Completed 0 share(s), 9671 Khashes, avg. hashrate 21.30 KH/s
+19:14:46.409 > >>> Completed 0 share(s), 9693 Khashes, avg. hashrate 21.30 KH/s
+19:14:47.457 > >>> Completed 0 share(s), 9716 Khashes, avg. hashrate 21.31 KH/s
+19:14:48.505 > >>> Completed 0 share(s), 9739 Khashes, avg. hashrate 21.31 KH/s
+19:14:49.554 > >>> Completed 0 share(s), 9762 Khashes, avg. hashrate 21.27 KH/s
+19:14:50.602 > >>> Completed 0 share(s), 9785 Khashes, avg. hashrate 21.27 KH/s
+19:14:51.650 > >>> Completed 0 share(s), 9808 Khashes, avg. hashrate 21.28 KH/s
+19:14:52.699 > >>> Completed 0 share(s), 9831 Khashes, avg. hashrate 21.28 KH/s
+19:14:53.747 > >>> Completed 0 share(s), 9854 Khashes, avg. hashrate 21.28 KH/s
+19:14:54.795 > >>> Completed 0 share(s), 9877 Khashes, avg. hashrate 21.29 KH/s
+19:14:55.843 > >>> Completed 0 share(s), 9899 Khashes, avg. hashrate 21.29 KH/s
+19:14:56.893 > >>> Completed 0 share(s), 9922 Khashes, avg. hashrate 21.29 KH/s
+19:14:57.941 > >>> Completed 0 share(s), 9945 Khashes, avg. hashrate 21.30 KH/s
+19:14:58.989 > >>> Completed 0 share(s), 9968 Khashes, avg. hashrate 21.30 KH/s
+19:15:00.037 > >>> Completed 0 share(s), 9991 Khashes, avg. hashrate 21.30 KH/s
+19:15:01.087 > >>> Completed 0 share(s), 10014 Khashes, avg. hashrate 21.31 KH/s
+19:15:02.135 > >>> Completed 0 share(s), 10037 Khashes, avg. hashrate 21.31 KH/s
+19:15:02.183 > signal strength (RSSI):-82
+19:15:03.183 > >>> Completed 0 share(s), 10060 Khashes, avg. hashrate 21.31 KH/s
+19:15:04.231 > >>> Completed 0 share(s), 10083 Khashes, avg. hashrate 21.32 KH/s
+19:15:05.281 > >>> Completed 0 share(s), 10106 Khashes, avg. hashrate 21.32 KH/s
+19:15:06.329 > >>> Completed 0 share(s), 10128 Khashes, avg. hashrate 21.32 KH/s
+19:15:07.377 > >>> Completed 0 share(s), 10151 Khashes, avg. hashrate 21.33 KH/s
+19:15:08.425 > >>> Completed 0 share(s), 10174 Khashes, avg. hashrate 21.33 KH/s
+19:15:09.473 > >>> Completed 0 share(s), 10197 Khashes, avg. hashrate 21.33 KH/s
+19:15:10.521 > >>> Completed 0 share(s), 10220 Khashes, avg. hashrate 21.29 KH/s
+19:15:11.569 > >>> Completed 0 share(s), 10243 Khashes, avg. hashrate 21.30 KH/s
+19:15:12.616 > >>> Completed 0 share(s), 10265 Khashes, avg. hashrate 21.30 KH/s
+19:15:13.664 > >>> Completed 0 share(s), 10288 Khashes, avg. hashrate 21.30 KH/s
+19:15:14.712 > >>> Completed 0 share(s), 10311 Khashes, avg. hashrate 21.30 KH/s
+19:15:15.760 > >>> Completed 0 share(s), 10334 Khashes, avg. hashrate 21.31 KH/s
+19:15:16.808 > >>> Completed 0 share(s), 10357 Khashes, avg. hashrate 21.31 KH/s
+19:15:17.856 > >>> Completed 0 share(s), 10380 Khashes, avg. hashrate 21.31 KH/s
+19:15:18.904 > >>> Completed 0 share(s), 10403 Khashes, avg. hashrate 21.32 KH/s
+19:15:19.952 > >>> Completed 0 share(s), 10426 Khashes, avg. hashrate 21.32 KH/s
+19:15:21.001 > >>> Completed 0 share(s), 10449 Khashes, avg. hashrate 21.32 KH/s
+19:15:22.049 > >>> Completed 0 share(s), 10471 Khashes, avg. hashrate 21.33 KH/s
+19:15:23.097 > >>> Completed 0 share(s), 10494 Khashes, avg. hashrate 21.33 KH/s
+19:15:24.145 > >>> Completed 0 share(s), 10517 Khashes, avg. hashrate 21.33 KH/s
+19:15:25.193 > >>> Completed 0 share(s), 10540 Khashes, avg. hashrate 21.34 KH/s
+19:15:26.241 > >>> Completed 0 share(s), 10563 Khashes, avg. hashrate 21.34 KH/s
+19:15:27.289 > >>> Completed 0 share(s), 10586 Khashes, avg. hashrate 21.34 KH/s
+19:15:28.336 > >>> Completed 0 share(s), 10609 Khashes, avg. hashrate 21.35 KH/s
+19:15:29.384 > >>> Completed 0 share(s), 10631 Khashes, avg. hashrate 21.35 KH/s
+19:15:30.432 > >>> Completed 0 share(s), 10654 Khashes, avg. hashrate 21.35 KH/s
+19:15:31.480 > >>> Completed 0 share(s), 10677 Khashes, avg. hashrate 21.35 KH/s
+19:15:32.529 > >>> Completed 0 share(s), 10700 Khashes, avg. hashrate 21.31 KH/s
+19:15:33.577 > >>> Completed 0 share(s), 10723 Khashes, avg. hashrate 21.32 KH/s
+19:15:34.625 > >>> Completed 0 share(s), 10746 Khashes, avg. hashrate 21.32 KH/s
+19:15:35.673 > >>> Completed 0 share(s), 10769 Khashes, avg. hashrate 21.32 KH/s
+19:15:36.722 > >>> Completed 0 share(s), 10792 Khashes, avg. hashrate 21.33 KH/s
+19:15:37.770 > >>> Completed 0 share(s), 10815 Khashes, avg. hashrate 21.33 KH/s
+19:15:38.818 > >>> Completed 0 share(s), 10838 Khashes, avg. hashrate 21.33 KH/s
+19:15:39.774 > signal strength (RSSI):-83
+19:15:39.865 > >>> Completed 0 share(s), 10860 Khashes, avg. hashrate 21.34 KH/s
+19:15:40.915 > >>> Completed 0 share(s), 10883 Khashes, avg. hashrate 21.34 KH/s
+19:15:41.963 > >>> Completed 0 share(s), 10906 Khashes, avg. hashrate 21.34 KH/s
+19:15:43.011 > >>> Completed 0 share(s), 10929 Khashes, avg. hashrate 21.35 KH/s
+19:15:44.060 > >>> Completed 0 share(s), 10952 Khashes, avg. hashrate 21.35 KH/s
+19:15:45.108 > >>> Completed 0 share(s), 10975 Khashes, avg. hashrate 21.35 KH/s
+19:15:46.156 > >>> Completed 0 share(s), 10998 Khashes, avg. hashrate 21.36 KH/s
+19:15:47.203 > >>> Completed 0 share(s), 11021 Khashes, avg. hashrate 21.36 KH/s
+19:15:48.253 > >>> Completed 0 share(s), 11044 Khashes, avg. hashrate 21.36 KH/s
+19:15:49.301 > >>> Completed 0 share(s), 11067 Khashes, avg. hashrate 21.36 KH/s
+19:15:50.348 > >>> Completed 0 share(s), 11089 Khashes, avg. hashrate 21.37 KH/s
+19:15:51.397 > >>> Completed 0 share(s), 11112 Khashes, avg. hashrate 21.37 KH/s
+19:15:52.443 > >>> Completed 0 share(s), 11135 Khashes, avg. hashrate 21.37 KH/s
+19:15:53.491 > >>> Completed 0 share(s), 11158 Khashes, avg. hashrate 21.38 KH/s
+19:15:54.538 > >>> Completed 0 share(s), 11180 Khashes, avg. hashrate 21.34 KH/s
+19:15:55.586 > >>> Completed 0 share(s), 11203 Khashes, avg. hashrate 21.34 KH/s
+19:15:56.636 > >>> Completed 0 share(s), 11226 Khashes, avg. hashrate 21.34 KH/s
+19:15:57.683 > >>> Completed 0 share(s), 11249 Khashes, avg. hashrate 21.35 KH/s
+19:15:58.732 > >>> Completed 0 share(s), 11272 Khashes, avg. hashrate 21.35 KH/s
+19:15:59.780 > >>> Completed 0 share(s), 11295 Khashes, avg. hashrate 21.35 KH/s
+19:16:00.829 > >>> Completed 0 share(s), 11318 Khashes, avg. hashrate 21.35 KH/s
+19:16:01.877 > >>> Completed 0 share(s), 11341 Khashes, avg. hashrate 21.36 KH/s
+19:16:02.924 > >>> Completed 0 share(s), 11364 Khashes, avg. hashrate 21.36 KH/s
+19:16:03.973 > >>> Completed 0 share(s), 11387 Khashes, avg. hashrate 21.36 KH/s
+19:16:05.022 > >>> Completed 0 share(s), 11409 Khashes, avg. hashrate 21.37 KH/s
+19:16:06.070 > >>> Completed 0 share(s), 11432 Khashes, avg. hashrate 21.37 KH/s
+19:16:07.117 > >>> Completed 0 share(s), 11455 Khashes, avg. hashrate 21.37 KH/s
+19:16:08.166 > >>> Completed 0 share(s), 11478 Khashes, avg. hashrate 21.37 KH/s
+19:16:09.215 > >>> Completed 0 share(s), 11501 Khashes, avg. hashrate 21.38 KH/s
+19:16:10.262 > >>> Completed 0 share(s), 11524 Khashes, avg. hashrate 21.38 KH/s
+19:16:11.311 > >>> Completed 0 share(s), 11547 Khashes, avg. hashrate 21.38 KH/s
+19:16:12.360 > >>> Completed 0 share(s), 11570 Khashes, avg. hashrate 21.39 KH/s
+19:16:13.409 > >>> Completed 0 share(s), 11593 Khashes, avg. hashrate 21.39 KH/s
+19:16:14.456 > >>> Completed 0 share(s), 11616 Khashes, avg. hashrate 21.39 KH/s
+19:16:15.504 > >>> Completed 0 share(s), 11638 Khashes, avg. hashrate 21.39 KH/s
+19:16:16.553 > >>> Completed 0 share(s), 11661 Khashes, avg. hashrate 21.36 KH/s
+19:16:17.601 > >>> Completed 0 share(s), 11684 Khashes, avg. hashrate 21.36 KH/s
+19:16:18.457 > signal strength (RSSI):-82
+19:16:18.649 > >>> Completed 0 share(s), 11707 Khashes, avg. hashrate 21.36 KH/s
+19:16:19.697 > >>> Completed 0 share(s), 11730 Khashes, avg. hashrate 21.37 KH/s
+19:16:20.745 > >>> Completed 0 share(s), 11753 Khashes, avg. hashrate 21.37 KH/s
+19:16:21.793 > >>> Completed 0 share(s), 11776 Khashes, avg. hashrate 21.37 KH/s
+19:16:22.841 > >>> Completed 0 share(s), 11799 Khashes, avg. hashrate 21.38 KH/s
+19:16:23.890 > >>> Completed 0 share(s), 11822 Khashes, avg. hashrate 21.38 KH/s
+19:16:24.938 > >>> Completed 0 share(s), 11844 Khashes, avg. hashrate 21.38 KH/s
+19:16:25.986 > >>> Completed 0 share(s), 11867 Khashes, avg. hashrate 21.38 KH/s
+19:16:27.034 > >>> Completed 0 share(s), 11890 Khashes, avg. hashrate 21.38 KH/s
+19:16:28.083 > >>> Completed 0 share(s), 11913 Khashes, avg. hashrate 21.39 KH/s
+19:16:29.132 > >>> Completed 0 share(s), 11936 Khashes, avg. hashrate 21.39 KH/s
+19:16:30.180 > >>> Completed 0 share(s), 11959 Khashes, avg. hashrate 21.39 KH/s
+19:16:31.227 > >>> Completed 0 share(s), 11982 Khashes, avg. hashrate 21.40 KH/s
+19:16:32.276 > >>> Completed 0 share(s), 12005 Khashes, avg. hashrate 21.40 KH/s
+19:16:33.324 > >>> Completed 0 share(s), 12028 Khashes, avg. hashrate 21.40 KH/s
+19:16:34.372 > >>> Completed 0 share(s), 12051 Khashes, avg. hashrate 21.40 KH/s
+19:16:35.420 > >>> Completed 0 share(s), 12074 Khashes, avg. hashrate 21.41 KH/s
+19:16:36.468 > >>> Completed 0 share(s), 12097 Khashes, avg. hashrate 21.41 KH/s
+19:16:37.517 > >>> Completed 0 share(s), 12119 Khashes, avg. hashrate 21.37 KH/s
+19:16:38.564 > >>> Completed 0 share(s), 12142 Khashes, avg. hashrate 21.38 KH/s
+19:16:39.613 > >>> Completed 0 share(s), 12165 Khashes, avg. hashrate 21.38 KH/s
+19:16:40.661 > >>> Completed 0 share(s), 12188 Khashes, avg. hashrate 21.38 KH/s
+19:16:41.710 > >>> Completed 0 share(s), 12211 Khashes, avg. hashrate 21.39 KH/s
+19:16:42.757 > >>> Completed 0 share(s), 12234 Khashes, avg. hashrate 21.39 KH/s
+19:16:43.806 > >>> Completed 0 share(s), 12257 Khashes, avg. hashrate 21.39 KH/s
+19:16:44.854 > >>> Completed 0 share(s), 12280 Khashes, avg. hashrate 21.39 KH/s
+19:16:45.902 > >>> Completed 0 share(s), 12303 Khashes, avg. hashrate 21.40 KH/s
+19:16:46.445 > [WORKER] (0) ==> Mining subscribe
+19:16:46.445 >   Sending  : {"id": 9, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:16:46.445 > 
+19:16:46.474 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQDPH"],["mining.notify","0HMQ5LR8VQDPH"]],"800942bb",4],"error":null,"id":9}
+19:16:46.476 >     sub_details: 0HMQ5LR8VQDPH
+19:16:46.476 >     extranonce1: 800942bb
+19:16:46.476 >     extranonce2_size: 4
+19:16:46.476 >     error: 0
+19:16:46.476 > [WORKER] (0) ==> Autorize work
+19:16:46.477 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 10, "method": "mining.authorize"}
+19:16:46.477 > 
+19:16:46.487 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132da","760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c047be8536400","0168000000000103d74025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["fb8bdf66a083396c0949a90db81751367c844bd6de18363ef5ff28baeaee930a","207feab8e11dda409111ef53d3c0dd94c1d749a0a02485e014a12ba4f83ce6d8","ad50b5e916de1d609eccc4d768606cefbcff8f0bea327eb81c6595a07546b263","b04daf34305165823548b989e6f7fbaa0978772e366fc43e0c32c32e66537ce4"],"20000000","1806048e","6453e87b",false],"id":null}
+19:16:46.488 >   Receiving: {"result":true,"error":null,"id":10}
+19:16:46.507 >   Receiving: >>> Completed 0 share(s), 12319 Khashes, avg. hashrate 21.39 KH/s
+19:16:47.507 > 
+19:16:47.509 >     job_id: 000132da
+19:16:47.509 >     prevhash: 760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000
+19:16:47.509 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c047be8536400
+19:16:47.509 >     coinb2: 0168000000000103d74025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:16:47.509 >     merkle_branch size: 4
+19:16:47.509 >     version: 20000000
+19:16:47.509 >     nbits: 1806048e
+19:16:47.509 >     ntime: 6453e87b
+19:16:47.509 >     clean_jobs: 0
+19:16:47.509 >     target: 000000000000000000006048e000000000000000000000000000000000000000�
+19:16:47.510 >     extranonce2: ed6202720
+19:16:47.510 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c047be8536400800942bbed62027200168000000000103d74025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:16:47.510 >     coinbase bytes - size: 106
+19:16:47.510 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8b 12 0c 04 7b e8 53 64 00 80 09 42 bb ed 62 02 72 00 16 80 00 00 00 00 10 3d 74 02 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:16:47.512 >     coinbase double sha: 63eba3938127b7753e286ac4ec82100ae057e12946e03021b140420931531b0f
+19:16:47.512 >     merkle element    0: fb8bdf66a083396c0949a90db81751367c844bd6de18363ef5ff28baeaee930a
+19:16:47.513 >     merkle element    0: fb8bdf66a083396c0949a90db81751367c844bd6de18363ef5ff28baeaee930a
+19:16:47.513 >     merkle concatenated: 63eba3938127b7753e286ac4ec82100ae057e12946e03021b140420931531b0ffb8bdf66a083396c0949a90db81751367c844bd6de18363ef5ff28baeaee930a
+19:16:47.514 >     merkle sha         : 2eb0b37d21ad65dfa67de899e6122bed0104894016a8ec56e4974f67910b130a
+19:16:47.514 >     merkle element    1: 207feab8e11dda409111ef53d3c0dd94c1d749a0a02485e014a12ba4f83ce6d8
+19:16:47.514 >     merkle element    1: 207feab8e11dda409111ef53d3c0dd94c1d749a0a02485e014a12ba4f83ce6d8
+19:16:47.514 >     merkle concatenated: 2eb0b37d21ad65dfa67de899e6122bed0104894016a8ec56e4974f67910b130a207feab8e11dda409111ef53d3c0dd94c1d749a0a02485e014a12ba4f83ce6d8
+19:16:47.515 >     merkle sha         : 6833efc67d0b6548b06e69d7a8a9db3e47aa5f1593ca49de681a3f71e49f8e86
+19:16:47.516 >     merkle element    2: ad50b5e916de1d609eccc4d768606cefbcff8f0bea327eb81c6595a07546b263
+19:16:47.516 >     merkle element    2: ad50b5e916de1d609eccc4d768606cefbcff8f0bea327eb81c6595a07546b263
+19:16:47.516 >     merkle concatenated: 6833efc67d0b6548b06e69d7a8a9db3e47aa5f1593ca49de681a3f71e49f8e86ad50b5e916de1d609eccc4d768606cefbcff8f0bea327eb81c6595a07546b263
+19:16:47.518 >     merkle sha         : 12823a4e6519a553e2bb40711c93623ffbddb30436b1f35eeb6948035bc9c665
+19:16:47.519 >     merkle element    3: b04daf34305165823548b989e6f7fbaa0978772e366fc43e0c32c32e66537ce4
+19:16:47.519 >     merkle element    3: b04daf34305165823548b989e6f7fbaa0978772e366fc43e0c32c32e66537ce4
+19:16:47.519 >     merkle concatenated: 12823a4e6519a553e2bb40711c93623ffbddb30436b1f35eeb6948035bc9c665b04daf34305165823548b989e6f7fbaa0978772e366fc43e0c32c32e66537ce4
+19:16:47.519 >     merkle sha         : a94bf680ce46de5b7926b1d15ea1ff4ff0155ad338ac740a38c889da381e1647
+19:16:47.519 >     merkle sha         : a94bf680ce46de5b7926b1d15ea1ff4ff0155ad338ac740a38c889da381e1647
+19:16:47.521 >     blockheader bytes 
+19:16:47.521 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:16:47.521 > version
+19:16:47.521 > 00000020
+19:16:47.521 > prev hash
+19:16:47.521 > 760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000
+19:16:47.521 > merkle root
+19:16:47.521 > 47161e38da89c8380a74ac38d35a15f04fffa15ed1b126795bde46ce80f64ba9
+19:16:47.521 > time
+19:16:47.521 > 1806048e
+19:16:47.521 > difficulty
+19:16:47.521 > 7be85364
+19:16:47.521 > nonce
+19:16:47.521 > 00000000
+19:16:47.521 > >>> STARTING TO HASH NONCES
+19:16:47.999 > >>> Completed 0 share(s), 12330 Khashes, avg. hashrate 21.37 KH/s
+19:16:49.047 > >>> Completed 0 share(s), 12353 Khashes, avg. hashrate 21.37 KH/s
+19:16:50.095 > >>> Completed 0 share(s), 12376 Khashes, avg. hashrate 21.37 KH/s
+19:16:51.143 > >>> Completed 0 share(s), 12398 Khashes, avg. hashrate 21.38 KH/s
+19:16:52.192 > >>> Completed 0 share(s), 12421 Khashes, avg. hashrate 21.38 KH/s
+19:16:53.240 > >>> Completed 0 share(s), 12444 Khashes, avg. hashrate 21.38 KH/s
+19:16:54.288 > >>> Completed 0 share(s), 12467 Khashes, avg. hashrate 21.38 KH/s
+19:16:55.337 > >>> Completed 0 share(s), 12490 Khashes, avg. hashrate 21.39 KH/s
+19:16:56.385 > >>> Completed 0 share(s), 12513 Khashes, avg. hashrate 21.39 KH/s
+19:16:57.434 > >>> Completed 0 share(s), 12536 Khashes, avg. hashrate 21.39 KH/s
+19:16:58.483 > >>> Completed 0 share(s), 12559 Khashes, avg. hashrate 21.40 KH/s
+19:16:59.532 > >>> Completed 0 share(s), 12582 Khashes, avg. hashrate 21.36 KH/s
+19:17:00.581 > >>> Completed 0 share(s), 12605 Khashes, avg. hashrate 21.36 KH/s
+19:17:01.630 > >>> Completed 0 share(s), 12627 Khashes, avg. hashrate 21.37 KH/s
+19:17:02.678 > >>> Completed 0 share(s), 12650 Khashes, avg. hashrate 21.37 KH/s
+19:17:03.727 > >>> Completed 0 share(s), 12673 Khashes, avg. hashrate 21.37 KH/s
+19:17:04.775 > >>> Completed 0 share(s), 12696 Khashes, avg. hashrate 21.37 KH/s
+19:17:05.823 > >>> Completed 0 share(s), 12719 Khashes, avg. hashrate 21.38 KH/s
+19:17:06.872 > >>> Completed 0 share(s), 12742 Khashes, avg. hashrate 21.38 KH/s
+19:17:06.921 > signal strength (RSSI):-82
+19:17:07.921 > >>> Completed 0 share(s), 12765 Khashes, avg. hashrate 21.38 KH/s
+19:17:08.970 > >>> Completed 0 share(s), 12788 Khashes, avg. hashrate 21.38 KH/s
+19:17:10.019 > >>> Completed 0 share(s), 12811 Khashes, avg. hashrate 21.39 KH/s
+19:17:11.068 > >>> Completed 0 share(s), 12834 Khashes, avg. hashrate 21.39 KH/s
+19:17:12.117 > >>> Completed 0 share(s), 12856 Khashes, avg. hashrate 21.39 KH/s
+19:17:13.165 > >>> Completed 0 share(s), 12879 Khashes, avg. hashrate 21.39 KH/s
+19:17:14.214 > >>> Completed 0 share(s), 12902 Khashes, avg. hashrate 21.40 KH/s
+19:17:15.263 > >>> Completed 0 share(s), 12925 Khashes, avg. hashrate 21.40 KH/s
+19:17:16.311 > >>> Completed 0 share(s), 12948 Khashes, avg. hashrate 21.40 KH/s
+19:17:17.360 > >>> Completed 0 share(s), 12971 Khashes, avg. hashrate 21.40 KH/s
+19:17:18.409 > >>> Completed 0 share(s), 12994 Khashes, avg. hashrate 21.41 KH/s
+19:17:19.458 > >>> Completed 0 share(s), 13017 Khashes, avg. hashrate 21.41 KH/s
+19:17:20.507 > >>> Completed 0 share(s), 13040 Khashes, avg. hashrate 21.41 KH/s
+19:17:21.555 > >>> Completed 0 share(s), 13063 Khashes, avg. hashrate 21.38 KH/s
+19:17:22.604 > >>> Completed 0 share(s), 13086 Khashes, avg. hashrate 21.38 KH/s
+19:17:23.653 > >>> Completed 0 share(s), 13108 Khashes, avg. hashrate 21.38 KH/s
+19:17:24.702 > >>> Completed 0 share(s), 13131 Khashes, avg. hashrate 21.39 KH/s
+19:17:25.751 > >>> Completed 0 share(s), 13154 Khashes, avg. hashrate 21.39 KH/s
+19:17:26.799 > >>> Completed 0 share(s), 13177 Khashes, avg. hashrate 21.39 KH/s
+19:17:27.848 > >>> Completed 0 share(s), 13200 Khashes, avg. hashrate 21.39 KH/s
+19:17:28.897 > >>> Completed 0 share(s), 13223 Khashes, avg. hashrate 21.40 KH/s
+19:17:29.946 > >>> Completed 0 share(s), 13246 Khashes, avg. hashrate 21.40 KH/s
+19:17:30.995 > >>> Completed 0 share(s), 13269 Khashes, avg. hashrate 21.40 KH/s
+19:17:32.044 > >>> Completed 0 share(s), 13292 Khashes, avg. hashrate 21.40 KH/s
+19:17:33.093 > >>> Completed 0 share(s), 13314 Khashes, avg. hashrate 21.41 KH/s
+19:17:34.142 > >>> Completed 0 share(s), 13337 Khashes, avg. hashrate 21.41 KH/s
+19:17:35.192 > >>> Completed 0 share(s), 13360 Khashes, avg. hashrate 21.41 KH/s
+19:17:36.240 > >>> Completed 0 share(s), 13383 Khashes, avg. hashrate 21.41 KH/s
+19:17:37.289 > >>> Completed 0 share(s), 13406 Khashes, avg. hashrate 21.42 KH/s
+19:17:38.338 > >>> Completed 0 share(s), 13429 Khashes, avg. hashrate 21.42 KH/s
+19:17:39.387 > >>> Completed 0 share(s), 13452 Khashes, avg. hashrate 21.42 KH/s
+19:17:40.436 > >>> Completed 0 share(s), 13475 Khashes, avg. hashrate 21.42 KH/s
+19:17:41.485 > >>> Completed 0 share(s), 13498 Khashes, avg. hashrate 21.43 KH/s
+19:17:42.532 > >>> Completed 0 share(s), 13520 Khashes, avg. hashrate 21.39 KH/s
+19:17:43.581 > >>> Completed 0 share(s), 13543 Khashes, avg. hashrate 21.39 KH/s
+19:17:44.630 > >>> Completed 0 share(s), 13566 Khashes, avg. hashrate 21.40 KH/s
+19:17:45.679 > >>> Completed 0 share(s), 13589 Khashes, avg. hashrate 21.40 KH/s
+19:17:45.728 > signal strength (RSSI):-82
+19:17:46.728 > >>> Completed 0 share(s), 13612 Khashes, avg. hashrate 21.40 KH/s
+19:17:47.777 > >>> Completed 0 share(s), 13635 Khashes, avg. hashrate 21.41 KH/s
+19:17:48.826 > >>> Completed 0 share(s), 13658 Khashes, avg. hashrate 21.41 KH/s
+19:17:49.875 > >>> Completed 0 share(s), 13681 Khashes, avg. hashrate 21.41 KH/s
+19:17:50.924 > >>> Completed 0 share(s), 13704 Khashes, avg. hashrate 21.41 KH/s
+19:17:51.973 > >>> Completed 0 share(s), 13726 Khashes, avg. hashrate 21.41 KH/s
+19:17:53.022 > >>> Completed 0 share(s), 13749 Khashes, avg. hashrate 21.42 KH/s
+19:17:54.071 > >>> Completed 0 share(s), 13772 Khashes, avg. hashrate 21.42 KH/s
+19:17:55.120 > >>> Completed 0 share(s), 13795 Khashes, avg. hashrate 21.42 KH/s
+19:17:56.169 > >>> Completed 0 share(s), 13818 Khashes, avg. hashrate 21.42 KH/s
+19:17:57.218 > >>> Completed 0 share(s), 13841 Khashes, avg. hashrate 21.43 KH/s
+19:17:58.267 > >>> Completed 0 share(s), 13864 Khashes, avg. hashrate 21.43 KH/s
+19:17:59.316 > >>> Completed 0 share(s), 13887 Khashes, avg. hashrate 21.43 KH/s
+19:18:00.365 > >>> Completed 0 share(s), 13910 Khashes, avg. hashrate 21.43 KH/s
+19:18:01.414 > >>> Completed 0 share(s), 13933 Khashes, avg. hashrate 21.44 KH/s
+19:18:02.463 > >>> Completed 0 share(s), 13956 Khashes, avg. hashrate 21.44 KH/s
+19:18:03.512 > >>> Completed 0 share(s), 13979 Khashes, avg. hashrate 21.44 KH/s
+19:18:04.561 > >>> Completed 0 share(s), 14001 Khashes, avg. hashrate 21.41 KH/s
+19:18:05.610 > >>> Completed 0 share(s), 14024 Khashes, avg. hashrate 21.41 KH/s
+19:18:06.659 > >>> Completed 0 share(s), 14047 Khashes, avg. hashrate 21.41 KH/s
+19:18:07.708 > >>> Completed 0 share(s), 14070 Khashes, avg. hashrate 21.42 KH/s
+19:18:08.757 > >>> Completed 0 share(s), 14093 Khashes, avg. hashrate 21.42 KH/s
+19:18:09.806 > >>> Completed 0 share(s), 14116 Khashes, avg. hashrate 21.42 KH/s
+19:18:10.855 > >>> Completed 0 share(s), 14139 Khashes, avg. hashrate 21.42 KH/s
+19:18:11.903 > >>> Completed 0 share(s), 14162 Khashes, avg. hashrate 21.43 KH/s
+19:18:12.952 > >>> Completed 0 share(s), 14185 Khashes, avg. hashrate 21.43 KH/s
+19:18:14.001 > >>> Completed 0 share(s), 14208 Khashes, avg. hashrate 21.43 KH/s
+19:18:15.049 > >>> Completed 0 share(s), 14230 Khashes, avg. hashrate 21.43 KH/s
+19:18:16.097 > >>> Completed 0 share(s), 14253 Khashes, avg. hashrate 21.43 KH/s
+19:18:17.145 > >>> Completed 0 share(s), 14276 Khashes, avg. hashrate 21.44 KH/s
+19:18:18.194 > >>> Completed 0 share(s), 14299 Khashes, avg. hashrate 21.44 KH/s
+19:18:19.242 > >>> Completed 0 share(s), 14322 Khashes, avg. hashrate 21.44 KH/s
+19:18:20.290 > >>> Completed 0 share(s), 14345 Khashes, avg. hashrate 21.44 KH/s
+19:18:21.338 > >>> Completed 0 share(s), 14368 Khashes, avg. hashrate 21.44 KH/s
+19:18:22.387 > >>> Completed 0 share(s), 14391 Khashes, avg. hashrate 21.45 KH/s
+19:18:23.436 > >>> Completed 0 share(s), 14414 Khashes, avg. hashrate 21.45 KH/s
+19:18:24.485 > >>> Completed 0 share(s), 14436 Khashes, avg. hashrate 21.45 KH/s
+19:18:25.534 > >>> Completed 0 share(s), 14459 Khashes, avg. hashrate 21.42 KH/s
+19:18:25.583 > signal strength (RSSI):-83
+19:18:26.583 > >>> Completed 0 share(s), 14482 Khashes, avg. hashrate 21.42 KH/s
+19:18:27.632 > >>> Completed 0 share(s), 14505 Khashes, avg. hashrate 21.43 KH/s
+19:18:28.681 > >>> Completed 0 share(s), 14528 Khashes, avg. hashrate 21.43 KH/s
+19:18:29.730 > >>> Completed 0 share(s), 14551 Khashes, avg. hashrate 21.43 KH/s
+19:18:30.779 > >>> Completed 0 share(s), 14574 Khashes, avg. hashrate 21.43 KH/s
+19:18:31.828 > >>> Completed 0 share(s), 14597 Khashes, avg. hashrate 21.43 KH/s
+19:18:32.877 > >>> Completed 0 share(s), 14620 Khashes, avg. hashrate 21.44 KH/s
+19:18:33.926 > >>> Completed 0 share(s), 14643 Khashes, avg. hashrate 21.44 KH/s
+19:18:34.975 > >>> Completed 0 share(s), 14666 Khashes, avg. hashrate 21.44 KH/s
+19:18:36.024 > >>> Completed 0 share(s), 14689 Khashes, avg. hashrate 21.44 KH/s
+19:18:37.073 > >>> Completed 0 share(s), 14711 Khashes, avg. hashrate 21.44 KH/s
+19:18:38.122 > >>> Completed 0 share(s), 14734 Khashes, avg. hashrate 21.45 KH/s
+19:18:39.171 > >>> Completed 0 share(s), 14757 Khashes, avg. hashrate 21.45 KH/s
+19:18:40.220 > >>> Completed 0 share(s), 14780 Khashes, avg. hashrate 21.45 KH/s
+19:18:41.269 > >>> Completed 0 share(s), 14803 Khashes, avg. hashrate 21.45 KH/s
+19:18:42.318 > >>> Completed 0 share(s), 14826 Khashes, avg. hashrate 21.46 KH/s
+19:18:43.367 > >>> Completed 0 share(s), 14849 Khashes, avg. hashrate 21.46 KH/s
+19:18:44.416 > >>> Completed 0 share(s), 14872 Khashes, avg. hashrate 21.46 KH/s
+19:18:45.466 > >>> Completed 0 share(s), 14895 Khashes, avg. hashrate 21.46 KH/s
+19:18:46.515 > >>> Completed 0 share(s), 14918 Khashes, avg. hashrate 21.43 KH/s
+19:18:47.564 > >>> Completed 0 share(s), 14941 Khashes, avg. hashrate 21.44 KH/s
+19:18:48.612 > >>> Completed 0 share(s), 14964 Khashes, avg. hashrate 21.44 KH/s
+19:18:49.662 > >>> Completed 0 share(s), 14987 Khashes, avg. hashrate 21.44 KH/s
+19:18:50.711 > >>> Completed 0 share(s), 15009 Khashes, avg. hashrate 21.44 KH/s
+19:18:51.760 > >>> Completed 0 share(s), 15032 Khashes, avg. hashrate 21.44 KH/s
+19:18:52.809 > >>> Completed 0 share(s), 15055 Khashes, avg. hashrate 21.45 KH/s
+19:18:53.858 > >>> Completed 0 share(s), 15078 Khashes, avg. hashrate 21.45 KH/s
+19:18:54.907 > >>> Completed 0 share(s), 15101 Khashes, avg. hashrate 21.45 KH/s
+19:18:55.956 > >>> Completed 0 share(s), 15124 Khashes, avg. hashrate 21.45 KH/s
+19:18:57.006 > >>> Completed 0 share(s), 15147 Khashes, avg. hashrate 21.45 KH/s
+19:18:58.055 > >>> Completed 0 share(s), 15170 Khashes, avg. hashrate 21.46 KH/s
+19:18:59.104 > >>> Completed 0 share(s), 15193 Khashes, avg. hashrate 21.46 KH/s
+19:19:00.153 > >>> Completed 0 share(s), 15216 Khashes, avg. hashrate 21.46 KH/s
+19:19:01.203 > >>> Completed 0 share(s), 15239 Khashes, avg. hashrate 21.46 KH/s
+19:19:02.252 > >>> Completed 0 share(s), 15262 Khashes, avg. hashrate 21.47 KH/s
+19:19:02.463 > signal strength (RSSI):-80
+19:19:03.300 > >>> Completed 0 share(s), 15285 Khashes, avg. hashrate 21.47 KH/s
+19:19:04.349 > >>> Completed 0 share(s), 15308 Khashes, avg. hashrate 21.47 KH/s
+19:19:05.398 > >>> Completed 0 share(s), 15330 Khashes, avg. hashrate 21.47 KH/s
+19:19:06.446 > >>> Completed 0 share(s), 15353 Khashes, avg. hashrate 21.47 KH/s
+19:19:07.495 > >>> Completed 0 share(s), 15376 Khashes, avg. hashrate 21.47 KH/s
+19:19:08.253 > [WORKER] (0) ==> Mining subscribe
+19:19:08.254 >   Sending  : {"id": 11, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:19:08.254 > 
+19:19:08.281 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQE0I"],["mining.notify","0HMQ5LR8VQE0I"]],"80094330",4],"error":null,"id":11}
+19:19:08.283 >     sub_details: 0HMQ5LR8VQE0I
+19:19:08.283 >     extranonce1: 80094330
+19:19:08.283 >     extranonce2_size: 4
+19:19:08.283 >     error: 0
+19:19:08.283 > [WORKER] (0) ==> Autorize work
+19:19:08.284 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 12, "method": "mining.authorize"}
+19:19:08.284 > 
+19:19:08.286 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132e8","760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c0407e9536400","01680000000001ab104125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["4ad64e94055343b9001c4e1740b05e4763a25a583e075572dd411473f27e9f05","1da5834c39ee13b2ee8d0bab847cbd28e4e4f542709edf3a1bc627364a45973c","3958482c058fbf9d097ad2c8ecb03d52a6f0f9de817869ad1887629886e73901","1a374144d072cc0d8decc98b0206ed21f1917a9bb35aa71ccf61454339e95c11","f7c2c610637b586ce32b6c5dd31287f8a553b316fef3cf0a5775ca7dbce891ee","2e98b4f928a9f780fbcc2372719e21de2575541276b954137c18ff4dbddcd0cf"],"20000000","1806048e","6453e907",false],"id":null}
+19:19:08.287 >   Receiving: {"result":true,"error":null,"id":12}
+19:19:08.309 >   Receiving: >>> Completed 0 share(s), 15398 Khashes, avg. hashrate 21.45 KH/s
+19:19:09.308 > 
+19:19:09.310 >     job_id: 000132e8
+19:19:09.310 >     prevhash: 760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000
+19:19:09.310 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c0407e9536400
+19:19:09.310 >     coinb2: 01680000000001ab104125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:19:09.310 >     merkle_branch size: 6
+19:19:09.310 >     version: 20000000
+19:19:09.310 >     nbits: 1806048e
+19:19:09.310 >     ntime: 6453e907
+19:19:09.310 >     clean_jobs: 0
+19:19:09.310 >     target: 000000000000000000006048e000000000000000000000000000000000000000�
+19:19:09.311 >     extranonce2: 21a3a883
+19:19:09.311 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038b120c0407e95364008009433021a3a88301680000000001ab104125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:19:09.311 >     coinbase bytes - size: 106
+19:19:09.311 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8b 12 0c 04 07 e9 53 64 00 80 09 43 30 21 a3 a8 83 60 16 80 00 00 00 00 1a b1 04 12 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:19:09.313 >     coinbase double sha: fcccb3398cf9eb73330e51c0fa63fd2fe60c9edd49fa627d223c3ca9fac9d291
+19:19:09.313 >     merkle element    0: 4ad64e94055343b9001c4e1740b05e4763a25a583e075572dd411473f27e9f05
+19:19:09.315 >     merkle element    0: 4ad64e94055343b9001c4e1740b05e4763a25a583e075572dd411473f27e9f05
+19:19:09.315 >     merkle concatenated: fcccb3398cf9eb73330e51c0fa63fd2fe60c9edd49fa627d223c3ca9fac9d2914ad64e94055343b9001c4e1740b05e4763a25a583e075572dd411473f27e9f05
+19:19:09.315 >     merkle sha         : 213b0428d8bbe302fb89249602887c4deaba38408583f1747b5d6010c8610960
+19:19:09.319 >     merkle element    1: 1da5834c39ee13b2ee8d0bab847cbd28e4e4f542709edf3a1bc627364a45973c
+19:19:09.319 >     merkle element    1: 1da5834c39ee13b2ee8d0bab847cbd28e4e4f542709edf3a1bc627364a45973c
+19:19:09.319 >     merkle concatenated: 213b0428d8bbe302fb89249602887c4deaba38408583f1747b5d6010c86109601da5834c39ee13b2ee8d0bab847cbd28e4e4f542709edf3a1bc627364a45973c
+19:19:09.319 >     merkle sha         : 7499e41020211b4bc732113d37499218fc6c9684745628504b826cde6c95d482
+19:19:09.319 >     merkle element    2: 3958482c058fbf9d097ad2c8ecb03d52a6f0f9de817869ad1887629886e73901
+19:19:09.319 >     merkle element    2: 3958482c058fbf9d097ad2c8ecb03d52a6f0f9de817869ad1887629886e73901
+19:19:09.319 >     merkle concatenated: 7499e41020211b4bc732113d37499218fc6c9684745628504b826cde6c95d4823958482c058fbf9d097ad2c8ecb03d52a6f0f9de817869ad1887629886e73901
+19:19:09.319 >     merkle sha         : ec32946a2bcbcef0c6bacf1d8020aabc005cf933fc5c31b3a1e7bb7f872dcd0e
+19:19:09.319 >     merkle element    3: 1a374144d072cc0d8decc98b0206ed21f1917a9bb35aa71ccf61454339e95c11
+19:19:09.319 >     merkle element    3: 1a374144d072cc0d8decc98b0206ed21f1917a9bb35aa71ccf61454339e95c11
+19:19:09.319 >     merkle concatenated: ec32946a2bcbcef0c6bacf1d8020aabc005cf933fc5c31b3a1e7bb7f872dcd0e1a374144d072cc0d8decc98b0206ed21f1917a9bb35aa71ccf61454339e95c11
+19:19:09.320 >     merkle sha         : bec9bb2470db7f0868e8c5ed1690f1c3e3c8b443012025954d94e17ca5b0621d
+19:19:09.320 >     merkle element    4: f7c2c610637b586ce32b6c5dd31287f8a553b316fef3cf0a5775ca7dbce891ee
+19:19:09.320 >     merkle element    4: f7c2c610637b586ce32b6c5dd31287f8a553b316fef3cf0a5775ca7dbce891ee
+19:19:09.320 >     merkle concatenated: bec9bb2470db7f0868e8c5ed1690f1c3e3c8b443012025954d94e17ca5b0621df7c2c610637b586ce32b6c5dd31287f8a553b316fef3cf0a5775ca7dbce891ee
+19:19:09.322 >     merkle sha         : a9be0911588653cfa83e0e933dbed52574d46dce9c57785c25fe47290fb06a22
+19:19:09.322 >     merkle element    5: 2e98b4f928a9f780fbcc2372719e21de2575541276b954137c18ff4dbddcd0cf
+19:19:09.322 >     merkle element    5: 2e98b4f928a9f780fbcc2372719e21de2575541276b954137c18ff4dbddcd0cf
+19:19:09.322 >     merkle concatenated: a9be0911588653cfa83e0e933dbed52574d46dce9c57785c25fe47290fb06a222e98b4f928a9f780fbcc2372719e21de2575541276b954137c18ff4dbddcd0cf
+19:19:09.325 >     merkle sha         : cb8527e028730a7c3c8cd97c01944691304360623cd01c42581d7ff3124dd0ea
+19:19:09.325 >     merkle sha         : cb8527e028730a7c3c8cd97c01944691304360623cd01c42581d7ff3124dd0ea
+19:19:09.325 >     blockheader bytes 
+19:19:09.325 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:19:09.325 > version
+19:19:09.325 > 00000020
+19:19:09.325 > prev hash
+19:19:09.325 > 760c5689e499e6a4042b5f6715793fbd8697010801abb1140000000000000000
+19:19:09.326 > merkle root
+19:19:09.326 > ead04d12f37f1d58421cd03c62604330914694017cd98c3c7c0a7328e02785cb
+19:19:09.326 > time
+19:19:09.326 > 1806048e
+19:19:09.326 > difficulty
+19:19:09.326 > 07e95364
+19:19:09.326 > nonce
+19:19:09.326 > 00000000
+19:19:09.326 > >>> STARTING TO HASH NONCES
+19:19:09.589 > >>> Completed 0 share(s), 15405 Khashes, avg. hashrate 21.43 KH/s
+19:19:10.638 > >>> Completed 0 share(s), 15428 Khashes, avg. hashrate 21.43 KH/s
+19:19:11.687 > >>> Completed 0 share(s), 15451 Khashes, avg. hashrate 21.43 KH/s
+19:19:12.734 > >>> Completed 0 share(s), 15473 Khashes, avg. hashrate 21.43 KH/s
+19:19:13.782 > >>> Completed 0 share(s), 15496 Khashes, avg. hashrate 21.43 KH/s
+19:19:14.830 > >>> Completed 0 share(s), 15519 Khashes, avg. hashrate 21.44 KH/s
+19:19:15.879 > >>> Completed 0 share(s), 15542 Khashes, avg. hashrate 21.44 KH/s
+19:19:16.928 > >>> Completed 0 share(s), 15565 Khashes, avg. hashrate 21.44 KH/s
+19:19:17.977 > >>> Completed 0 share(s), 15588 Khashes, avg. hashrate 21.44 KH/s
+19:19:19.026 > >>> Completed 0 share(s), 15611 Khashes, avg. hashrate 21.44 KH/s
+19:19:20.073 > >>> Completed 0 share(s), 15634 Khashes, avg. hashrate 21.45 KH/s
+19:19:21.121 > >>> Completed 0 share(s), 15657 Khashes, avg. hashrate 21.45 KH/s
+19:19:22.171 > >>> Completed 0 share(s), 15679 Khashes, avg. hashrate 21.45 KH/s
+19:19:23.220 > >>> Completed 0 share(s), 15702 Khashes, avg. hashrate 21.45 KH/s
+19:19:24.268 > >>> Completed 0 share(s), 15725 Khashes, avg. hashrate 21.45 KH/s
+19:19:25.316 > >>> Completed 0 share(s), 15748 Khashes, avg. hashrate 21.46 KH/s
+19:19:26.365 > >>> Completed 0 share(s), 15771 Khashes, avg. hashrate 21.46 KH/s
+19:19:27.415 > >>> Completed 0 share(s), 15794 Khashes, avg. hashrate 21.46 KH/s
+19:19:28.463 > >>> Completed 0 share(s), 15817 Khashes, avg. hashrate 21.46 KH/s
+19:19:29.513 > >>> Completed 0 share(s), 15840 Khashes, avg. hashrate 21.43 KH/s
+19:19:30.562 > >>> Completed 0 share(s), 15862 Khashes, avg. hashrate 21.44 KH/s
+19:19:31.611 > >>> Completed 0 share(s), 15885 Khashes, avg. hashrate 21.44 KH/s
+19:19:32.655 > >>> Completed 0 share(s), 15907 Khashes, avg. hashrate 21.44 KH/s
+19:19:33.704 > >>> Completed 0 share(s), 15930 Khashes, avg. hashrate 21.44 KH/s
+19:19:34.753 > >>> Completed 0 share(s), 15953 Khashes, avg. hashrate 21.44 KH/s
+19:19:35.802 > >>> Completed 0 share(s), 15976 Khashes, avg. hashrate 21.44 KH/s
+19:19:36.851 > >>> Completed 0 share(s), 15999 Khashes, avg. hashrate 21.45 KH/s
+19:19:37.900 > >>> Completed 0 share(s), 16022 Khashes, avg. hashrate 21.45 KH/s
+19:19:38.949 > >>> Completed 0 share(s), 16045 Khashes, avg. hashrate 21.45 KH/s
+19:19:39.999 > >>> Completed 0 share(s), 16068 Khashes, avg. hashrate 21.45 KH/s
+19:19:41.047 > >>> Completed 0 share(s), 16091 Khashes, avg. hashrate 21.45 KH/s
+19:19:42.096 > >>> Completed 0 share(s), 16114 Khashes, avg. hashrate 21.46 KH/s
+19:19:43.145 > >>> Completed 0 share(s), 16137 Khashes, avg. hashrate 21.46 KH/s
+19:19:44.191 > >>> Completed 0 share(s), 16159 Khashes, avg. hashrate 21.46 KH/s
+19:19:45.240 > >>> Completed 0 share(s), 16182 Khashes, avg. hashrate 21.46 KH/s
+19:19:46.289 > >>> Completed 0 share(s), 16205 Khashes, avg. hashrate 21.46 KH/s
+19:19:46.338 > signal strength (RSSI):-80
+19:19:47.338 > >>> Completed 0 share(s), 16228 Khashes, avg. hashrate 21.47 KH/s
+19:19:48.387 > >>> Completed 0 share(s), 16251 Khashes, avg. hashrate 21.47 KH/s
+19:19:49.436 > >>> Completed 0 share(s), 16274 Khashes, avg. hashrate 21.47 KH/s
+19:19:50.486 > >>> Completed 0 share(s), 16296 Khashes, avg. hashrate 21.47 KH/s
+19:19:51.535 > >>> Completed 0 share(s), 16319 Khashes, avg. hashrate 21.44 KH/s
+19:19:52.584 > >>> Completed 0 share(s), 16342 Khashes, avg. hashrate 21.45 KH/s
+19:19:53.632 > >>> Completed 0 share(s), 16365 Khashes, avg. hashrate 21.45 KH/s
+19:19:54.681 > >>> Completed 0 share(s), 16388 Khashes, avg. hashrate 21.45 KH/s
+19:19:55.730 > >>> Completed 0 share(s), 16411 Khashes, avg. hashrate 21.45 KH/s
+19:19:56.780 > >>> Completed 0 share(s), 16434 Khashes, avg. hashrate 21.45 KH/s
+19:19:57.829 > >>> Completed 0 share(s), 16457 Khashes, avg. hashrate 21.46 KH/s
+19:19:58.878 > >>> Completed 0 share(s), 16480 Khashes, avg. hashrate 21.46 KH/s
+19:19:59.925 > >>> Completed 0 share(s), 16502 Khashes, avg. hashrate 21.46 KH/s
+19:20:00.973 > >>> Completed 0 share(s), 16525 Khashes, avg. hashrate 21.46 KH/s
+19:20:02.023 > >>> Completed 0 share(s), 16548 Khashes, avg. hashrate 21.46 KH/s
+19:20:03.071 > >>> Completed 0 share(s), 16571 Khashes, avg. hashrate 21.47 KH/s
+19:20:04.117 > >>> Completed 0 share(s), 16593 Khashes, avg. hashrate 21.47 KH/s
+19:20:05.165 > >>> Completed 0 share(s), 16616 Khashes, avg. hashrate 21.47 KH/s
+19:20:06.215 > >>> Completed 0 share(s), 16639 Khashes, avg. hashrate 21.47 KH/s
+19:20:07.264 > >>> Completed 0 share(s), 16662 Khashes, avg. hashrate 21.47 KH/s
+19:20:08.311 > >>> Completed 0 share(s), 16685 Khashes, avg. hashrate 21.47 KH/s
+19:20:09.360 > >>> Completed 0 share(s), 16708 Khashes, avg. hashrate 21.48 KH/s
+19:20:10.410 > >>> Completed 0 share(s), 16730 Khashes, avg. hashrate 21.48 KH/s
+19:20:11.459 > >>> Completed 0 share(s), 16753 Khashes, avg. hashrate 21.48 KH/s
+19:20:12.508 > >>> Completed 0 share(s), 16776 Khashes, avg. hashrate 21.48 KH/s
+19:20:13.557 > >>> Completed 0 share(s), 16799 Khashes, avg. hashrate 21.45 KH/s
+19:20:14.604 > >>> Completed 0 share(s), 16822 Khashes, avg. hashrate 21.46 KH/s
+19:20:15.651 > >>> Completed 0 share(s), 16844 Khashes, avg. hashrate 21.46 KH/s
+19:20:16.700 > >>> Completed 0 share(s), 16867 Khashes, avg. hashrate 21.46 KH/s
+19:20:17.749 > >>> Completed 0 share(s), 16890 Khashes, avg. hashrate 21.46 KH/s
+19:20:18.798 > >>> Completed 0 share(s), 16913 Khashes, avg. hashrate 21.46 KH/s
+19:20:19.843 > >>> Completed 0 share(s), 16935 Khashes, avg. hashrate 21.46 KH/s
+19:20:20.891 > >>> Completed 0 share(s), 16958 Khashes, avg. hashrate 21.47 KH/s
+19:20:21.940 > >>> Completed 0 share(s), 16981 Khashes, avg. hashrate 21.47 KH/s
+19:20:22.989 > >>> Completed 0 share(s), 17004 Khashes, avg. hashrate 21.47 KH/s
+19:20:24.034 > >>> Completed 0 share(s), 17026 Khashes, avg. hashrate 21.47 KH/s
+19:20:24.083 > signal strength (RSSI):-81
+19:20:25.083 > >>> Completed 0 share(s), 17049 Khashes, avg. hashrate 21.47 KH/s
+19:20:26.131 > >>> Completed 0 share(s), 17072 Khashes, avg. hashrate 21.47 KH/s
+19:20:27.180 > >>> Completed 0 share(s), 17095 Khashes, avg. hashrate 21.48 KH/s
+19:20:28.229 > >>> Completed 0 share(s), 17118 Khashes, avg. hashrate 21.48 KH/s
+19:20:29.278 > >>> Completed 0 share(s), 17141 Khashes, avg. hashrate 21.48 KH/s
+19:20:30.327 > >>> Completed 0 share(s), 17163 Khashes, avg. hashrate 21.48 KH/s
+19:20:31.376 > >>> Completed 0 share(s), 17186 Khashes, avg. hashrate 21.48 KH/s
+19:20:32.425 > >>> Completed 0 share(s), 17209 Khashes, avg. hashrate 21.48 KH/s
+19:20:33.474 > >>> Completed 0 share(s), 17232 Khashes, avg. hashrate 21.49 KH/s
+19:20:34.524 > >>> Completed 0 share(s), 17255 Khashes, avg. hashrate 21.46 KH/s
+19:20:35.572 > >>> Completed 0 share(s), 17278 Khashes, avg. hashrate 21.46 KH/s
+19:20:36.621 > >>> Completed 0 share(s), 17301 Khashes, avg. hashrate 21.47 KH/s
+19:20:37.670 > >>> Completed 0 share(s), 17324 Khashes, avg. hashrate 21.47 KH/s
+19:20:38.719 > >>> Completed 0 share(s), 17347 Khashes, avg. hashrate 21.47 KH/s
+19:20:39.768 > >>> Completed 0 share(s), 17370 Khashes, avg. hashrate 21.47 KH/s
+19:20:40.816 > >>> Completed 0 share(s), 17393 Khashes, avg. hashrate 21.47 KH/s
+19:20:41.865 > >>> Completed 0 share(s), 17416 Khashes, avg. hashrate 21.47 KH/s
+19:20:42.914 > >>> Completed 0 share(s), 17438 Khashes, avg. hashrate 21.48 KH/s
+19:20:43.963 > >>> Completed 0 share(s), 17461 Khashes, avg. hashrate 21.48 KH/s
+19:20:45.012 > >>> Completed 0 share(s), 17484 Khashes, avg. hashrate 21.48 KH/s
+19:20:46.061 > >>> Completed 0 share(s), 17507 Khashes, avg. hashrate 21.48 KH/s
+19:20:47.110 > >>> Completed 0 share(s), 17530 Khashes, avg. hashrate 21.48 KH/s
+19:20:48.159 > >>> Completed 0 share(s), 17553 Khashes, avg. hashrate 21.48 KH/s
+19:20:49.208 > >>> Completed 0 share(s), 17576 Khashes, avg. hashrate 21.49 KH/s
+19:20:50.257 > >>> Completed 0 share(s), 17599 Khashes, avg. hashrate 21.49 KH/s
+19:20:51.307 > >>> Completed 0 share(s), 17622 Khashes, avg. hashrate 21.49 KH/s
+19:20:52.356 > >>> Completed 0 share(s), 17645 Khashes, avg. hashrate 21.49 KH/s
+19:20:53.405 > >>> Completed 0 share(s), 17668 Khashes, avg. hashrate 21.49 KH/s
+19:20:54.454 > >>> Completed 0 share(s), 17691 Khashes, avg. hashrate 21.50 KH/s
+19:20:55.503 > >>> Completed 0 share(s), 17713 Khashes, avg. hashrate 21.50 KH/s
+19:20:56.553 > >>> Completed 0 share(s), 17736 Khashes, avg. hashrate 21.47 KH/s
+19:20:57.601 > >>> Completed 0 share(s), 17759 Khashes, avg. hashrate 21.47 KH/s
+19:20:58.650 > >>> Completed 0 share(s), 17782 Khashes, avg. hashrate 21.48 KH/s
+19:20:59.699 > >>> Completed 0 share(s), 17805 Khashes, avg. hashrate 21.48 KH/s
+19:21:00.748 > >>> Completed 0 share(s), 17828 Khashes, avg. hashrate 21.48 KH/s
+19:21:01.797 > >>> Completed 0 share(s), 17851 Khashes, avg. hashrate 21.48 KH/s
+19:21:01.847 > signal strength (RSSI):-75
+19:21:02.847 > >>> Completed 0 share(s), 17874 Khashes, avg. hashrate 21.48 KH/s
+19:21:03.896 > >>> Completed 0 share(s), 17897 Khashes, avg. hashrate 21.48 KH/s
+19:21:04.945 > >>> Completed 0 share(s), 17920 Khashes, avg. hashrate 21.49 KH/s
+19:21:05.994 > >>> Completed 0 share(s), 17943 Khashes, avg. hashrate 21.49 KH/s
+19:21:07.043 > >>> Completed 0 share(s), 17966 Khashes, avg. hashrate 21.49 KH/s
+19:21:08.092 > >>> Completed 0 share(s), 17988 Khashes, avg. hashrate 21.49 KH/s
+19:21:09.141 > >>> Completed 0 share(s), 18011 Khashes, avg. hashrate 21.49 KH/s
+19:21:10.190 > >>> Completed 0 share(s), 18034 Khashes, avg. hashrate 21.49 KH/s
+19:21:11.239 > >>> Completed 0 share(s), 18057 Khashes, avg. hashrate 21.50 KH/s
+19:21:12.288 > >>> Completed 0 share(s), 18080 Khashes, avg. hashrate 21.50 KH/s
+19:21:13.336 > >>> Completed 0 share(s), 18103 Khashes, avg. hashrate 21.50 KH/s
+19:21:14.385 > >>> Completed 0 share(s), 18126 Khashes, avg. hashrate 21.50 KH/s
+19:21:15.434 > >>> Completed 0 share(s), 18149 Khashes, avg. hashrate 21.50 KH/s
+19:21:16.483 > >>> Completed 0 share(s), 18172 Khashes, avg. hashrate 21.51 KH/s
+19:21:17.531 > >>> Completed 0 share(s), 18195 Khashes, avg. hashrate 21.48 KH/s
+19:21:18.580 > >>> Completed 0 share(s), 18218 Khashes, avg. hashrate 21.48 KH/s
+19:21:19.629 > >>> Completed 0 share(s), 18241 Khashes, avg. hashrate 21.49 KH/s
+19:21:20.677 > >>> Completed 0 share(s), 18263 Khashes, avg. hashrate 21.49 KH/s
+19:21:21.726 > >>> Completed 0 share(s), 18286 Khashes, avg. hashrate 21.49 KH/s
+19:21:22.775 > >>> Completed 0 share(s), 18309 Khashes, avg. hashrate 21.49 KH/s
+19:21:23.824 > >>> Completed 0 share(s), 18332 Khashes, avg. hashrate 21.49 KH/s
+19:21:24.873 > >>> Completed 0 share(s), 18355 Khashes, avg. hashrate 21.49 KH/s
+19:21:25.922 > >>> Completed 0 share(s), 18378 Khashes, avg. hashrate 21.49 KH/s
+19:21:26.971 > >>> Completed 0 share(s), 18401 Khashes, avg. hashrate 21.50 KH/s
+19:21:28.020 > >>> Completed 0 share(s), 18424 Khashes, avg. hashrate 21.50 KH/s
+19:21:29.069 > >>> Completed 0 share(s), 18447 Khashes, avg. hashrate 21.50 KH/s
+19:21:30.118 > >>> Completed 0 share(s), 18470 Khashes, avg. hashrate 21.50 KH/s
+19:21:30.366 > [WORKER] (0) ==> Mining subscribe
+19:21:30.366 >   Sending  : {"id": 13, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:21:30.366 > 
+19:21:30.395 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQE81"],["mining.notify","0HMQ5LR8VQE81"]],"800943ab",4],"error":null,"id":13}
+19:21:30.395 >     sub_details: 0HMQ5LR8VQE81
+19:21:30.395 >     extranonce1: 800943ab
+19:21:30.395 >     extranonce2_size: 4
+19:21:30.395 >     error: 0
+19:21:30.396 > [WORKER] (0) ==> Autorize work
+19:21:30.396 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 14, "method": "mining.authorize"}
+19:21:30.396 > 
+19:21:30.399 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["000132f7","55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0494e9536400","0168000000000140be4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",[],"20000000","180602de","6453e994",true],"id":null}
+19:21:30.400 >   Receiving: {"result":true,"error":null,"id":14}
+19:21:30.423 >   Receiving: >>> Completed 0 share(s), 18479 Khashes, avg. hashrate 21.49 KH/s
+19:21:31.423 > 
+19:21:31.424 >     job_id: 000132f7
+19:21:31.424 >     prevhash: 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:21:31.424 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0494e9536400
+19:21:31.424 >     coinb2: 0168000000000140be4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:21:31.424 >     merkle_branch size: 0
+19:21:31.424 >     version: 20000000
+19:21:31.424 >     nbits: 180602de
+19:21:31.424 >     ntime: 6453e994
+19:21:31.424 >     clean_jobs: 1
+19:21:31.425 >     target: 00000000000000000000602de000000000000000000000000000000000000000�
+19:21:31.425 >     extranonce2: 3b3b4cf9
+19:21:31.425 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0494e9536400800943ab3b3b4cf90168000000000140be4025000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:21:31.425 >     coinbase bytes - size: 106
+19:21:31.425 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8c 12 0c 04 94 e9 53 64 00 80 09 43 ab 3b 3b 4c f9 60 16 80 00 00 00 00 14 0b e4 02 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:21:31.427 >     coinbase double sha: 2c8a15ec4aac62f10c0d34a3d42fdada46941308478565ba2234499351c078b3
+19:21:31.427 >     merkle sha         : 2c8a15ec4aac62f10c0d34a3d42fdada46941308478565ba2234499351c078b3
+19:21:31.428 >     blockheader bytes 
+19:21:31.428 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:21:31.428 > version
+19:21:31.428 > 00000020
+19:21:31.428 > prev hash
+19:21:31.428 > 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:21:31.429 > merkle root
+19:21:31.429 > b378c05193493422ba65854708139446dada2fd4a3340d0cf162ac4aec158a2c
+19:21:31.429 > time
+19:21:31.429 > 180602de
+19:21:31.430 > difficulty
+19:21:31.430 > 94e95364
+19:21:31.430 > nonce
+19:21:31.430 > 00000000
+19:21:31.430 > >>> STARTING TO HASH NONCES
+19:21:32.216 > >>> Completed 0 share(s), 18496 Khashes, avg. hashrate 21.48 KH/s
+19:21:33.265 > >>> Completed 0 share(s), 18519 Khashes, avg. hashrate 21.48 KH/s
+19:21:34.315 > >>> Completed 0 share(s), 18542 Khashes, avg. hashrate 21.49 KH/s
+19:21:35.364 > >>> Completed 0 share(s), 18565 Khashes, avg. hashrate 21.49 KH/s
+19:21:36.413 > >>> Completed 0 share(s), 18588 Khashes, avg. hashrate 21.49 KH/s
+19:21:37.462 > >>> Completed 0 share(s), 18611 Khashes, avg. hashrate 21.49 KH/s
+19:21:38.511 > >>> Completed 0 share(s), 18634 Khashes, avg. hashrate 21.49 KH/s
+19:21:39.560 > >>> Completed 0 share(s), 18657 Khashes, avg. hashrate 21.47 KH/s
+19:21:40.609 > >>> Completed 0 share(s), 18680 Khashes, avg. hashrate 21.47 KH/s
+19:21:41.658 > >>> Completed 0 share(s), 18703 Khashes, avg. hashrate 21.47 KH/s
+19:21:42.707 > >>> Completed 0 share(s), 18725 Khashes, avg. hashrate 21.47 KH/s
+19:21:43.756 > >>> Completed 0 share(s), 18748 Khashes, avg. hashrate 21.48 KH/s
+19:21:44.805 > >>> Completed 0 share(s), 18771 Khashes, avg. hashrate 21.48 KH/s
+19:21:45.854 > >>> Completed 0 share(s), 18794 Khashes, avg. hashrate 21.48 KH/s
+19:21:46.903 > >>> Completed 0 share(s), 18817 Khashes, avg. hashrate 21.48 KH/s
+19:21:47.952 > >>> Completed 0 share(s), 18840 Khashes, avg. hashrate 21.48 KH/s
+19:21:49.001 > >>> Completed 0 share(s), 18863 Khashes, avg. hashrate 21.48 KH/s
+19:21:50.051 > >>> Completed 0 share(s), 18886 Khashes, avg. hashrate 21.49 KH/s
+19:21:51.100 > >>> Completed 0 share(s), 18909 Khashes, avg. hashrate 21.49 KH/s
+19:21:51.148 > signal strength (RSSI):-74
+19:21:52.149 > >>> Completed 0 share(s), 18932 Khashes, avg. hashrate 21.49 KH/s
+19:21:53.198 > >>> Completed 0 share(s), 18955 Khashes, avg. hashrate 21.49 KH/s
+19:21:54.247 > >>> Completed 0 share(s), 18978 Khashes, avg. hashrate 21.49 KH/s
+19:21:55.296 > >>> Completed 0 share(s), 19000 Khashes, avg. hashrate 21.49 KH/s
+19:21:56.345 > >>> Completed 0 share(s), 19023 Khashes, avg. hashrate 21.49 KH/s
+19:21:57.394 > >>> Completed 0 share(s), 19046 Khashes, avg. hashrate 21.50 KH/s
+19:21:58.443 > >>> Completed 0 share(s), 19069 Khashes, avg. hashrate 21.50 KH/s
+19:21:59.492 > >>> Completed 0 share(s), 19092 Khashes, avg. hashrate 21.50 KH/s
+19:22:00.541 > >>> Completed 0 share(s), 19115 Khashes, avg. hashrate 21.48 KH/s
+19:22:01.587 > >>> Completed 0 share(s), 19137 Khashes, avg. hashrate 21.48 KH/s
+19:22:02.636 > >>> Completed 0 share(s), 19160 Khashes, avg. hashrate 21.48 KH/s
+19:22:03.685 > >>> Completed 0 share(s), 19183 Khashes, avg. hashrate 21.48 KH/s
+19:22:04.734 > >>> Completed 0 share(s), 19206 Khashes, avg. hashrate 21.48 KH/s
+19:22:05.781 > >>> Completed 0 share(s), 19228 Khashes, avg. hashrate 21.48 KH/s
+19:22:06.830 > >>> Completed 0 share(s), 19251 Khashes, avg. hashrate 21.49 KH/s
+19:22:07.879 > >>> Completed 0 share(s), 19274 Khashes, avg. hashrate 21.49 KH/s
+19:22:08.928 > >>> Completed 0 share(s), 19297 Khashes, avg. hashrate 21.49 KH/s
+19:22:09.977 > >>> Completed 0 share(s), 19320 Khashes, avg. hashrate 21.49 KH/s
+19:22:11.026 > >>> Completed 0 share(s), 19343 Khashes, avg. hashrate 21.49 KH/s
+19:22:12.074 > >>> Completed 0 share(s), 19366 Khashes, avg. hashrate 21.49 KH/s
+19:22:13.123 > >>> Completed 0 share(s), 19388 Khashes, avg. hashrate 21.49 KH/s
+19:22:14.171 > >>> Completed 0 share(s), 19411 Khashes, avg. hashrate 21.50 KH/s
+19:22:15.220 > >>> Completed 0 share(s), 19434 Khashes, avg. hashrate 21.50 KH/s
+19:22:16.269 > >>> Completed 0 share(s), 19457 Khashes, avg. hashrate 21.50 KH/s
+19:22:17.318 > >>> Completed 0 share(s), 19480 Khashes, avg. hashrate 21.50 KH/s
+19:22:18.367 > >>> Completed 0 share(s), 19503 Khashes, avg. hashrate 21.50 KH/s
+19:22:19.415 > >>> Completed 0 share(s), 19526 Khashes, avg. hashrate 21.50 KH/s
+19:22:20.464 > >>> Completed 0 share(s), 19549 Khashes, avg. hashrate 21.51 KH/s
+19:22:21.511 > >>> Completed 0 share(s), 19572 Khashes, avg. hashrate 21.48 KH/s
+19:22:22.561 > >>> Completed 0 share(s), 19595 Khashes, avg. hashrate 21.49 KH/s
+19:22:23.610 > >>> Completed 0 share(s), 19617 Khashes, avg. hashrate 21.49 KH/s
+19:22:24.659 > >>> Completed 0 share(s), 19640 Khashes, avg. hashrate 21.49 KH/s
+19:22:25.708 > >>> Completed 0 share(s), 19663 Khashes, avg. hashrate 21.49 KH/s
+19:22:26.757 > >>> Completed 0 share(s), 19686 Khashes, avg. hashrate 21.49 KH/s
+19:22:27.806 > >>> Completed 0 share(s), 19709 Khashes, avg. hashrate 21.49 KH/s
+19:22:27.855 > signal strength (RSSI):-74
+19:22:28.854 > >>> Completed 0 share(s), 19732 Khashes, avg. hashrate 21.49 KH/s
+19:22:29.904 > >>> Completed 0 share(s), 19755 Khashes, avg. hashrate 21.50 KH/s
+19:22:30.953 > >>> Completed 0 share(s), 19778 Khashes, avg. hashrate 21.50 KH/s
+19:22:32.001 > >>> Completed 0 share(s), 19801 Khashes, avg. hashrate 21.50 KH/s
+19:22:33.050 > >>> Completed 0 share(s), 19823 Khashes, avg. hashrate 21.50 KH/s
+19:22:34.100 > >>> Completed 0 share(s), 19846 Khashes, avg. hashrate 21.50 KH/s
+19:22:35.149 > >>> Completed 0 share(s), 19869 Khashes, avg. hashrate 21.50 KH/s
+19:22:36.198 > >>> Completed 0 share(s), 19892 Khashes, avg. hashrate 21.50 KH/s
+19:22:37.247 > >>> Completed 0 share(s), 19915 Khashes, avg. hashrate 21.51 KH/s
+19:22:38.296 > >>> Completed 0 share(s), 19938 Khashes, avg. hashrate 21.51 KH/s
+19:22:39.345 > >>> Completed 0 share(s), 19961 Khashes, avg. hashrate 21.51 KH/s
+19:22:40.394 > >>> Completed 0 share(s), 19984 Khashes, avg. hashrate 21.51 KH/s
+19:22:41.443 > >>> Completed 0 share(s), 20007 Khashes, avg. hashrate 21.51 KH/s
+19:22:42.491 > >>> Completed 0 share(s), 20030 Khashes, avg. hashrate 21.51 KH/s
+19:22:43.540 > >>> Completed 0 share(s), 20053 Khashes, avg. hashrate 21.49 KH/s
+19:22:44.589 > >>> Completed 0 share(s), 20075 Khashes, avg. hashrate 21.49 KH/s
+19:22:45.638 > >>> Completed 0 share(s), 20098 Khashes, avg. hashrate 21.50 KH/s
+19:22:46.687 > >>> Completed 0 share(s), 20121 Khashes, avg. hashrate 21.50 KH/s
+19:22:47.736 > >>> Completed 0 share(s), 20144 Khashes, avg. hashrate 21.50 KH/s
+19:22:48.787 > >>> Completed 0 share(s), 20167 Khashes, avg. hashrate 21.50 KH/s
+19:22:49.836 > >>> Completed 0 share(s), 20190 Khashes, avg. hashrate 21.50 KH/s
+19:22:50.885 > >>> Completed 0 share(s), 20213 Khashes, avg. hashrate 21.50 KH/s
+19:22:51.933 > >>> Completed 0 share(s), 20236 Khashes, avg. hashrate 21.50 KH/s
+19:22:52.982 > >>> Completed 0 share(s), 20259 Khashes, avg. hashrate 21.51 KH/s
+19:22:54.031 > >>> Completed 0 share(s), 20282 Khashes, avg. hashrate 21.51 KH/s
+19:22:55.080 > >>> Completed 0 share(s), 20305 Khashes, avg. hashrate 21.51 KH/s
+19:22:56.130 > >>> Completed 0 share(s), 20327 Khashes, avg. hashrate 21.51 KH/s
+19:22:57.179 > >>> Completed 0 share(s), 20350 Khashes, avg. hashrate 21.51 KH/s
+19:22:58.228 > >>> Completed 0 share(s), 20373 Khashes, avg. hashrate 21.51 KH/s
+19:22:59.277 > >>> Completed 0 share(s), 20396 Khashes, avg. hashrate 21.51 KH/s
+19:23:00.328 > >>> Completed 0 share(s), 20419 Khashes, avg. hashrate 21.52 KH/s
+19:23:01.376 > >>> Completed 0 share(s), 20442 Khashes, avg. hashrate 21.52 KH/s
+19:23:02.426 > >>> Completed 0 share(s), 20465 Khashes, avg. hashrate 21.52 KH/s
+19:23:03.474 > >>> Completed 0 share(s), 20488 Khashes, avg. hashrate 21.52 KH/s
+19:23:04.523 > >>> Completed 0 share(s), 20511 Khashes, avg. hashrate 21.50 KH/s
+19:23:05.572 > >>> Completed 0 share(s), 20534 Khashes, avg. hashrate 21.50 KH/s
+19:23:05.621 > signal strength (RSSI):-74
+19:23:06.621 > >>> Completed 0 share(s), 20557 Khashes, avg. hashrate 21.50 KH/s
+19:23:07.671 > >>> Completed 0 share(s), 20580 Khashes, avg. hashrate 21.50 KH/s
+19:23:08.720 > >>> Completed 0 share(s), 20602 Khashes, avg. hashrate 21.51 KH/s
+19:23:09.769 > >>> Completed 0 share(s), 20625 Khashes, avg. hashrate 21.51 KH/s
+19:23:10.817 > >>> Completed 0 share(s), 20648 Khashes, avg. hashrate 21.51 KH/s
+19:23:11.867 > >>> Completed 0 share(s), 20671 Khashes, avg. hashrate 21.51 KH/s
+19:23:12.916 > >>> Completed 0 share(s), 20694 Khashes, avg. hashrate 21.51 KH/s
+19:23:13.964 > >>> Completed 0 share(s), 20717 Khashes, avg. hashrate 21.51 KH/s
+19:23:15.011 > >>> Completed 0 share(s), 20740 Khashes, avg. hashrate 21.51 KH/s
+19:23:16.060 > >>> Completed 0 share(s), 20763 Khashes, avg. hashrate 21.52 KH/s
+19:23:17.109 > >>> Completed 0 share(s), 20786 Khashes, avg. hashrate 21.52 KH/s
+19:23:18.158 > >>> Completed 0 share(s), 20809 Khashes, avg. hashrate 21.52 KH/s
+19:23:19.207 > >>> Completed 0 share(s), 20832 Khashes, avg. hashrate 21.52 KH/s
+19:23:20.256 > >>> Completed 0 share(s), 20855 Khashes, avg. hashrate 21.52 KH/s
+19:23:21.306 > >>> Completed 0 share(s), 20878 Khashes, avg. hashrate 21.52 KH/s
+19:23:22.354 > >>> Completed 0 share(s), 20900 Khashes, avg. hashrate 21.52 KH/s
+19:23:23.403 > >>> Completed 0 share(s), 20923 Khashes, avg. hashrate 21.53 KH/s
+19:23:24.452 > >>> Completed 0 share(s), 20946 Khashes, avg. hashrate 21.53 KH/s
+19:23:25.501 > >>> Completed 0 share(s), 20969 Khashes, avg. hashrate 21.53 KH/s
+19:23:26.550 > >>> Completed 0 share(s), 20992 Khashes, avg. hashrate 21.51 KH/s
+19:23:27.599 > >>> Completed 0 share(s), 21015 Khashes, avg. hashrate 21.51 KH/s
+19:23:28.648 > >>> Completed 0 share(s), 21038 Khashes, avg. hashrate 21.51 KH/s
+19:23:29.697 > >>> Completed 0 share(s), 21061 Khashes, avg. hashrate 21.51 KH/s
+19:23:30.746 > >>> Completed 0 share(s), 21084 Khashes, avg. hashrate 21.51 KH/s
+19:23:31.796 > >>> Completed 0 share(s), 21107 Khashes, avg. hashrate 21.52 KH/s
+19:23:32.845 > >>> Completed 0 share(s), 21130 Khashes, avg. hashrate 21.52 KH/s
+19:23:33.894 > >>> Completed 0 share(s), 21152 Khashes, avg. hashrate 21.52 KH/s
+19:23:34.943 > >>> Completed 0 share(s), 21175 Khashes, avg. hashrate 21.52 KH/s
+19:23:35.992 > >>> Completed 0 share(s), 21198 Khashes, avg. hashrate 21.52 KH/s
+19:23:37.041 > >>> Completed 0 share(s), 21221 Khashes, avg. hashrate 21.52 KH/s
+19:23:38.090 > >>> Completed 0 share(s), 21244 Khashes, avg. hashrate 21.52 KH/s
+19:23:39.139 > >>> Completed 0 share(s), 21267 Khashes, avg. hashrate 21.53 KH/s
+19:23:40.188 > >>> Completed 0 share(s), 21290 Khashes, avg. hashrate 21.53 KH/s
+19:23:41.237 > >>> Completed 0 share(s), 21313 Khashes, avg. hashrate 21.53 KH/s
+19:23:42.286 > >>> Completed 0 share(s), 21336 Khashes, avg. hashrate 21.53 KH/s
+19:23:43.335 > >>> Completed 0 share(s), 21359 Khashes, avg. hashrate 21.53 KH/s
+19:23:43.384 > signal strength (RSSI):-74
+19:23:44.384 > >>> Completed 0 share(s), 21382 Khashes, avg. hashrate 21.53 KH/s
+19:23:45.433 > >>> Completed 0 share(s), 21405 Khashes, avg. hashrate 21.53 KH/s
+19:23:46.482 > >>> Completed 0 share(s), 21428 Khashes, avg. hashrate 21.54 KH/s
+19:23:47.531 > >>> Completed 0 share(s), 21450 Khashes, avg. hashrate 21.51 KH/s
+19:23:48.580 > >>> Completed 0 share(s), 21473 Khashes, avg. hashrate 21.52 KH/s
+19:23:49.629 > >>> Completed 0 share(s), 21496 Khashes, avg. hashrate 21.52 KH/s
+19:23:50.678 > >>> Completed 0 share(s), 21519 Khashes, avg. hashrate 21.52 KH/s
+19:23:51.727 > >>> Completed 0 share(s), 21542 Khashes, avg. hashrate 21.52 KH/s
+19:23:52.282 > [WORKER] (0) ==> Mining subscribe
+19:23:52.283 >   Sending  : {"id": 15, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:23:52.283 > 
+19:23:52.310 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQEFA"],["mining.notify","0HMQ5LR8VQEFA"]],"80094420",4],"error":null,"id":15}
+19:23:52.311 >     sub_details: 0HMQ5LR8VQEFA
+19:23:52.311 >     extranonce1: 80094420
+19:23:52.311 >     extranonce2_size: 4
+19:23:52.311 >     error: 0
+19:23:52.311 > [WORKER] (0) ==> Autorize work
+19:23:52.311 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 16, "method": "mining.authorize"}
+19:23:52.311 > 
+19:23:52.316 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["00013305","55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0420ea536400","0168000000000175a94125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02","09c25c13b7544a0f42b81c48a400f0aecedbc919e00fe5c1e15951ebcd8300a7","0fa55f7ec6f76018233627cdb587f114eddd829785c8f850549f10719f97602c","0dff2b55d66f7da8dd353bf131c0f1494817599bfcc6b53d7b7edf906f84ec54","33d942f5f82a932e862c098636c86b22f4a46ac235119d243314081fbb4738a9","ff66a4411325d245426757ccc3e472235c1a2556db560d7185b2cd6e882dd140"],"20000000","180602de","6453ea20",false],"id":null}
+19:23:52.317 >   Receiving: {"result":true,"error":null,"id":16}
+19:23:52.337 >   Receiving: >>> Completed 0 share(s), 21559 Khashes, avg. hashrate 21.52 KH/s
+19:23:53.336 > 
+19:23:53.338 >     job_id: 00013305
+19:23:53.339 >     prevhash: 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:23:53.339 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0420ea536400
+19:23:53.339 >     coinb2: 0168000000000175a94125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:23:53.339 >     merkle_branch size: 6
+19:23:53.339 >     version: 20000000
+19:23:53.339 >     nbits: 180602de
+19:23:53.339 >     ntime: 6453ea20
+19:23:53.339 >     clean_jobs: 0
+19:23:53.339 >     target: 00000000000000000000602de000000000000000000000000000000000000000�
+19:23:53.339 >     extranonce2: b324283f
+19:23:53.340 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c0420ea53640080094420b324283f0168000000000175a94125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:23:53.340 >     coinbase bytes - size: 106
+19:23:53.340 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8c 12 0c 04 20 ea 53 64 00 80 09 44 20 b3 24 28 3f 60 16 80 00 00 00 00 17 5a 94 12 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:23:53.342 >     coinbase double sha: 61dfb967e3f6f1815955c02c0aeb8e1e2817fc789119c85e8f1cd8219d458f72
+19:23:53.342 >     merkle element    0: b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:23:53.342 >     merkle element    0: b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:23:53.342 >     merkle concatenated: 61dfb967e3f6f1815955c02c0aeb8e1e2817fc789119c85e8f1cd8219d458f72b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:23:53.343 >     merkle sha         : d2b155dffc292043446d5244d438a010ffb00817525778274f5d8b04198e7ddb
+19:23:53.343 >     merkle element    1: 09c25c13b7544a0f42b81c48a400f0aecedbc919e00fe5c1e15951ebcd8300a7
+19:23:53.344 >     merkle element    1: 09c25c13b7544a0f42b81c48a400f0aecedbc919e00fe5c1e15951ebcd8300a7
+19:23:53.344 >     merkle concatenated: d2b155dffc292043446d5244d438a010ffb00817525778274f5d8b04198e7ddb09c25c13b7544a0f42b81c48a400f0aecedbc919e00fe5c1e15951ebcd8300a7
+19:23:53.345 >     merkle sha         : a4b5ee4c9f2eab53887fd59d717cc5bc743a94b5ddc928b6090989b36f57d201
+19:23:53.345 >     merkle element    2: 0fa55f7ec6f76018233627cdb587f114eddd829785c8f850549f10719f97602c
+19:23:53.346 >     merkle element    2: 0fa55f7ec6f76018233627cdb587f114eddd829785c8f850549f10719f97602c
+19:23:53.346 >     merkle concatenated: a4b5ee4c9f2eab53887fd59d717cc5bc743a94b5ddc928b6090989b36f57d2010fa55f7ec6f76018233627cdb587f114eddd829785c8f850549f10719f97602c
+19:23:53.346 >     merkle sha         : 1a55f52ef9e06aef896fca079f9a1ff89f435fa24b10ee24b911f7698b6a7d3a
+19:23:53.347 >     merkle element    3: 0dff2b55d66f7da8dd353bf131c0f1494817599bfcc6b53d7b7edf906f84ec54
+19:23:53.347 >     merkle element    3: 0dff2b55d66f7da8dd353bf131c0f1494817599bfcc6b53d7b7edf906f84ec54
+19:23:53.347 >     merkle concatenated: 1a55f52ef9e06aef896fca079f9a1ff89f435fa24b10ee24b911f7698b6a7d3a0dff2b55d66f7da8dd353bf131c0f1494817599bfcc6b53d7b7edf906f84ec54
+19:23:53.348 >     merkle sha         : d30aa05f684cdc6ab003fe9bda02f63c0d0100b9d7e1a56ec4b22e1bb741faec
+19:23:53.349 >     merkle element    4: 33d942f5f82a932e862c098636c86b22f4a46ac235119d243314081fbb4738a9
+19:23:53.349 >     merkle element    4: 33d942f5f82a932e862c098636c86b22f4a46ac235119d243314081fbb4738a9
+19:23:53.349 >     merkle concatenated: d30aa05f684cdc6ab003fe9bda02f63c0d0100b9d7e1a56ec4b22e1bb741faec33d942f5f82a932e862c098636c86b22f4a46ac235119d243314081fbb4738a9
+19:23:53.350 >     merkle sha         : 6426437978eab76b263f059437f8901f1c099074cb87cec0990bc45a72844ddf
+19:23:53.351 >     merkle element    5: ff66a4411325d245426757ccc3e472235c1a2556db560d7185b2cd6e882dd140
+19:23:53.351 >     merkle element    5: ff66a4411325d245426757ccc3e472235c1a2556db560d7185b2cd6e882dd140
+19:23:53.351 >     merkle concatenated: 6426437978eab76b263f059437f8901f1c099074cb87cec0990bc45a72844ddfff66a4411325d245426757ccc3e472235c1a2556db560d7185b2cd6e882dd140
+19:23:53.352 >     merkle sha         : 5871e5287d65573370eac8cc7dc7d5a67c64e4ae56a7ae6aea0edb30f818e25c
+19:23:53.352 >     merkle sha         : 5871e5287d65573370eac8cc7dc7d5a67c64e4ae56a7ae6aea0edb30f818e25c
+19:23:53.353 >     blockheader bytes 
+19:23:53.353 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:23:53.353 > version
+19:23:53.353 > 00000020
+19:23:53.353 > prev hash
+19:23:53.353 > 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:23:53.354 > merkle root
+19:23:53.354 > 5ce218f830db0eea6aaea756aee4647ca6d5c77dccc8ea703357657d28e57158
+19:23:53.354 > time
+19:23:53.354 > 180602de
+19:23:53.354 > difficulty
+19:23:53.355 > 20ea5364
+19:23:53.355 > nonce
+19:23:53.355 > 00000000
+19:23:53.355 > >>> STARTING TO HASH NONCES
+19:23:53.825 > >>> Completed 0 share(s), 21570 Khashes, avg. hashrate 21.51 KH/s
+19:23:54.874 > >>> Completed 0 share(s), 21592 Khashes, avg. hashrate 21.51 KH/s
+19:23:55.923 > >>> Completed 0 share(s), 21615 Khashes, avg. hashrate 21.51 KH/s
+19:23:56.972 > >>> Completed 0 share(s), 21638 Khashes, avg. hashrate 21.51 KH/s
+19:23:58.021 > >>> Completed 0 share(s), 21661 Khashes, avg. hashrate 21.51 KH/s
+19:23:59.070 > >>> Completed 0 share(s), 21684 Khashes, avg. hashrate 21.51 KH/s
+19:24:00.119 > >>> Completed 0 share(s), 21707 Khashes, avg. hashrate 21.51 KH/s
+19:24:01.168 > >>> Completed 0 share(s), 21730 Khashes, avg. hashrate 21.51 KH/s
+19:24:02.217 > >>> Completed 0 share(s), 21753 Khashes, avg. hashrate 21.52 KH/s
+19:24:03.266 > >>> Completed 0 share(s), 21776 Khashes, avg. hashrate 21.52 KH/s
+19:24:04.315 > >>> Completed 0 share(s), 21799 Khashes, avg. hashrate 21.52 KH/s
+19:24:05.364 > >>> Completed 0 share(s), 21821 Khashes, avg. hashrate 21.52 KH/s
+19:24:06.413 > >>> Completed 0 share(s), 21844 Khashes, avg. hashrate 21.52 KH/s
+19:24:07.462 > >>> Completed 0 share(s), 21867 Khashes, avg. hashrate 21.52 KH/s
+19:24:08.511 > >>> Completed 0 share(s), 21890 Khashes, avg. hashrate 21.50 KH/s
+19:24:09.560 > >>> Completed 0 share(s), 21913 Khashes, avg. hashrate 21.50 KH/s
+19:24:10.609 > >>> Completed 0 share(s), 21936 Khashes, avg. hashrate 21.51 KH/s
+19:24:11.657 > >>> Completed 0 share(s), 21959 Khashes, avg. hashrate 21.51 KH/s
+19:24:12.705 > >>> Completed 0 share(s), 21982 Khashes, avg. hashrate 21.51 KH/s
+19:24:13.753 > >>> Completed 0 share(s), 22005 Khashes, avg. hashrate 21.51 KH/s
+19:24:14.798 > >>> Completed 0 share(s), 22027 Khashes, avg. hashrate 21.51 KH/s
+19:24:15.846 > >>> Completed 0 share(s), 22050 Khashes, avg. hashrate 21.51 KH/s
+19:24:16.894 > >>> Completed 0 share(s), 22073 Khashes, avg. hashrate 21.51 KH/s
+19:24:17.942 > >>> Completed 0 share(s), 22095 Khashes, avg. hashrate 21.51 KH/s
+19:24:18.990 > >>> Completed 0 share(s), 22118 Khashes, avg. hashrate 21.52 KH/s
+19:24:20.039 > >>> Completed 0 share(s), 22141 Khashes, avg. hashrate 21.52 KH/s
+19:24:21.088 > >>> Completed 0 share(s), 22164 Khashes, avg. hashrate 21.52 KH/s
+19:24:22.137 > >>> Completed 0 share(s), 22187 Khashes, avg. hashrate 21.52 KH/s
+19:24:23.186 > >>> Completed 0 share(s), 22210 Khashes, avg. hashrate 21.52 KH/s
+19:24:24.235 > >>> Completed 0 share(s), 22233 Khashes, avg. hashrate 21.52 KH/s
+19:24:25.284 > >>> Completed 0 share(s), 22256 Khashes, avg. hashrate 21.52 KH/s
+19:24:26.333 > >>> Completed 0 share(s), 22279 Khashes, avg. hashrate 21.53 KH/s
+19:24:27.382 > >>> Completed 0 share(s), 22302 Khashes, avg. hashrate 21.53 KH/s
+19:24:28.431 > >>> Completed 0 share(s), 22325 Khashes, avg. hashrate 21.53 KH/s
+19:24:29.480 > >>> Completed 0 share(s), 22347 Khashes, avg. hashrate 21.53 KH/s
+19:24:30.529 > >>> Completed 0 share(s), 22370 Khashes, avg. hashrate 21.51 KH/s
+19:24:31.578 > >>> Completed 0 share(s), 22393 Khashes, avg. hashrate 21.51 KH/s
+19:24:31.627 > signal strength (RSSI):-73
+19:24:32.627 > >>> Completed 0 share(s), 22416 Khashes, avg. hashrate 21.51 KH/s
+19:24:33.676 > >>> Completed 0 share(s), 22439 Khashes, avg. hashrate 21.51 KH/s
+19:24:34.725 > >>> Completed 0 share(s), 22462 Khashes, avg. hashrate 21.52 KH/s
+19:24:35.774 > >>> Completed 0 share(s), 22485 Khashes, avg. hashrate 21.52 KH/s
+19:24:36.823 > >>> Completed 0 share(s), 22508 Khashes, avg. hashrate 21.52 KH/s
+19:24:37.872 > >>> Completed 0 share(s), 22531 Khashes, avg. hashrate 21.52 KH/s
+19:24:38.921 > >>> Completed 0 share(s), 22554 Khashes, avg. hashrate 21.52 KH/s
+19:24:39.970 > >>> Completed 0 share(s), 22577 Khashes, avg. hashrate 21.52 KH/s
+19:24:41.019 > >>> Completed 0 share(s), 22600 Khashes, avg. hashrate 21.52 KH/s
+19:24:42.068 > >>> Completed 0 share(s), 22622 Khashes, avg. hashrate 21.52 KH/s
+19:24:43.117 > >>> Completed 0 share(s), 22645 Khashes, avg. hashrate 21.53 KH/s
+19:24:44.166 > >>> Completed 0 share(s), 22668 Khashes, avg. hashrate 21.53 KH/s
+19:24:45.215 > >>> Completed 0 share(s), 22691 Khashes, avg. hashrate 21.53 KH/s
+19:24:46.264 > >>> Completed 0 share(s), 22714 Khashes, avg. hashrate 21.53 KH/s
+19:24:47.313 > >>> Completed 0 share(s), 22737 Khashes, avg. hashrate 21.53 KH/s
+19:24:48.362 > >>> Completed 0 share(s), 22760 Khashes, avg. hashrate 21.53 KH/s
+19:24:49.411 > >>> Completed 0 share(s), 22783 Khashes, avg. hashrate 21.53 KH/s
+19:24:50.460 > >>> Completed 0 share(s), 22806 Khashes, avg. hashrate 21.54 KH/s
+19:24:51.509 > >>> Completed 0 share(s), 22829 Khashes, avg. hashrate 21.54 KH/s
+19:24:52.558 > >>> Completed 0 share(s), 22852 Khashes, avg. hashrate 21.52 KH/s
+19:24:53.607 > >>> Completed 0 share(s), 22875 Khashes, avg. hashrate 21.52 KH/s
+19:24:54.656 > >>> Completed 0 share(s), 22897 Khashes, avg. hashrate 21.52 KH/s
+19:24:55.705 > >>> Completed 0 share(s), 22920 Khashes, avg. hashrate 21.52 KH/s
+19:24:56.754 > >>> Completed 0 share(s), 22943 Khashes, avg. hashrate 21.52 KH/s
+19:24:57.803 > >>> Completed 0 share(s), 22966 Khashes, avg. hashrate 21.52 KH/s
+19:24:58.852 > >>> Completed 0 share(s), 22989 Khashes, avg. hashrate 21.53 KH/s
+19:24:59.901 > >>> Completed 0 share(s), 23012 Khashes, avg. hashrate 21.53 KH/s
+19:25:00.950 > >>> Completed 0 share(s), 23035 Khashes, avg. hashrate 21.53 KH/s
+19:25:01.999 > >>> Completed 0 share(s), 23058 Khashes, avg. hashrate 21.53 KH/s
+19:25:03.048 > >>> Completed 0 share(s), 23081 Khashes, avg. hashrate 21.53 KH/s
+19:25:04.097 > >>> Completed 0 share(s), 23104 Khashes, avg. hashrate 21.53 KH/s
+19:25:05.147 > >>> Completed 0 share(s), 23126 Khashes, avg. hashrate 21.53 KH/s
+19:25:06.196 > >>> Completed 0 share(s), 23149 Khashes, avg. hashrate 21.53 KH/s
+19:25:07.245 > >>> Completed 0 share(s), 23172 Khashes, avg. hashrate 21.54 KH/s
+19:25:07.294 > signal strength (RSSI):-74
+19:25:08.294 > >>> Completed 0 share(s), 23195 Khashes, avg. hashrate 21.54 KH/s
+19:25:09.343 > >>> Completed 0 share(s), 23218 Khashes, avg. hashrate 21.54 KH/s
+19:25:10.392 > >>> Completed 0 share(s), 23241 Khashes, avg. hashrate 21.54 KH/s
+19:25:11.441 > >>> Completed 0 share(s), 23264 Khashes, avg. hashrate 21.54 KH/s
+19:25:12.490 > >>> Completed 0 share(s), 23287 Khashes, avg. hashrate 21.54 KH/s
+19:25:13.539 > >>> Completed 0 share(s), 23310 Khashes, avg. hashrate 21.52 KH/s
+19:25:14.588 > >>> Completed 0 share(s), 23333 Khashes, avg. hashrate 21.52 KH/s
+19:25:15.637 > >>> Completed 0 share(s), 23356 Khashes, avg. hashrate 21.53 KH/s
+19:25:16.686 > >>> Completed 0 share(s), 23379 Khashes, avg. hashrate 21.53 KH/s
+19:25:17.735 > >>> Completed 0 share(s), 23401 Khashes, avg. hashrate 21.53 KH/s
+19:25:18.784 > >>> Completed 0 share(s), 23424 Khashes, avg. hashrate 21.53 KH/s
+19:25:19.833 > >>> Completed 0 share(s), 23447 Khashes, avg. hashrate 21.53 KH/s
+19:25:20.883 > >>> Completed 0 share(s), 23470 Khashes, avg. hashrate 21.53 KH/s
+19:25:21.932 > >>> Completed 0 share(s), 23493 Khashes, avg. hashrate 21.53 KH/s
+19:25:22.980 > >>> Completed 0 share(s), 23516 Khashes, avg. hashrate 21.53 KH/s
+19:25:24.030 > >>> Completed 0 share(s), 23539 Khashes, avg. hashrate 21.54 KH/s
+19:25:25.080 > >>> Completed 0 share(s), 23562 Khashes, avg. hashrate 21.54 KH/s
+19:25:26.129 > >>> Completed 0 share(s), 23585 Khashes, avg. hashrate 21.54 KH/s
+19:25:27.178 > >>> Completed 0 share(s), 23608 Khashes, avg. hashrate 21.54 KH/s
+19:25:28.227 > >>> Completed 0 share(s), 23630 Khashes, avg. hashrate 21.54 KH/s
+19:25:29.276 > >>> Completed 0 share(s), 23653 Khashes, avg. hashrate 21.54 KH/s
+19:25:30.325 > >>> Completed 0 share(s), 23676 Khashes, avg. hashrate 21.54 KH/s
+19:25:31.374 > >>> Completed 0 share(s), 23699 Khashes, avg. hashrate 21.54 KH/s
+19:25:32.423 > >>> Completed 0 share(s), 23722 Khashes, avg. hashrate 21.55 KH/s
+19:25:33.472 > >>> Completed 0 share(s), 23745 Khashes, avg. hashrate 21.55 KH/s
+19:25:34.521 > >>> Completed 0 share(s), 23768 Khashes, avg. hashrate 21.53 KH/s
+19:25:35.570 > >>> Completed 0 share(s), 23791 Khashes, avg. hashrate 21.53 KH/s
+19:25:36.616 > >>> Completed 0 share(s), 23813 Khashes, avg. hashrate 21.53 KH/s
+19:25:37.665 > >>> Completed 0 share(s), 23836 Khashes, avg. hashrate 21.53 KH/s
+19:25:38.714 > >>> Completed 0 share(s), 23859 Khashes, avg. hashrate 21.53 KH/s
+19:25:39.762 > >>> Completed 0 share(s), 23882 Khashes, avg. hashrate 21.53 KH/s
+19:25:40.808 > >>> Completed 0 share(s), 23904 Khashes, avg. hashrate 21.54 KH/s
+19:25:41.857 > >>> Completed 0 share(s), 23927 Khashes, avg. hashrate 21.54 KH/s
+19:25:42.906 > >>> Completed 0 share(s), 23950 Khashes, avg. hashrate 21.54 KH/s
+19:25:43.954 > >>> Completed 0 share(s), 23973 Khashes, avg. hashrate 21.54 KH/s
+19:25:45.003 > >>> Completed 0 share(s), 23996 Khashes, avg. hashrate 21.54 KH/s
+19:25:46.053 > >>> Completed 0 share(s), 24018 Khashes, avg. hashrate 21.54 KH/s
+19:25:46.102 > signal strength (RSSI):-74
+19:25:47.101 > >>> Completed 0 share(s), 24041 Khashes, avg. hashrate 21.54 KH/s
+19:25:48.149 > >>> Completed 0 share(s), 24064 Khashes, avg. hashrate 21.54 KH/s
+19:25:49.198 > >>> Completed 0 share(s), 24087 Khashes, avg. hashrate 21.54 KH/s
+19:25:50.247 > >>> Completed 0 share(s), 24110 Khashes, avg. hashrate 21.55 KH/s
+19:25:51.296 > >>> Completed 0 share(s), 24133 Khashes, avg. hashrate 21.55 KH/s
+19:25:52.343 > >>> Completed 0 share(s), 24155 Khashes, avg. hashrate 21.55 KH/s
+19:25:53.392 > >>> Completed 0 share(s), 24178 Khashes, avg. hashrate 21.55 KH/s
+19:25:54.441 > >>> Completed 0 share(s), 24201 Khashes, avg. hashrate 21.55 KH/s
+19:25:55.490 > >>> Completed 0 share(s), 24224 Khashes, avg. hashrate 21.55 KH/s
+19:25:56.539 > >>> Completed 0 share(s), 24247 Khashes, avg. hashrate 21.53 KH/s
+19:25:57.588 > >>> Completed 0 share(s), 24270 Khashes, avg. hashrate 21.54 KH/s
+19:25:58.637 > >>> Completed 0 share(s), 24293 Khashes, avg. hashrate 21.54 KH/s
+19:25:59.686 > >>> Completed 0 share(s), 24316 Khashes, avg. hashrate 21.54 KH/s
+19:26:00.735 > >>> Completed 0 share(s), 24339 Khashes, avg. hashrate 21.54 KH/s
+19:26:01.784 > >>> Completed 0 share(s), 24361 Khashes, avg. hashrate 21.54 KH/s
+19:26:02.833 > >>> Completed 0 share(s), 24384 Khashes, avg. hashrate 21.54 KH/s
+19:26:03.882 > >>> Completed 0 share(s), 24407 Khashes, avg. hashrate 21.54 KH/s
+19:26:04.931 > >>> Completed 0 share(s), 24430 Khashes, avg. hashrate 21.54 KH/s
+19:26:05.980 > >>> Completed 0 share(s), 24453 Khashes, avg. hashrate 21.54 KH/s
+19:26:07.029 > >>> Completed 0 share(s), 24476 Khashes, avg. hashrate 21.55 KH/s
+19:26:08.076 > >>> Completed 0 share(s), 24499 Khashes, avg. hashrate 21.55 KH/s
+19:26:09.125 > >>> Completed 0 share(s), 24521 Khashes, avg. hashrate 21.55 KH/s
+19:26:10.174 > >>> Completed 0 share(s), 24544 Khashes, avg. hashrate 21.55 KH/s
+19:26:11.223 > >>> Completed 0 share(s), 24567 Khashes, avg. hashrate 21.55 KH/s
+19:26:12.272 > >>> Completed 0 share(s), 24590 Khashes, avg. hashrate 21.55 KH/s
+19:26:13.321 > >>> Completed 0 share(s), 24613 Khashes, avg. hashrate 21.55 KH/s
+19:26:14.277 > [WORKER] (0) ==> Mining subscribe
+19:26:14.277 >   Sending  : {"id": 17, "method": "mining.subscribe", "params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"]}
+19:26:14.277 > 
+19:26:14.308 >   Receiving: {"result":[[["mining.set_difficulty","0HMQ5LR8VQEMF"],["mining.notify","0HMQ5LR8VQEMF"]],"80094490",4],"error":null,"id":17}
+19:26:14.308 >     sub_details: 0HMQ5LR8VQEMF
+19:26:14.308 >     extranonce1: 80094490
+19:26:14.308 >     extranonce2_size: 4
+19:26:14.309 >     error: 0
+19:26:14.309 > [WORKER] (0) ==> Autorize work
+19:26:14.309 >   Sending  : {"params": ["3N7e4N8HDpYYjXLwSsTV7GYZoG916YV7nC", "x"], "id": 18, "method": "mining.authorize"}
+19:26:14.309 > 
+19:26:14.313 >   Receiving: {"jsonrpc":"2.0","method":"mining.notify","params":["00013313","55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c04acea536400","01680000000001a0dd4125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02","0c4044110836af07705fdddedf95a74ec9c97ed0ff0786aa3c59de8f275096af","443e7d4c35faae27279f413829aa631f7578aa9a2c3a41069bd54ddfe0ddde43","66d895d131f0cce4b2b88e6383c01210aeb1b5d7d8025a118582b89b57b89d43","3601537093555d8bceab9de4d783fea71b8e6d5d2a3d095854afb553cec9bf64","b27f1c7156f4b0ee062c686650e4fdfd0f22efbb6c12003c0f6c14544c502a8b","f443d454e5226a94898b5e1683efdb984e827846e0858e99da247044757d5449"],"20000000","180602de","6453eaac",false],"id":null}
+19:26:14.315 >   Receiving: {"result":true,"error":null,"id":18}
+19:26:14.338 >   Receiving: >>> Completed 0 share(s), 24636 Khashes, avg. hashrate 21.55 KH/s
+19:26:14.924 > {"jsonrpc":"2.0","method":"mining.notify","params":["00013314","55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000","01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c04b6ea536400","01680000000001eee44125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000",["b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02","0c4044110836af07705fdddedf95a74ec9c97ed0ff0786aa3c59de8f275096af","443e7d4c35faae27279f413829aa631f7578aa9a2c3a41069bd54ddfe0ddde43","66d895d131f0cce4b2b88e6383c01210aeb1b5d7d8025a118582b89b57b89d43","3601537093555d8bceab9de4d783fea71b8e6d5d2a3d095854afb553cec9bf64","85553f4f5414be1c31a1ed15f9f4b5913c6fbeb24907fb4cad6c7dd7a5bacd71","7b0b2133959c9371da33497ef3498f0615326d443a05bc6500d347dd64ebe979"],"20000000","180602de","6453eab6",false],"id":null}
+19:26:14.926 >     job_id: 00013313
+19:26:14.926 >     prevhash: 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:26:14.926 >     coinb1: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c04acea536400
+19:26:14.927 >     coinb2: 01680000000001a0dd4125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:26:14.927 >     merkle_branch size: 7
+19:26:14.927 >     version: 20000000
+19:26:14.927 >     nbits: 180602de
+19:26:14.927 >     ntime: 6453eaac
+19:26:14.927 >     clean_jobs: 0
+19:26:14.927 >     target: 00000000000000000000602de000000000000000000000000000000000000000�
+19:26:14.928 >     extranonce2: e1710007
+19:26:14.928 >     coinbase: 01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff14038c120c04acea53640080094490e171000701680000000001a0dd4125000000001976a914b9d0d984020ba86a88eec95b4349b5236d917ca188ac00000000
+19:26:14.928 >     coinbase bytes - size: 106
+19:26:14.928 > 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 14 03 8c 12 0c 04 ac ea 53 64 00 80 09 44 90 e1 71 00 07 60 16 80 00 00 00 00 1a 0d d4 12 50 00 00 00 01 97 6a 91 4b 9d 0d 98 40 20 ba 86 a8 8e ec 95 b4 34 9b 52 36 d9 17 ca 18 8a c0 00 00 00 00 ---
+19:26:14.929 >     coinbase double sha: 7f9ea41f8b3f044aa617af5a1da68015298431a9aab486e6e240af2c22a6050a
+19:26:14.930 >     merkle element    0: b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:26:14.930 >     merkle element    0: b8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:26:14.930 >     merkle concatenated: 7f9ea41f8b3f044aa617af5a1da68015298431a9aab486e6e240af2c22a6050ab8b46a49ad9344a01954a6f6fd97c783096be3c147bb37e529a0f55e5a9f6a02
+19:26:14.931 >     merkle sha         : c11a8d5fcf8b57738283a6f1065ee7f738c0b1ddbb153b4821c2685606f02376
+19:26:14.931 >     merkle element    1: 0c4044110836af07705fdddedf95a74ec9c97ed0ff0786aa3c59de8f275096af
+19:26:14.932 >     merkle element    1: 0c4044110836af07705fdddedf95a74ec9c97ed0ff0786aa3c59de8f275096af
+19:26:14.932 >     merkle concatenated: c11a8d5fcf8b57738283a6f1065ee7f738c0b1ddbb153b4821c2685606f023760c4044110836af07705fdddedf95a74ec9c97ed0ff0786aa3c59de8f275096af
+19:26:14.933 >     merkle sha         : 71a9c5ff26767d5fea865e50694669f1daabc2df876b0d78921a417daf102d0c
+19:26:14.934 >     merkle element    2: 443e7d4c35faae27279f413829aa631f7578aa9a2c3a41069bd54ddfe0ddde43
+19:26:14.934 >     merkle element    2: 443e7d4c35faae27279f413829aa631f7578aa9a2c3a41069bd54ddfe0ddde43
+19:26:14.934 >     merkle concatenated: 71a9c5ff26767d5fea865e50694669f1daabc2df876b0d78921a417daf102d0c443e7d4c35faae27279f413829aa631f7578aa9a2c3a41069bd54ddfe0ddde43
+19:26:14.934 >     merkle sha         : bdcf8ccafb26a325b2fd4dd8198c18f5f88b8dfa82215cdd15f3e0958cd22c4e
+19:26:14.935 >     merkle element    3: 66d895d131f0cce4b2b88e6383c01210aeb1b5d7d8025a118582b89b57b89d43
+19:26:14.935 >     merkle element    3: 66d895d131f0cce4b2b88e6383c01210aeb1b5d7d8025a118582b89b57b89d43
+19:26:14.935 >     merkle concatenated: bdcf8ccafb26a325b2fd4dd8198c18f5f88b8dfa82215cdd15f3e0958cd22c4e66d895d131f0cce4b2b88e6383c01210aeb1b5d7d8025a118582b89b57b89d43
+19:26:14.936 >     merkle sha         : 6d42897eddc85134ac1c4aeb0f9bb7e01a0d91cac4b20c62c3a8ba37a5adea6a
+19:26:14.936 >     merkle element    4: 3601537093555d8bceab9de4d783fea71b8e6d5d2a3d095854afb553cec9bf64
+19:26:14.937 >     merkle element    4: 3601537093555d8bceab9de4d783fea71b8e6d5d2a3d095854afb553cec9bf64
+19:26:14.937 >     merkle concatenated: 6d42897eddc85134ac1c4aeb0f9bb7e01a0d91cac4b20c62c3a8ba37a5adea6a3601537093555d8bceab9de4d783fea71b8e6d5d2a3d095854afb553cec9bf64
+19:26:14.937 >     merkle sha         : 50f475ce650da3ce4c286c2b3bb478b1a6c795e82b3970f19b04d177665a62b5
+19:26:14.938 >     merkle element    5: b27f1c7156f4b0ee062c686650e4fdfd0f22efbb6c12003c0f6c14544c502a8b
+19:26:14.938 >     merkle element    5: b27f1c7156f4b0ee062c686650e4fdfd0f22efbb6c12003c0f6c14544c502a8b
+19:26:14.938 >     merkle concatenated: 50f475ce650da3ce4c286c2b3bb478b1a6c795e82b3970f19b04d177665a62b5b27f1c7156f4b0ee062c686650e4fdfd0f22efbb6c12003c0f6c14544c502a8b
+19:26:14.939 >     merkle sha         : 7d16b2c907b5a62830dd65cd4bf2b06a904f8fa16e21759f27b60d3900df1fa3
+19:26:14.940 >     merkle element    6: f443d454e5226a94898b5e1683efdb984e827846e0858e99da247044757d5449
+19:26:14.940 >     merkle element    6: f443d454e5226a94898b5e1683efdb984e827846e0858e99da247044757d5449
+19:26:14.940 >     merkle concatenated: 7d16b2c907b5a62830dd65cd4bf2b06a904f8fa16e21759f27b60d3900df1fa3f443d454e5226a94898b5e1683efdb984e827846e0858e99da247044757d5449
+19:26:14.941 >     merkle sha         : 5b37ae39f4c40c2bee6810e9bb93bbaa34d1a2dcabe167ab2ad43100f54403e0
+19:26:14.941 >     merkle sha         : 5b37ae39f4c40c2bee6810e9bb93bbaa34d1a2dcabe167ab2ad43100f54403e0
+19:26:14.942 >     blockheader bytes 
+19:26:14.942 > 80 ->  >>> bytearray_blockheader     : 00000020
+19:26:14.942 > version
+19:26:14.942 > 00000020
+19:26:14.942 > prev hash
+19:26:14.942 > 55b7fa445e12fc09e07aee1a1bcadd641f05fff405b8754b0000000000000000
+19:26:14.943 > merkle root
+19:26:14.943 > e00344f50031d42aab67e1abdca2d134aabb93bbe91068ee2b0cc4f439ae375b
+19:26:14.943 > time
+19:26:14.943 > 180602de
+19:26:14.943 > difficulty
+19:26:14.943 > acea5364
+19:26:14.943 > nonce
+19:26:14.943 > 00000000
+19:26:14.944 > >>> STARTING TO HASH NONCES
+19:26:15.418 > >>> Completed 0 share(s), 24650 Khashes, avg. hashrate 21.55 KH/s
+19:26:16.467 > >>> Completed 0 share(s), 24672 Khashes, avg. hashrate 21.55 KH/s
+19:26:17.516 > >>> Completed 0 share(s), 24695 Khashes, avg. hashrate 21.53 KH/s
+19:26:18.565 > >>> Completed 0 share(s), 24718 Khashes, avg. hashrate 21.53 KH/s
+19:26:19.614 > >>> Completed 0 share(s), 24741 Khashes, avg. hashrate 21.53 KH/s
+19:26:20.662 > >>> Completed 0 share(s), 24764 Khashes, avg. hashrate 21.53 KH/s
+19:26:21.711 > >>> Completed 0 share(s), 24787 Khashes, avg. hashrate 21.54 KH/s
+19:26:22.760 > >>> Completed 0 share(s), 24810 Khashes, avg. hashrate 21.54 KH/s
+19:26:23.809 > >>> Completed 0 share(s), 24833 Khashes, avg. hashrate 21.54 KH/s
+19:26:24.858 > >>> Completed 0 share(s), 24855 Khashes, avg. hashrate 21.54 KH/s
+19:26:25.907 > >>> Completed 0 share(s), 24878 Khashes, avg. hashrate 21.54 KH/s
+19:26:26.956 > >>> Completed 0 share(s), 24901 Khashes, avg. hashrate 21.54 KH/s
+19:26:28.005 > >>> Completed 0 share(s), 24924 Khashes, avg. hashrate 21.54 KH/s
+19:26:29.054 > >>> Completed 0 share(s), 24947 Khashes, avg. hashrate 21.54 KH/s
+19:26:30.103 > >>> Completed 0 share(s), 24970 Khashes, avg. hashrate 21.54 KH/s
+19:26:31.152 > >>> Completed 0 share(s), 24993 Khashes, avg. hashrate 21.55 KH/s
+19:26:31.203 > signal strength (RSSI):-74
+19:26:32.201 > >>> Completed 0 share(s), 25016 Khashes, avg. hashrate 21.55 KH/s
+19:26:33.250 > >>> Completed 0 share(s), 25039 Khashes, avg. hashrate 21.55 KH/s
+19:26:34.299 > >>> Completed 0 share(s), 25062 Khashes, avg. hashrate 21.55 KH/s
+19:26:35.348 > >>> Completed 0 share(s), 25084 Khashes, avg. hashrate 21.55 KH/s
+19:26:36.397 > >>> Completed 0 share(s), 25107 Khashes, avg. hashrate 21.55 KH/s
+19:26:37.446 > >>> Completed 0 share(s), 25130 Khashes, avg. hashrate 21.55 KH/s
+19:26:38.495 > >>> Completed 0 share(s), 25153 Khashes, avg. hashrate 21.55 KH/s
+19:26:39.544 > >>> Completed 0 share(s), 25176 Khashes, avg. hashrate 21.54 KH/s
+19:26:40.593 > >>> Completed 0 share(s), 25199 Khashes, avg. hashrate 21.54 KH/s
+19:26:41.642 > >>> Completed 0 share(s), 25222 Khashes, avg. hashrate 21.54 KH/s
+19:26:42.691 > >>> Completed 0 share(s), 25245 Khashes, avg. hashrate 21.54 KH/s
+19:26:43.740 > >>> Completed 0 share(s), 25268 Khashes, avg. hashrate 21.54 KH/s
+19:26:44.789 > >>> Completed 0 share(s), 25291 Khashes, avg. hashrate 21.54 KH/s
+19:26:45.838 > >>> Completed 0 share(s), 25313 Khashes, avg. hashrate 21.54 KH/s
+19:26:46.887 > >>> Completed 0 share(s), 25336 Khashes, avg. hashrate 21.54 KH/s
+19:26:47.936 > >>> Completed 0 share(s), 25359 Khashes, avg. hashrate 21.55 KH/s
+19:26:48.986 > >>> Completed 0 share(s), 25382 Khashes, avg. hashrate 21.55 KH/s
+19:26:50.035 > >>> Completed 0 share(s), 25405 Khashes, avg. hashrate 21.55 KH/s
+19:26:51.084 > >>> Completed 0 share(s), 25428 Khashes, avg. hashrate 21.55 KH/s
+19:26:52.133 > >>> Completed 0 share(s), 25451 Khashes, avg. hashrate 21.55 KH/s
+19:26:53.182 > >>> Completed 0 share(s), 25474 Khashes, avg. hashrate 21.55 KH/s
+19:26:54.231 > >>> Completed 0 share(s), 25497 Khashes, avg. hashrate 21.55 KH/s
+19:26:55.281 > >>> Completed 0 share(s), 25520 Khashes, avg. hashrate 21.55 KH/s
+19:26:56.330 > >>> Completed 0 share(s), 25543 Khashes, avg. hashrate 21.56 KH/s
+19:26:57.379 > >>> Completed 0 share(s), 25565 Khashes, avg. hashrate 21.56 KH/s
+19:26:58.428 > >>> Completed 0 share(s), 25588 Khashes, avg. hashrate 21.56 KH/s
+19:26:59.477 > >>> Completed 0 share(s), 25611 Khashes, avg. hashrate 21.56 KH/s
+19:27:00.526 > >>> Completed 0 share(s), 25634 Khashes, avg. hashrate 21.54 KH/s
+19:27:01.575 > >>> Completed 0 share(s), 25657 Khashes, avg. hashrate 21.54 KH/s
+19:27:02.625 > >>> Completed 0 share(s), 25680 Khashes, avg. hashrate 21.54 KH/s
+19:27:03.674 > >>> Completed 0 share(s), 25703 Khashes, avg. hashrate 21.54 KH/s
+19:27:04.723 > >>> Completed 0 share(s), 25726 Khashes, avg. hashrate 21.55 KH/s
+19:27:05.772 > >>> Completed 0 share(s), 25749 Khashes, avg. hashrate 21.55 KH/s
+19:27:06.822 > >>> Completed 0 share(s), 25772 Khashes, avg. hashrate 21.55 KH/s
+19:27:07.871 > >>> Completed 0 share(s), 25794 Khashes, avg. hashrate 21.55 KH/s
+19:27:07.920 > signal strength (RSSI):-85
+19:27:08.920 > >>> Completed 0 share(s), 25817 Khashes, avg. hashrate 21.55 KH/s
+19:27:09.969 > >>> Completed 0 share(s), 25840 Khashes, avg. hashrate 21.55 KH/s
+19:27:11.018 > >>> Completed 0 share(s), 25863 Khashes, avg. hashrate 21.55 KH/s
+19:27:12.067 > >>> Completed 0 share(s), 25886 Khashes, avg. hashrate 21.55 KH/s

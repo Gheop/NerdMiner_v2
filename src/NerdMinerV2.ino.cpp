@@ -29,7 +29,7 @@ unsigned long start = millis();
 
 char timeHour[3];
 char timeMin[3];
-String tmp;
+String temp;
 String hourString;
 int screenOff = HIGH;
 static unsigned long lastButton2Press = 0;
@@ -71,8 +71,8 @@ void setup()
 
 
   // Idle task that would reset WDT never runs, because core 0 gets fully utilized
-  //disableCore0WDT();
-  //disableCore1WDT();
+  disableCore0WDT();
+  disableCore1WDT();
 
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
@@ -87,7 +87,6 @@ void setup()
   /******** INIT DISPLAY ************/
   tft.init();
   tft.setRotation(1);
-  //SPIFFS.begin();
   tft.setSwapBytes(true);// Swap the colour byte order when rendering
   background.createSprite(initWidth,initHeight); //Background Sprite
   background.setSwapBytes(true);
@@ -97,7 +96,7 @@ void setup()
   // Load the font and check it can be read OK
   //if (render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold))) {
   if (render.loadFont(DigitalNumbers, sizeof(DigitalNumbers))){
-    Serial.println("Initialise font error");
+    Serial.println("Initialise error");
     return;
   }
   
@@ -119,7 +118,6 @@ void setup()
   // Higher prio monitor task
   Serial.println("");
   Serial.println("Initiating tasks...");
-  xTaskCreate(runMonitor, "Monitor", 5000, NULL, 4, NULL);
 
   /******** CREATE MINER TASKS *****/
   for (size_t i = 0; i < THREADS; i++) {
@@ -128,8 +126,10 @@ void setup()
 
     // Start mining tasks
     BaseType_t res = xTaskCreate(runWorker, name, 30000, (void*)name, 1, NULL);
-    Serial.printf("Starting %s %s!\n", name, res == pdPASS? "successful":"failed");
+    Serial.printf("Starting miner %s %s!\n", name, res == pdPASS? "successful":"failed");
   }
+
+  Serial.println("NerdMiner v2 started......");
 }
 
 void getHour()
@@ -157,9 +157,9 @@ void loop()
     Serial.print(millis());
     Serial.println("Reconnecting to WiFi...");
     WiFi.disconnect();
-    delay(5000);
+    //delay(5000);
     WiFi.reconnect();
-    delay(5000);
+    //delay(5000);
     
   }
     long rssi = WiFi.RSSI();
@@ -172,7 +172,7 @@ void loop()
     getHour();
     int hour = String(timeHour).toInt();
     //int hour = 12;
-    tmp = String(temperatureRead(), 0) + String(" C");
+    temp = String(temperatureRead(), 0) + String(" C");
     hourString = String(timeHour)+String(":")+String(timeMin);
     //Serial.println("Hour "+hourString);
     if (screenOff != LOW && (hour < 8 || hour >= 20))
@@ -187,5 +187,5 @@ void loop()
   }
 
     //Run miner on main core when there is time --Currently on test
-  runMiner();
+  runMonitor();
 }
