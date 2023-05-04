@@ -1,6 +1,6 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <WiFi.h>
-#include <WiFiManager.h>
+//#include <WiFiManager.h>
 #include <esp_task_wdt.h>
 #include <TFT_eSPI.h> // Graphics and font library
 #include "mbedtls/md.h"
