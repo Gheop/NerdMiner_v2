@@ -25,11 +25,6 @@ int shares; // increase if blockhash has 32 bits of zeroes
 int valids; // increased if blockhash <= target
 bool enableGlobalHash = false;
 
-// Variables to hold data from custom textboxes
-// extern char POOL_URL[80];
-// extern int POOL_PORT;
-// extern char POOL_ADDRESS_WORKER[80];
-
 extern OpenFontRender render;
 extern TFT_eSprite background;
 
@@ -252,8 +247,6 @@ void runWorker(void *name) {
 
     templates++;
 
-    // calculate target - target = (nbits[2:]+'00'*(int(nbits[:2],16) - 3)).zfill(64)
-    
     char target[TARGET_BUFFER_SIZE+1];
     memset(target, '0', TARGET_BUFFER_SIZE);
     int zeros = (int) strtol(nbits.substring(0, 2).c_str(), 0, 16) - 3;
@@ -263,13 +256,7 @@ void runWorker(void *name) {
     // bytearray target
     uint8_t bytearray_target[32];
     size_t size_target = to_byte_array(target, 32, bytearray_target);
-    // uint8_t buf;
-    // for (size_t j = 0; j < 16; j++) {
-    //     buf = bytearray_target[j];
-    //     bytearray_target[j] = bytearray_target[size_target - 1 - j];
-    //     bytearray_target[size_target - 1 - j] = buf;
-    // }
-    for (size_t j = 0; j < 8; j++) {
+     for (size_t j = 0; j < 8; j++) {
       bytearray_target[j] ^= bytearray_target[size_target - 1 - j];
       bytearray_target[size_target - 1 - j] ^= bytearray_target[j];
       bytearray_target[j] ^= bytearray_target[size_target - 1 - j];
@@ -599,53 +586,26 @@ void runMiner(void){
 }
 
 void runMonitor() {
-
-  // Serial.println("[MONITOR] started");
-  
-  
-  //while(1){
     background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen); 
-    
-    unsigned long mElapsed = millis()-mStart;
-    unsigned long totalKHashes = (Mhashes*1000) + hashes/1000 - totalKHashes; 
-    
-    //Serial.println("[runMonitor Task] -> Printing results on screen ");
-    
-    // Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %.3f KH/s\n",
-    //  shares, totalKHashes, (1.0*(totalKHashes*1000))/mElapsed);
+    unsigned long secElapsed = (millis() - mStart) / 1000;
+    unsigned long totalKHashes = (Mhashes * 1000) + hashes / 1000;
+    char myhashrate[6] = {0};
+    sprintf(myhashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
+    Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
+                  shares, totalKHashes, myhashrate);
 
-    //Hashrate
     render.setFontSize(70);
     render.setCursor(19, 118);
     render.setFontColor(TFT_BLACK);
-    char tmp[10] = {0};
-    sprintf(tmp, "%.2f", (1.0*(totalKHashes*1000))/mElapsed);
-    render.rdrawString(tmp, 118, 114, TFT_BLACK);
-    //Total hashes
+    render.rdrawString(myhashrate, 118, 114, TFT_BLACK);
     render.setFontSize(36);
     render.rdrawString(String(Mhashes).c_str(), 268, 138, TFT_BLACK);
-    //Block templates
-    render.setFontSize(36);
     render.drawString(String(templates).c_str(), 186, 17, 0xDEDB);
-    //16Bit shares
-    render.setFontSize(36);
     render.drawString(String(halfshares).c_str(), 186, 45, 0xDEDB);
-    //32Bit shares
-    render.setFontSize(36);
     render.drawString(String(shares).c_str(), 186, 73, 0xDEDB);
-    //Hores
-    unsigned long secElapsed=mElapsed/1000;
-    int hr = secElapsed/3600;                                                        //Number of seconds in an hour
-    int mins = (secElapsed-(hr*3600))/60;                                              //Remove the number of hours and calculate the minutes.
-    int sec = secElapsed-(hr*3600)-(mins*60);   
-    render.setFontSize(36);
-    render.rdrawString(String(hr).c_str(), 208, 99, 0xDEDB);
-    //Minutss
-    render.setFontSize(36);
-    render.rdrawString(String(mins).c_str(), 253, 99, 0xDEDB);
-    //Segons
-    render.setFontSize(36);
-    render.rdrawString(String(sec).c_str(), 298, 99, 0xDEDB);
+    render.rdrawString(String(numberOfHours(secElapsed)).c_str(), 208, 99, 0xDEDB);
+    render.rdrawString(String(numberOfMinutes(secElapsed)).c_str(), 253, 99, 0xDEDB);
+    render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
     //Valid Blocks
     render.setFontSize(48);
     render.drawString(String(valids).c_str(), 281, 55, TFT_GOLD);
@@ -654,61 +614,6 @@ void runMonitor() {
     // render.rdrawString((String("Mineur de ") + String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
     render.rdrawString(String(temp).c_str(), 292, 3, TFT_RED);
     render.drawString(String(hourString).c_str(), 165, 3, 0xDEDB);
-    //Push prepared background to screen
     background.pushSprite(0,0);
-    
-    // Pause the task for 5000ms
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-  //}
 }
-
-
-
-
-// void runMonitor(void *name)
-// {
-
-//   Serial.println("[MONITOR] started");
-
-//   unsigned long mStart = millis();
-//   while (1)
-//   {
-//     //      if (digitalRead(TFT_BL) != LOW)
-//     // {
-
-//     unsigned long mElapsed = millis() - mStart;
-//     unsigned long secElapsed = (millis() - mStart) / 1000;
-//     unsigned long totalKHashes = (Mhashes * 1000) + hashes / 1000;
-//     char myhashrate[6] = {0};
-//     sprintf(myhashrate, "%.2f", (1.0 * (totalKHashes)) / secElapsed);
-//     Serial.printf(">>> Completed %d share(s), %d Khashes, avg. hashrate %s KH/s\n",
-//                   shares, totalKHashes, myhashrate);
-
-//     background.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
-//     //render.loadFont(DigitalNumbers, sizeof(DigitalNumbers));
-//     render.setFontSize(70);
-//     render.setCursor(19, 118);
-//     render.setFontColor(TFT_BLACK);
-//     render.rdrawString(myhashrate, 118, 114, TFT_BLACK);
-//     render.setFontSize(36);
-//     render.rdrawString(String(Mhashes).c_str(), 268, 138, TFT_BLACK);
-//     render.drawString(String(templates).c_str(), 186, 17, 0xDEDB);
-//     render.drawString(String(halfshares).c_str(), 186, 45, 0xDEDB);
-//     render.drawString(String(shares).c_str(), 186, 73, 0xDEDB);
-//     render.rdrawString(String(numberOfHours(secElapsed)).c_str(), 208, 99, 0xDEDB);
-//     render.rdrawString(String(numberOfMinutes(secElapsed)).c_str(), 253, 99, 0xDEDB);
-//     render.rdrawString(String(numberOfSeconds(secElapsed)).c_str(), 298, 99, 0xDEDB);
-//     render.setFontSize(48);
-//     render.drawString(String(valids).c_str(), 281, 55, TFT_GOLD);
-//     //render.loadFont(NotoSans_Bold, sizeof(NotoSans_Bold));
-//     render.setFontSize(18);
-//     // render.rdrawString((String("Mineur de ") + String(POOL_WORKER)).c_str(), 110, 4, TFT_GOLD);
-//     render.rdrawString(String(tmp).c_str(), 292, 3, TFT_RED);
-//     render.drawString(String(hourString).c_str(), 165, 3, 0xDEDB);
-
-//     background.pushSprite(0, 0);
-//     // }
-//     // Pause the task for 5000ms
-//     vTaskDelay(1000 / portTICK_PERIOD_MS);
-//   }
-// }
