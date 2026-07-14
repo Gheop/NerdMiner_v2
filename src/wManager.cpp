@@ -301,6 +301,12 @@ void init_WifiManager()
         wm.setCaptivePortalEnable(true); 
         wm.setConfigPortalBlocking(true);
         wm.setEnableConfigPortal(true);
+        // Force a full-channel scan and connect to the strongest AP. Without this the
+        // ESP32 fast-reconnects to the last stored BSSID/channel; a miner last associated
+        // elsewhere then hangs ~40s on an AP that isn't here instead of roaming to the
+        // local one (seen on worker2: fine near the PC, "AutoConnect FAILED" at the rack).
+        WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+        WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
         // if (!wm.autoConnect(Settings.WifiSSID.c_str(), Settings.WifiPW.c_str()))
         if (!wm.autoConnect(apName, DEFAULT_WIFIPW))
         {
@@ -428,21 +434,56 @@ void init_WifiManager()
 //----------------- MAIN PROCESS WIFI MANAGER --------------
 int oldStatus = 0;
 
+// Weak-link recovery: the stock firmware just logs a dropped link and waits.
+// A miner on a marginal AP then sits offline forever. We actively reconnect,
+// reboot if the link stays down (boot re-scans for the strongest AP), and log
+// the RSSI so a weak signal is visible without probing the AP side.
+#define WIFI_RECONNECT_EVERY_MS   10000UL
+#define WIFI_REBOOT_AFTER_MS      90000UL
+#define WIFI_RSSI_LOG_EVERY_MS    30000UL
+
 void wifiManagerProcess() {
 
     wm.process(); // avoid delays() in loop when non-blocking and other long running code
+
+    static unsigned long wifiLostSince = 0;   // millis() when the link dropped (0 = up)
+    static unsigned long lastReconnectTry = 0;
+    static unsigned long lastRssiLog = 0;
 
     int newStatus = WiFi.status();
     if (newStatus != oldStatus) {
         if (newStatus == WL_CONNECTED) {
             Serial.println("CONNECTED - Current ip: " + WiFi.localIP().toString());
+            Serial.printf("WiFi RSSI: %d dBm\n", WiFi.RSSI());
             //Modem power save (default) drops frames on weak links, causing pool
             //disconnects. An always-powered miner prefers a stable link (~+60mA).
             WiFi.setSleep(false);
+            WiFi.setAutoReconnect(true);
+            wifiLostSince = 0;
         } else {
             Serial.print("[Error] - current status: ");
             Serial.println(newStatus);
         }
         oldStatus = newStatus;
+    }
+
+    unsigned long now = millis();
+
+    if (newStatus == WL_CONNECTED) {
+        if (now - lastRssiLog >= WIFI_RSSI_LOG_EVERY_MS) {
+            lastRssiLog = now;
+            Serial.printf("WiFi RSSI: %d dBm\n", WiFi.RSSI());
+        }
+    } else {
+        if (wifiLostSince == 0) wifiLostSince = now;
+        if (now - lastReconnectTry >= WIFI_RECONNECT_EVERY_MS) {
+            lastReconnectTry = now;
+            Serial.println("WiFi down, trying to reconnect...");
+            WiFi.reconnect();
+        }
+        if (now - wifiLostSince >= WIFI_REBOOT_AFTER_MS) {
+            Serial.println("WiFi down too long, restarting");
+            ESP.restart();
+        }
     }
 }
