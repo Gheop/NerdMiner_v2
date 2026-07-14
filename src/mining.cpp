@@ -728,13 +728,10 @@ static inline void nerd_sha_ll_fill_text_block_sha256_inter()
   REG_WRITE(&reg_addr_buf[7], DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 7 * 4));
   DPORT_INTERRUPT_RESTORE();
 
+  //SHA_TEXT[9..14] are kept at zero for the whole job (zeroed once in
+  //minerWorkerHw; neither fill nor the engine touches them), so only the
+  //two registers that alternate between the fills need rewriting here.
   REG_WRITE(&reg_addr_buf[8], 0x00000080);
-  REG_WRITE(&reg_addr_buf[9], 0x00000000);
-  REG_WRITE(&reg_addr_buf[10], 0x00000000);
-  REG_WRITE(&reg_addr_buf[11], 0x00000000);
-  REG_WRITE(&reg_addr_buf[12], 0x00000000);
-  REG_WRITE(&reg_addr_buf[13], 0x00000000);
-  REG_WRITE(&reg_addr_buf[14], 0x00000000);
   REG_WRITE(&reg_addr_buf[15], 0x00010000);
 }
 
