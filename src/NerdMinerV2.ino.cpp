@@ -21,6 +21,16 @@
 #endif
 
 #include <soc/soc_caps.h>
+#include <ArduinoOTA.h>
+#include <ESPmDNS.h>
+#include <SPIFFS.h>
+#include "version.h"
+
+#ifndef OTA_PASSWORD
+#define OTA_PASSWORD ""
+#endif
+//Refuse un firmware OTA sans mot de passe (NERDMINER_OTA_PWD absent au build)
+static_assert(sizeof(OTA_PASSWORD) > 1, "OTA password vide : exporter NERDMINER_OTA_PWD avant le build");
 //#define HW_SHA256_TEST
 
 //3 seconds WDT
@@ -52,6 +62,9 @@ extern monitor_data mMonitor;
 
 unsigned long start = millis();
 const char* ntpServer = "pool.ntp.org";
+
+//Miner task handles, global so the OTA hooks can suspend them during a flash
+TaskHandle_t minerTask1 = NULL, minerTask2 = NULL;
 
 //void runMonitor(void *name);
 
@@ -158,7 +171,6 @@ void setup()
 
   // Start mining tasks
   //BaseType_t res = xTaskCreate(runWorker, name, 35000, (void*)name, 1, NULL);
-  TaskHandle_t minerTask1, minerTask2 = NULL;
   #ifdef HARDWARE_SHA265
     #if defined(CONFIG_IDF_TARGET_ESP32)
     xTaskCreate(minerWorkerHw, "MinerHw-0", 3584, (void*)0, 3, &minerTask1); // Reduced for ESP32 classic
@@ -201,6 +213,63 @@ void app_error_fault_handler(void *arg) {
   esp_restart();
 }
 
+//OTA over WiFi: firmware (upload) and SPIFFS config (uploadfs) via espota.
+//Init deferred until WiFi is up; handle() below is a non-blocking UDP poll.
+static bool s_ota_ready = false;
+static volatile bool s_ota_in_progress = false;
+static volatile uint32_t s_ota_last_progress_ms = 0;
+
+//ArduinoOTA.handle() blocks inside loop() for the whole transfer, so a stalled
+//transfer (dead sender, wifi drop) can never be detected from loop() itself:
+//without this task the miners would stay suspended forever.
+static void otaStallWatchdog(void *unused) {
+  while (true) {
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    if (s_ota_in_progress && (millis() - s_ota_last_progress_ms) > 30000) {
+      Serial.println("OTA: stalled >30s, restarting");
+      ESP.restart();
+    }
+  }
+}
+
+static void setupOTA() {
+  uint8_t mac[6];
+  WiFi.macAddress(mac);
+  static char host[24];
+  snprintf(host, sizeof(host), "nerdminer-%02x%02x", mac[4], mac[5]);
+  ArduinoOTA.setHostname(host);
+  ArduinoOTA.setPassword(OTA_PASSWORD);
+  ArduinoOTA.onStart([]() {
+    //Flash writes disable the cache: stop hashing, and detach the wdt of the
+    //suspended miners first or it fires during the transfer.
+    if (minerTask1) { esp_task_wdt_delete(minerTask1); vTaskSuspend(minerTask1); }
+    if (minerTask2) { esp_task_wdt_delete(minerTask2); vTaskSuspend(minerTask2); }
+    if (ArduinoOTA.getCommand() == U_SPIFFS)
+      SPIFFS.end();
+    s_ota_last_progress_ms = millis();
+    s_ota_in_progress = true;
+    Serial.println("OTA: transfer started, mining suspended");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    s_ota_last_progress_ms = millis();
+  });
+  ArduinoOTA.onEnd([]() {
+    s_ota_in_progress = false; //device reboots right after
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("OTA: error %u, restarting\n", error);
+    ESP.restart(); //clean slate: resume mining from a fresh boot
+  });
+  ArduinoOTA.begin();
+  //Deployed version readable from the LAN: avahi-browse -r _arduino._tcp
+  MDNS.addServiceTxt("arduino", "tcp", "fw_version", CURRENT_VERSION);
+#ifdef AUTO_VERSION
+  MDNS.addServiceTxt("arduino", "tcp", "fw_build", AUTO_VERSION);
+#endif
+  xTaskCreate(otaStallWatchdog, "OTAdog", 2048, NULL, 1, NULL);
+  Serial.printf("OTA: ready as %s.local\n", host);
+}
+
 void loop() {
   // keep watching the push buttons:
   #ifdef PIN_BUTTON_1
@@ -215,6 +284,13 @@ void loop() {
   touchHandler.isTouched();
 #endif
   wifiManagerProcess(); // avoid delays() in loop when non-blocking and other long running code
+
+  if (!s_ota_ready && WiFi.status() == WL_CONNECTED) {
+    setupOTA();
+    s_ota_ready = true;
+  }
+  if (s_ota_ready)
+    ArduinoOTA.handle();
 
   vTaskDelay(50 / portTICK_PERIOD_MS);
 }
