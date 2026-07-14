@@ -22,6 +22,9 @@
 void runMonitor(void *name);
 
 void runStratumWorker(void *name);
+
+//Set true by the OTA onStart hook so the miners idle and release the SHA engine.
+extern volatile bool ota_active;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);

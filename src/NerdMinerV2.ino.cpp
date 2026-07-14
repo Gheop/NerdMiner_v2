@@ -63,8 +63,9 @@ extern monitor_data mMonitor;
 unsigned long start = millis();
 const char* ntpServer = "pool.ntp.org";
 
-//Miner task handles, global so the OTA hooks can suspend them during a flash
+//Task handles, global so the OTA hooks can suspend everything during a flash
 TaskHandle_t minerTask1 = NULL, minerTask2 = NULL;
+TaskHandle_t monitorTask = NULL, stratumTask = NULL;
 
 //void runMonitor(void *name);
 
@@ -139,6 +140,13 @@ void setup()
   /******** INIT WIFI ************/
   init_WifiManager();
 
+#ifdef OTA_ONLY_TEST
+  //Diagnostic build: bring up WiFi + OTA only, no miner/monitor/stratum tasks.
+  Serial.println("OTA_ONLY_TEST: no mining tasks started");
+  vTaskPrioritySet(NULL, 4);
+  return;
+#endif
+
   /******** CREATE TASK TO PRINT SCREEN *****/
   //tft.pushImage(0, 0, MinerWidth, MinerHeight, MinerScreen);
   // Higher prio monitor task
@@ -147,21 +155,21 @@ void setup()
   static const char monitor_name[] = "(Monitor)";
   #if defined(CONFIG_IDF_TARGET_ESP32)
   // Increased stack for ESP32 classic due to NVS operations  
-  BaseType_t res1 = xTaskCreatePinnedToCore(runMonitor, "Monitor", 9500, (void*)monitor_name, 5, NULL,1);
+  BaseType_t res1 = xTaskCreatePinnedToCore(runMonitor, "Monitor", 9500, (void*)monitor_name, 5, &monitorTask,1);
   #else
-  BaseType_t res1 = xTaskCreatePinnedToCore(runMonitor, "Monitor", 10000, (void*)monitor_name, 5, NULL,1);
+  BaseType_t res1 = xTaskCreatePinnedToCore(runMonitor, "Monitor", 10000, (void*)monitor_name, 5, &monitorTask,1);
   #endif
 
   /******** CREATE STRATUM TASK *****/
   static const char stratum_name[] = "(Stratum)";
  #if defined(CONFIG_IDF_TARGET_ESP32) && !defined(ESP32_2432S028R) && !defined(ESP32_2432S028_2USB)
   // Reduced stack for ESP32 classic to save memory
-  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 12000, (void*)stratum_name, 4, NULL,1);
+  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 12000, (void*)stratum_name, 4, &stratumTask,1);
  #elif defined(ESP32_2432S028R) || defined(ESP32_2432S028_2USB)
   // Free a little bit of the heap to the screen
-  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 13500, (void*)stratum_name, 4, NULL,1);
+  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 13500, (void*)stratum_name, 4, &stratumTask,1);
  #else
-  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 15000, (void*)stratum_name, 4, NULL,1);
+  BaseType_t res2 = xTaskCreatePinnedToCore(runStratumWorker, "Stratum", 15000, (void*)stratum_name, 4, &stratumTask,1);
  #endif
 
   /******** CREATE MINER TASKS *****/
@@ -225,8 +233,8 @@ static volatile uint32_t s_ota_last_progress_ms = 0;
 static void otaStallWatchdog(void *unused) {
   while (true) {
     vTaskDelay(5000 / portTICK_PERIOD_MS);
-    if (s_ota_in_progress && (millis() - s_ota_last_progress_ms) > 30000) {
-      Serial.println("OTA: stalled >30s, restarting");
+    if (s_ota_in_progress && (millis() - s_ota_last_progress_ms) > 90000) {
+      Serial.println("OTA: stalled >90s, restarting");
       ESP.restart();
     }
   }
@@ -240,10 +248,17 @@ static void setupOTA() {
   ArduinoOTA.setHostname(host);
   ArduinoOTA.setPassword(OTA_PASSWORD);
   ArduinoOTA.onStart([]() {
-    //Flash writes disable the cache: stop hashing, and detach the wdt of the
-    //suspended miners first or it fires during the transfer.
-    if (minerTask1) { esp_task_wdt_delete(minerTask1); vTaskSuspend(minerTask1); }
-    if (minerTask2) { esp_task_wdt_delete(minerTask2); vTaskSuspend(minerTask2); }
+    //Ask the miners to idle at a safe point and release the SHA engine lock,
+    //then give in-flight jobs a moment to finish. Suspending them mid-hash would
+    //keep that lock and deadlock Update.end()'s image SHA-256 verification.
+    ota_active = true;
+    vTaskDelay(300 / portTICK_PERIOD_MS);
+    if (minerTask1) esp_task_wdt_delete(minerTask1);
+    if (minerTask2) esp_task_wdt_delete(minerTask2);
+    //Suspend the monitor (screen redraw, SPI) and stratum (pool socket): they
+    //don't touch the SHA engine, so a plain suspend is safe and frees CPU/SPI.
+    if (monitorTask) vTaskSuspend(monitorTask);
+    if (stratumTask) vTaskSuspend(stratumTask);
     if (ArduinoOTA.getCommand() == U_SPIFFS)
       SPIFFS.end();
     s_ota_last_progress_ms = millis();
@@ -252,13 +267,23 @@ static void setupOTA() {
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     s_ota_last_progress_ms = millis();
+    static unsigned int last = 0;
+    if (progress < last) last = 0; //new transfer
+    if (progress - last >= 131072 || progress == total) {
+      last = progress;
+      Serial.printf("OTA: %u/%u\n", progress, total);
+    }
   });
   ArduinoOTA.onEnd([]() {
     s_ota_in_progress = false; //device reboots right after
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("OTA: error %u, restarting\n", error);
-    ESP.restart(); //clean slate: resume mining from a fresh boot
+    //No ESP.restart() here: ArduinoOTA reports the error detail to the sender
+    //AFTER this callback (Update.printError). Rearm the stall watchdog so the
+    //device reboots ~10s later instead, once the error left the socket.
+    Serial.printf("OTA: error %u, reboot in ~10s\n", error);
+    s_ota_in_progress = true;
+    s_ota_last_progress_ms = millis() - 20000;
   });
   ArduinoOTA.begin();
   //Deployed version readable from the LAN: avahi-browse -r _arduino._tcp
