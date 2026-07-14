@@ -7,6 +7,9 @@
 #define MAX_NONCE       25000000U
 #define TARGET_NONCE    471136297U
 #define DEFAULT_DIFFICULTY  0.00015
+// Fallback pool IP used when DNS resolution fails (WiFi.hostByName returns 0/0.0.0.0).
+// Comment out to disable the fallback (upstream/generic behaviour).
+#define POOL_FALLBACK_IP        "38.51.144.232"   // public-pool.io
 #define KEEPALIVE_TIME_ms       30000
 #define POOLINACTIVITY_TIME_ms  60000
 
