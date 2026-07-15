@@ -25,6 +25,9 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 #include "version.h"
+#include <WiFiClientSecure.h>
+#include "HTTPClient.h"
+#include "drivers/storage/storage.h"
 
 #ifndef OTA_PASSWORD
 #define OTA_PASSWORD ""
@@ -51,6 +54,8 @@ extern TouchHandler touchHandler;
 #endif
 
 extern monitor_data mMonitor;
+extern TSettings Settings;        // config utilisateur (adresse BTC, pool)
+extern uint32_t hashes, Mhashes;  // compteurs de hash, pour calculer le hashrate
 
 #ifdef SD_ID
   SDCard SDCrd = SDCard(SD_ID);
@@ -66,6 +71,9 @@ const char* ntpServer = "pool.ntp.org";
 //Task handles, global so the OTA hooks can suspend everything during a flash
 TaskHandle_t minerTask1 = NULL, minerTask2 = NULL;
 TaskHandle_t monitorTask = NULL, stratumTask = NULL;
+
+//gheop4 freeze watchdog (defined after the OTA watchdog, created at end of setup)
+static void healthWatchdog(void *unused);
 
 //void runMonitor(void *name);
 
@@ -208,6 +216,9 @@ void setup()
 
   /******** MONITOR SETUP *****/
   setup_monitor();
+
+  //gheop4/6: freeze watchdog + temperature/RSSI telemetry + dashboard POST (TLS → bigger stack)
+  xTaskCreate(healthWatchdog, "Health", 8192, NULL, 1, NULL);
 }
 
 void app_error_fault_handler(void *arg) {
@@ -235,6 +246,119 @@ static void otaStallWatchdog(void *unused) {
     vTaskDelay(5000 / portTICK_PERIOD_MS);
     if (s_ota_in_progress && (millis() - s_ota_last_progress_ms) > 90000) {
       Serial.println("OTA: stalled >90s, restarting");
+      ESP.restart();
+    }
+  }
+}
+
+//gheop6: push miner telemetry to the dashboard (miner.gheop.com) every ~60s.
+//Sent from healthWatchdog, out of the mining hot loop → no hashrate impact.
+//HTTPS via WiFiClientSecure (insecure: payload is non-sensitive telemetry, and
+//ingestion is gated by a shared token the server checks).
+#if defined(NERDMINER_REPORT_URL)
+//Cause of the last reset — the closest thing to the Raspberry Pi under-voltage
+//log. ESP_RST_BROWNOUT means the 5V supply dipped below the brownout threshold
+//(a power problem); task_wdt/panic point at software; sw is our own restart/OTA.
+static const char *resetReasonStr() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:   return "poweron";
+    case ESP_RST_EXT:       return "ext";
+    case ESP_RST_SW:        return "sw";
+    case ESP_RST_PANIC:     return "panic";
+    case ESP_RST_INT_WDT:   return "int_wdt";
+    case ESP_RST_TASK_WDT:  return "task_wdt";
+    case ESP_RST_WDT:       return "wdt";
+    case ESP_RST_DEEPSLEEP: return "deepsleep";
+    case ESP_RST_BROWNOUT:  return "brownout";
+    case ESP_RST_SDIO:      return "sdio";
+    default:                return "unknown";
+  }
+}
+
+static void postTelemetry(uint32_t hashrateHs) {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  String worker = Settings.BtcWallet;
+  int dot = worker.indexOf('.');
+  worker = (dot >= 0) ? worker.substring(dot + 1) : String("worker");
+
+  long sinceJob = g_lastPoolJobMs ? (long)((millis() - g_lastPoolJobMs) / 1000) : -1;
+  char body[400];
+  snprintf(body, sizeof(body),
+           "{\"worker\":\"%s\",\"hashrateHs\":%u,\"tempC\":%.1f,\"rssi\":%d,"
+           "\"uptimeS\":%lu,\"freeHeap\":%u,\"sinceLastPoolJobS\":%ld,"
+           "\"resetReason\":\"%s\",\"version\":\"%s\"}",
+           worker.c_str(), (unsigned)hashrateHs, temperatureRead(), (int)WiFi.RSSI(),
+           (unsigned long)(millis() / 1000), (unsigned)ESP.getFreeHeap(), sinceJob,
+           resetReasonStr(), CURRENT_VERSION);
+
+  //Same pattern as monitor.cpp's working HTTPS calls: let HTTPClient manage the
+  //TLS client internally via begin(url). Passing our own WiFiClientSecure +
+  //setInsecure made http.POST() hang forever in the TLS handshake.
+  HTTPClient http;
+  http.setTimeout(10000);
+  if (!http.begin(NERDMINER_REPORT_URL)) return;
+  http.addHeader("Content-Type", "application/json");
+#if defined(NERDMINER_INGEST_TOKEN)
+  http.addHeader("x-miner-token", NERDMINER_INGEST_TOKEN);
+#endif
+  int code = http.POST((uint8_t *)body, strlen(body));
+  Serial.printf("Report -> HTTP %d\n", code);
+  http.end();
+}
+#endif
+
+//Independent freeze watchdog. The stock 10-min no-job recovery lives inside the
+//Stratum task, so a frozen task never runs it (seen 2026-07-15: miners still
+//pinged but stopped receiving pool jobs and never recovered). This tiny task is
+//separate, so it survives a freeze of the mining/stratum tasks and reboots the
+//board. It also logs the chip temperature + RSSI every 30s so we can see if heat
+//is a factor without needing USB.
+#define POOL_STALL_REBOOT_MS (15UL*60UL*1000UL)  //15 min without a pool job -> reboot
+static void healthWatchdog(void *unused) {
+  uint32_t bootRef = millis();   //grace reference until the first job arrives
+  uint64_t lastTotal = (uint64_t)Mhashes * 1000000ULL + hashes;
+  uint32_t lastPostMs = millis();
+  for (;;) {
+    vTaskDelay(30000 / portTICK_PERIOD_MS);
+    uint32_t ref = (g_lastPoolJobMs != 0) ? g_lastPoolJobMs : bootRef;
+    uint32_t sinceJobS = (millis() - ref) / 1000;
+    Serial.printf("Health: temp %.1f C, RSSI %d dBm, since_job %us\n",
+                  temperatureRead(), (int)WiFi.RSSI(), (unsigned)sinceJobS);
+
+#if defined(NERDMINER_REPORT_URL)
+    //telemetry POST every ~60s, with the hashrate measured over the interval
+    uint32_t nowMs = millis();
+    if (!ota_active && nowMs - lastPostMs >= 60000) {
+      uint64_t total = (uint64_t)Mhashes * 1000000ULL + hashes;
+      uint32_t dtMs = nowMs - lastPostMs;
+      uint32_t hs = (total > lastTotal && dtMs > 0)
+                        ? (uint32_t)(((total - lastTotal) * 1000ULL) / dtMs)
+                        : 0;
+      lastTotal = total;
+      lastPostMs = nowMs;
+      postTelemetry(hs);
+    }
+#endif
+    if (ota_active) continue;   //mining is intentionally idle during an OTA flash
+    if (WiFi.status() == WL_CONNECTED && (millis() - ref) > POOL_STALL_REBOOT_MS) {
+      //Freeze diagnostic before the reboot: which task is stuck and on what.
+      //state: 0=Running 1=Ready 2=Blocked 3=Suspended 4=Deleted 5=Invalid.
+      //A task Blocked forever = deadlock/lost mutex; low stackFreeWords = overflow.
+      Serial.println("=== FREEZE DIAG (no pool job 15 min) ===");
+      TaskHandle_t th[] = { minerTask1, minerTask2, monitorTask, stratumTask };
+      const char* tn[]  = { "MinerHw", "Miner2", "Monitor", "Stratum" };
+      for (int i = 0; i < 4; i++) {
+        if (th[i])
+          Serial.printf("  %-8s state=%d stackFreeWords=%u\n", tn[i],
+                        (int)eTaskGetState(th[i]),
+                        (unsigned)uxTaskGetStackHighWaterMark(th[i]));
+      }
+      Serial.printf("  heap free=%u min=%u, WiFi RSSI=%d\n",
+                    (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMinFreeHeap(),
+                    (int)WiFi.RSSI());
+      Serial.println("Health watchdog: restarting now");
+      vTaskDelay(100 / portTICK_PERIOD_MS);   //let the serial buffer flush
       ESP.restart();
     }
   }

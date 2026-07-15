@@ -66,6 +66,10 @@ IPAddress serverIP(1, 1, 1, 1); //Temporally save poolIPaddres
 //that lock and deadlock Update.end(), which verifies the image SHA-256.
 //Instead the miners watch this flag and idle at a safe point, lock released.
 volatile bool ota_active = false;
+//Last time a pool job (mining.notify) was accepted. runStratumWorker's own
+//last_job_time is local, so a frozen Stratum task can't be watched from outside;
+//this global lets an independent health watchdog reboot on a real freeze.
+volatile uint32_t g_lastPoolJobMs = 0;
 
 //Global work data 
 static WiFiClient client;
@@ -317,6 +321,7 @@ void runStratumWorker(void *name) {
       uint32_t time_now = millis();
       mLastTXtoPool = time_now;
       last_job_time = time_now;
+      g_lastPoolJobMs = time_now;
     }
 
     //Check if pool is down for almost 5minutes and then restart connection with pool (1min=600000ms)
@@ -372,6 +377,7 @@ void runStratumWorker(void *name) {
                                           s_working_current_job_id = job_pool & 0xFF; //Terminate current job in thread
 
                                           last_job_time = millis();
+                                          g_lastPoolJobMs = last_job_time;
                                           mLastTXtoPool = last_job_time;
 
                                           uint32_t mh = hashes/1000000;
