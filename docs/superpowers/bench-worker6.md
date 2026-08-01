@@ -251,3 +251,28 @@ tampon d'écriture), les suivants 16,5 cyc (tampon saturé) ; moyenne 13,2 = le 
 **Troisième confirmation indépendante du plafond matériel**, après l'interleave (le CPU « libre »
 ne l'est pas) et le SIMD (l'instruction n'existe pas). Version C conservée (lisible, portable,
 même perf) ; le code ASM reste sous `RACE_ASM_FILL=0` pour la trace.
+
+## Ménage de fin de lot (2026-08-01)
+
+Suppression du code des expériences **ratées et déjà documentées ci-dessus** — git et ce journal
+gardent les chiffres, le désassemblage et le raisonnement ; garder le code mort en plus était
+redondant.
+
+| supprimé | lignes | verdict qui le justifie |
+|---|---|---|
+| `src/race/race_sw_interleave.{h,cpp}` + 5 blocs | 249 | interleave rejeté (−11,7 %) |
+| `src/race/pie_probe.S` + 2 blocs | 15 | SIMD NO-GO (`ee.vadds.s32` sature) |
+| version ASM de `fill_fast` (`RACE_ASM_FILL`) | ~25 | +0,0 kH/s (bus APB, pas le CPU) |
+| `RACE_SW_SELFTEST` | 2 blocs | ne testait que l'interleave |
+
+**~380 lignes en moins.** Flags restants : `RACE_RATE` (sonde de débit, active), `RACE_BENCH`
+(profileur par phase, gardé désactivé — c'est l'outil qui a permis tous les diagnostics),
+`RACE_HEADLESS` (worker6), `RACE_DRAW_EVERY_S` (flotte).
+
+Vérifié : les 3 envs compilent (stock inchangé), worker6 reflashé → **304,1 kH/s**, mismatch=0
+(contre 304,4 avant : identique au bruit près).
+
+### Support des autres cartes : volontairement intact
+Les ~30 autres boards du projet ne sont **pas** élaguées. Le linker écarte déjà le code inutilisé
+(firmware 1,9 Mo sur une partition de ~6,5 Mo), donc l'élagage ne gagnerait ni octet ni cycle —
+et il casserait la synchronisation avec l'upstream BitMaker (PR #801-804 ouvertes).

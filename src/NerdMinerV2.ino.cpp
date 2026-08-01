@@ -72,12 +72,6 @@ const char* ntpServer = "pool.ntp.org";
 TaskHandle_t minerTask1 = NULL, minerTask2 = NULL;
 TaskHandle_t monitorTask = NULL, stratumTask = NULL;
 
-#if RACE_PIE_PROBE
-extern "C" void race_pie_add_probe(uint32_t *io);
-#endif
-#if RACE_SW_SELFTEST
-#include "race/race_sw_interleave.h"
-#endif
 
 //gheop4 freeze watchdog (defined after the OTA watchdog, created at end of setup)
 static void healthWatchdog(void *unused);
@@ -140,27 +134,6 @@ void setup()
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
 
-#if RACE_SW_SELFTEST
-  //race/gheop8: the interleaved state machine must match nerd_sha256d_baked exactly
-  race_sw_selftest();
-#endif
-
-#if RACE_PIE_PROBE
-  //race/gheop8: does ee.vadds.s32 saturate or wrap? SHA-256 needs mod 2^32.
-  //lane0: 0x7FFFFFFF+1 -> wrap 0x80000000 / sat 0x7FFFFFFF
-  //lane2: 0x80000000+(-1) -> wrap 0x7FFFFFFF / sat 0x80000000
-  {
-    static uint32_t __attribute__((aligned(16))) io[12] = {
-      0x7FFFFFFFu, 0xFFFFFFFFu, 0x80000000u, 0x12345678u,
-      0x00000001u, 0x00000001u, 0xFFFFFFFFu, 0x9ABCDEF0u,
-      0, 0, 0, 0 };
-    race_pie_add_probe(io);
-    Serial.printf("PIE probe: %08x %08x %08x %08x\n", io[8], io[9], io[10], io[11]);
-    Serial.printf("PIE verdict: lane0 %s | lane2 %s\n",
-      io[8]  == 0x80000000u ? "WRAP (usable)" : (io[8]  == 0x7FFFFFFFu ? "SATURATES (unusable)" : "?"),
-      io[10] == 0x7FFFFFFFu ? "WRAP (usable)" : (io[10] == 0x80000000u ? "SATURATES (unusable)" : "?"));
-  }
-#endif
 
   /******** INIT DISPLAY ************/
 #if !RACE_HEADLESS
