@@ -216,3 +216,38 @@ mineurs sont polluées par le silicium, la température et l'état du matériel 
 
 Gain flotte réel : +0,7 % × 5 ≈ **+10 kH/s**. Marginal — la vraie raison de déployer gheop8 sur
 la flotte reste le **durcissement de la télémétrie** (POST isolé du watchdog anti-gel).
+
+## Assembleur à la main sur `fill_fast` : **+0,0 kH/s** (2026-08-01)
+
+Hypothèse testée : les 165 cyc de la phase `fill` (10 writes) contiennent du travail CPU
+évitable — chargements de constantes, calcul d'adresse — que l'assembleur supprimerait en
+gardant tout en registres.
+
+Version écrite (`RACE_ASM_FILL=1`, `mining.cpp`) : adresse de base et constantes pré-chargées,
+puis **10 `s32i` consécutifs** sans une instruction entre eux. Désassemblage vérifié avant flash :
+
+```
+2d5: l32r a2, ...      ; base SHA_TEXT
+2d8: movi a3, 128      ; seule constante rechargée
+2db: s32i.n a7, a2, 0  ; 10 stores d'affilée
+...  (a5,a6,a4,a3,a8,a8,a8,a8)
+2ed: s32i.n a9, a2, 60
+```
+
+Mesure sur worker6 (OTA, 2e report télémétrie) :
+
+| | khsHw | khsSw | total | mismatch |
+|---|---|---|---|---|
+| version C | 262,4 | 41,9 | 304,3 | 0 |
+| version ASM | **262,4** | 41,9 | **304,3** | 0 |
+
+**Écart : 0,0 kH/s.** Identique à la décimale.
+
+Conclusion : les 519 cyc/nonce d'accès registres (36 accès à ~14 cyc) sont de la **latence de bus
+APB pure**. Le CPU n'attend pas ses instructions, il attend le bus — et GCC produisait déjà du
+code quasi optimal. Corollaire mesuré : les 8 premiers writes coûtent 9,1 cyc (absorbés par le
+tampon d'écriture), les suivants 16,5 cyc (tampon saturé) ; moyenne 13,2 = le débit du bus.
+
+**Troisième confirmation indépendante du plafond matériel**, après l'interleave (le CPU « libre »
+ne l'est pas) et le SIMD (l'instruction n'existe pas). Version C conservée (lisible, portable,
+même perf) ; le code ASM reste sous `RACE_ASM_FILL=0` pour la trace.

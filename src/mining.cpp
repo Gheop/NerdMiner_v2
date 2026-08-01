@@ -767,6 +767,34 @@ static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text, ui
 //(nerd_sha_ll_fill_text_block_sha256_inter) those registers already hold 0
 //and the engine does not clobber them, so rewriting them every nonce is waste.
 //Requires SHA_TEXT[9..14] to have been zeroed once beforehand.
+#if RACE_ASM_FILL
+//race/gheop8 experiment: same 10 register writes, but hand-scheduled — base address
+//and all constants pre-loaded into registers, then ten back-to-back s32i with nothing
+//in between. Tests whether the 165 cyc of this phase are CPU work (fixable) or pure
+//APB bus latency (not fixable). See bench-worker6.md for the verdict.
+static inline void nerd_sha_ll_fill_text_block_sha256_fast(const void *input_text, uint32_t nonce)
+{
+    const uint32_t *w = (const uint32_t *)input_text;
+    const uint32_t base = SHA_TEXT_BASE;
+    const uint32_t zero = 0u, c80 = 0x00000080u, cpad = 0x80020000u;
+    const uint32_t w0 = w[0], w1 = w[1], w2 = w[2];
+    __asm__ __volatile__(
+        "s32i %[w0],  %[b], 0\n"
+        "s32i %[w1],  %[b], 4\n"
+        "s32i %[w2],  %[b], 8\n"
+        "s32i %[n],   %[b], 12\n"
+        "s32i %[c80], %[b], 16\n"
+        "s32i %[z],   %[b], 20\n"
+        "s32i %[z],   %[b], 24\n"
+        "s32i %[z],   %[b], 28\n"
+        "s32i %[z],   %[b], 32\n"
+        "s32i %[cp],  %[b], 60\n"
+        :
+        : [b] "r"(base), [w0] "r"(w0), [w1] "r"(w1), [w2] "r"(w2),
+          [n] "r"(nonce), [c80] "r"(c80), [z] "r"(zero), [cp] "r"(cpad)
+        : "memory");
+}
+#else
 static inline void nerd_sha_ll_fill_text_block_sha256_fast(const void *input_text, uint32_t nonce)
 {
     uint32_t *data_words = (uint32_t *)input_text;
@@ -783,6 +811,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256_fast(const void *input_tex
     REG_WRITE(&reg_addr_buf[8], 0x00000000);   //inter wrote 0x80 here
     REG_WRITE(&reg_addr_buf[15], 0x80020000);  //inter wrote 0x00010000 here
 }
+#endif
 
 static inline void nerd_sha_ll_fill_text_block_sha256_inter()
 {
