@@ -193,3 +193,26 @@ Flags : `RACE_DRAW_EVERY_S` (période de redraw en secondes, défaut 1 = comport
 
 **Applicable à la flotte** : +2,5 % sur les 5 mineurs à écran sain ≈ **+37 kH/s**, sans rien perdre
 d'utile. worker6 garde le headless (+3,8 %).
+
+## Correction : le gain du redraw espacé sur un écran SAIN est +0,7 %, pas +2,5 %
+
+Le +2,5 % mesuré plus haut l'a été sur **worker6, dalle morte**, en réactivant le rendu. Écrire
+en SPI vers un écran qui ne répond pas coûte bien plus cher que vers un écran sain : ce test
+mesurait un cas pathologique, pas la flotte.
+
+A/B sur **worker1 (écran sain, même mineur avant/après)** :
+
+| worker1 | total | hw | sw |
+|---|---|---|---|
+| gheop7 (redraw 1×/s) | 298,3 | — | — |
+| gheop8 Fleet (redraw 1×/3 s) | **300,3** | 259,7 | 40,6 |
+| **gain réel** | **+2,0 kH/s (+0,7 %)** | | mismatch=0 |
+
+Sanity check : le chiffre absolu du build redraw/3 s est **identique** sur worker1 (300,3) et
+worker6 (300,3) — le firmware se comporte pareil, seule la référence différait.
+
+**Leçon de méthode** : ne comparer que le *même* mineur avant/après. Les comparaisons entre
+mineurs sont polluées par le silicium, la température et l'état du matériel (ici une dalle HS).
+
+Gain flotte réel : +0,7 % × 5 ≈ **+10 kH/s**. Marginal — la vraie raison de déployer gheop8 sur
+la flotte reste le **durcissement de la télémétrie** (POST isolé du watchdog anti-gel).
