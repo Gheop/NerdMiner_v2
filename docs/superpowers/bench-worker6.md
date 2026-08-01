@@ -1,5 +1,23 @@
 # Bench worker6 — race/gheop8
 
+## Résultat final : 297,4 → **304,2 kH/s (+2,3 %)**, mismatch = 0
+
+| optimisation | verdict | delta |
+|---|---|---|
+| **Mode headless** (T7) | **gardée** | **+4,0 %** (A/B strict) |
+| Audit des ops moteur (T4) | nulle | 0 % — `sha_ll_load` est un inline vide sur S3 |
+| Taille des jobs 16k→64k | nulle | +0,13 % (bruit), revertée |
+| SIMD/PIE 4-way (T8-T10) | **NO-GO** | `ee.vadds.s32` sature, SHA-256 exige mod 2^32 |
+| Interleave SW/HW (T5) | **rejetée** | −11,7 % au meilleur grain |
+| Duel DMA (T6) | annulée | T5 prouve que le CPU n'est pas le goulot |
+
+Hors perf mais acquis au passage : le POST de télémétrie vit désormais dans sa propre tâche
+(un `http.POST` bloqué ne peut plus geler le watchdog anti-freeze) — **utile à toute la flotte**.
+
+Ce que le profil apprend sur le plafond : sur 915 cyc/nonce, ~550 sont des accès registres APB
+(~17 cyc chacun) et ~340 de l'attente moteur non récupérable. Le silicium, pas le code, fixe la
+limite. Les gains restants seraient matériels (fréquence APB, autre puce), pas logiciels.
+
 Protocole : télémétrie (fenêtres 60 s) ou serial `Bench:`, worker6 sur jobs réels
 public-pool. Gate : gain chiffré ET `shaMismatch == 0`, sinon revert.
 
