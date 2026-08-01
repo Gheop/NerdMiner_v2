@@ -231,3 +231,79 @@ If you would like to contribute and help dev team with this project you can send
 If you want to order a fully assembled Nerdminer you can contribute to my job at 🛒[bitronics.store](https://bitronics.store)🛒
 
 Enjoy
+
+---
+
+## Changelog (fork gheop)
+
+Suivi des versions de ce fork (branches `perf/hashrate` puis `race/gheop8`). Chaque gain est
+mesuré sur du matériel réel — 6 NerdMiner T-Display-S3 — et les impasses sont documentées avec
+leurs chiffres pour éviter de refaire le chemin. Détail complet dans
+`docs/superpowers/bench-worker6.md`.
+
+### V1.8.3-gheop8 — Firmware de course : plafond matériel atteint (2026-08-01)
+
+- **Mode headless** (`RACE_HEADLESS`) : plus aucun rendu TFT/SPI. +4,0 % sur un mineur à dalle HS
+- **Redraw espacé** (`RACE_DRAW_EVERY_S=3`) : le redraw plein écran passe de 1×/s à 1×/3 s. +0,7 %
+  sur écran sain, affichage toujours lisible
+- **POST de télémétrie isolé dans sa propre tâche** : un `http.POST` bloqué ne gèle plus le
+  watchdog anti-freeze (constaté en production). Le gain de fiabilité vaut plus que les %
+- **Compteurs par chemin** : `khsHw` / `khsSw` / `shaMismatch` remontés au dashboard, plus un
+  garde-fou de correction permanent (double-check SW des candidats)
+- **Profileur par phase** (`RACE_BENCH`, désactivé par défaut) : cycles/nonce par étape de la
+  boucle SHA matérielle. Coûte ~10 % du chemin HW, à n'activer que pour diagnostiquer
+- Écritures NVS des stats désactivées côté config (`saveStatsToNVS:false`) : suppression de la
+  seule opération flash périodique du chemin de minage, suspecte n°1 des reboots `int_wdt`
+
+**Impasses mesurées et documentées** (ne pas refaire) :
+
+| tentative | résultat | cause |
+|---|---|---|
+| SHA-256 4-way en SIMD/PIE | **impossible** | `ee.vadds.s32` sature ; SHA-256 exige mod 2³² |
+| Hachage logiciel dans les attentes moteur | **−11,7 %** | l'attente n'est pas du CPU libre |
+| `fill_fast` réécrit en assembleur | **+0,0 kH/s** | latence du bus APB, pas du travail CPU |
+| Audit des opérations moteur | 0 % | `sha_ll_load()` est un inline vide sur S3 |
+| Jobs 4× plus longs | +0,13 % (bruit) | le coût de gestion des jobs n'est pas le facteur |
+
+**Plafond** : sur 915 cycles/nonce, ~550 sont des accès registres APB (~14 cyc chacun) et ~340 de
+l'attente moteur. La limite est le silicium, pas le code — ~300 kH/s est le maximum de cette carte.
+
+### V1.8.3-gheop7 — Cause de reboot dans la télémétrie (2026-07-15)
+
+- `esp_reset_reason()` remonté au dashboard : distingue `brownout` (alimentation), `panic`,
+  `task_wdt`, `sw` (notre watchdog) et `poweron`
+
+### V1.8.3-gheop6 — Télémétrie dashboard (2026-07-15)
+
+- POST périodique vers un dashboard maison : hashrate, température, RSSI, uptime, RAM libre,
+  âge du dernier job pool. En HTTP (le TLS 1.3 fait caler le handshake mbedtls de l'ESP32)
+
+### V1.8.3-gheop5 — Sonde de diagnostic de gel (2026-07-15)
+
+- Avant le reboot du watchdog : dump de l'état de chaque tâche (`eTaskGetState`), pile et heap
+
+### V1.8.3-gheop4 — Watchdog applicatif (2026-07-15)
+
+- Tâche indépendante qui reboote si aucun job pool reçu depuis 15 min. Comble le trou du Task WDT
+  matériel, qui ne surveille que les tâches de minage — pas le cas « connecté mais réseau mort »
+- Log périodique de la température et du RSSI
+
+### V1.8.3-gheop3 — Sélection d'AP au scan complet (2026-07-14)
+
+- `WIFI_ALL_CHANNEL_SCAN` + `WIFI_CONNECT_AP_BY_SIGNAL` avant `autoConnect` : sans ça l'ESP32
+  se reconnecte au dernier BSSID mémorisé et s'entête sur une borne absente au lieu de roamer
+
+### V1.8.3-gheop2 — Reconnexion WiFi (2026-07-14)
+
+- `WiFi.reconnect()` toutes les 10 s, `setAutoReconnect(true)`, reboot si le lien est mort > 90 s
+- Log du RSSI (absent du firmware d'origine)
+
+### V1.8.3-gheop1 — Performance et fiabilité de base
+
+- **SHA fast-fill** : on saute les écritures constantes de `SHA_TEXT[9..14]` (16 → 10 par bloc).
+  **+18,8 % de hashrate** (~250 → ~300 kH/s), zéro mismatch
+- **OTA WiFi** (firmware + config SPIFFS) : le moteur SHA est libéré avant `Update.end()`, sinon
+  la vérification d'image se bloque
+- Correction de la résolution DNS de la pool (le retour de `hostByName` n'était pas vérifié)
+- Backoff exponentiel (1 → 15 s) pour la reconnexion à la pool
+- `WiFi.setSleep(false)` une fois connecté, pour la latence stratum
