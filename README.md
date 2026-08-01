@@ -247,8 +247,9 @@ Un T-Display-S3 seul, mesuré en production (télémétrie, fenêtres de 60 s, `
 
 | version | kH/s | dont HW | dont SW | gain |
 |---------|------|---------|---------|------|
-| stock BitMaker V1.8.3 | ~250 | — | — | référence |
-| **gheop1** (SHA fast-fill) | **~300** | — | — | **+18,8 %** |
+| stock BitMaker V1.8.3 | 250,5 | — | — | référence |
+| gheop1a (fast-fill 1er hash) | 272,7 | — | — | +8,9 % |
+| **gheop1b** (fast-fill 2nd hash) | **292,2** | — | — | **+16,6 % cumulé** |
 | gheop2 → gheop7 | 297-298 | 259,4 | 38,0 | fiabilité, perf inchangée |
 | **gheop8** flotte (écran sain) | **300,3** | 259,7 | 40,6 | **+0,7 %** |
 | **gheop8** headless (dalle HS) | **304,3** | 262,4 | 41,9 | **+2,3 %** |
@@ -322,8 +323,12 @@ l'attente moteur. La limite est le silicium, pas le code — ~300 kH/s est le ma
 
 ### V1.8.3-gheop1 — Performance et fiabilité de base
 
-- **SHA fast-fill** : on saute les écritures constantes de `SHA_TEXT[9..14]` (16 → 10 par bloc).
-  **~250 → ~300 kH/s, +18,8 %**, zéro mismatch. De loin le plus gros gain du fork
+- **SHA fast-fill** : on saute les écritures constantes de `SHA_TEXT[9..14]` (16 → 10 par bloc),
+  d'abord sur le premier hash puis sur le second. **250,5 → 272,7 → 292,2 kH/s, +16,6 % cumulé**,
+  validé contre le double-SHA logiciel (zéro mismatch). De loin le plus gros gain du fork —
+  remonté upstream en PR #802
+- Note : le T-Display-S3 part de 250 kH/s parce qu'il embarque un **moteur SHA-256 matériel**.
+  Les cartes ESP32 classic, qui hachent en logiciel, plafonnent autour de 55-78 kH/s
 - **OTA WiFi** (firmware + config SPIFFS) : le moteur SHA est libéré avant `Update.end()`, sinon
   la vérification d'image se bloque
 - Correction de la résolution DNS de la pool (le retour de `hostByName` n'était pas vérifié)
