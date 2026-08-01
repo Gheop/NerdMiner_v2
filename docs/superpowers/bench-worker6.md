@@ -276,3 +276,25 @@ Vérifié : les 3 envs compilent (stock inchangé), worker6 reflashé → **304,
 Les ~30 autres boards du projet ne sont **pas** élaguées. Le linker écarte déjà le code inutilisé
 (firmware 1,9 Mo sur une partition de ~6,5 Mo), donc l'élagage ne gagnerait ni octet ni cycle —
 et il casserait la synchronisation avec l'upstream BitMaker (PR #801-804 ouvertes).
+
+## Vérification directe contre l'upstream (2026-08-01)
+
+Doute légitime sur la valeur de référence : le stock BitMaker était-il vraiment à ~250 kH/s ?
+Vérifié empiriquement plutôt que déduit des messages de commit.
+
+Méthode : worktree isolé sur `origin/main` (`e3a04b7`), build de l'env `NerdminerV2` d'origine,
+flash **USB** sur worker6 (pas OTA : l'upstream n'a pas notre OTA, on ne pourrait pas revenir),
+mesure au serial sur 40 échantillons, puis retour immédiat à notre firmware.
+
+| firmware (même worker6, même session) | kH/s |
+|---|---|
+| upstream BitMaker `main` e3a04b7 | **252,8** (min 250,8 / max 255,2) |
+| fork gheop8 headless | **304,2** |
+| **gain total du fork** | **+51,4 kH/s (+20,3 %)** |
+
+Confirme les mesures d'époque des commits de fast-fill (250,5 kH/s de référence) à 1 % près,
+trois semaines plus tard sur la même carte.
+
+Sur la confusion « c'était sous 100 » : les versions anciennes du NerdMiner (hachage logiciel) et
+les cartes ESP32 classic tournent à 55-80 kH/s. Le T-Display-S3 part de 250 parce que le projet
+exploite son moteur SHA-256 matériel.

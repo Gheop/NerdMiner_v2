@@ -243,6 +243,15 @@ leurs chiffres pour éviter de refaire le chemin. Détail complet dans
 
 ### Hashrate au fil des versions
 
+**Vérification directe (2026-08-01)** : le `main` upstream (BitMaker, `e3a04b7`) et notre gheop8
+flashés successivement sur **le même worker6**, à quelques minutes d'intervalle :
+
+| firmware | kH/s |
+|---|---|
+| upstream BitMaker `main` | **252,8** (min 250,8 / max 255,2) |
+| **fork gheop8** (headless) | **304,2** |
+| **gain total du fork** | **+51,4 kH/s, soit +20,3 %** |
+
 Un T-Display-S3 seul, mesuré en production (télémétrie, fenêtres de 60 s, `shaMismatch = 0`) :
 
 | version | kH/s | dont HW | dont SW | gain |
@@ -327,8 +336,10 @@ l'attente moteur. La limite est le silicium, pas le code — ~300 kH/s est le ma
   d'abord sur le premier hash puis sur le second. **250,5 → 272,7 → 292,2 kH/s, +16,6 % cumulé**,
   validé contre le double-SHA logiciel (zéro mismatch). De loin le plus gros gain du fork —
   remonté upstream en PR #802
-- Note : le T-Display-S3 part de 250 kH/s parce qu'il embarque un **moteur SHA-256 matériel**.
-  Les cartes ESP32 classic, qui hachent en logiciel, plafonnent autour de 55-78 kH/s
+- Note : le T-Display-S3 part de 250 kH/s parce que le projet exploite son **moteur SHA-256
+  matériel**. Les versions antérieures du NerdMiner (hachage logiciel), et les cartes ESP32
+  classic, plafonnent autour de 55-80 kH/s — d'où l'écart avec les chiffres qu'on voit encore
+  circuler sur les forums
 - **OTA WiFi** (firmware + config SPIFFS) : le moteur SHA est libéré avant `Update.end()`, sinon
   la vérification d'image se bloque
 - Correction de la résolution DNS de la pool (le retour de `hostByName` n'était pas vérifié)
