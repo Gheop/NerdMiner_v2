@@ -74,6 +74,9 @@ TaskHandle_t monitorTask = NULL, stratumTask = NULL;
 
 //gheop4 freeze watchdog (defined after the OTA watchdog, created at end of setup)
 static void healthWatchdog(void *unused);
+#if defined(NERDMINER_REPORT_URL)
+static void telemetryTask(void *unused);
+#endif
 
 //void runMonitor(void *name);
 
@@ -217,8 +220,13 @@ void setup()
   /******** MONITOR SETUP *****/
   setup_monitor();
 
-  //gheop4/6: freeze watchdog + temperature/RSSI telemetry + dashboard POST (TLS → bigger stack)
-  xTaskCreate(healthWatchdog, "Health", 8192, NULL, 1, NULL);
+  //gheop4/6: freeze watchdog + temperature/RSSI log. race/gheop8: the dashboard
+  //POST lives in its own task — a hung http.POST (seen once during a dashboard
+  //rollout) must never block the anti-freeze watchdog.
+  xTaskCreate(healthWatchdog, "Health", 4096, NULL, 1, NULL);
+#if defined(NERDMINER_REPORT_URL)
+  xTaskCreate(telemetryTask, "Telemetry", 8192, NULL, 1, NULL);
+#endif
 }
 
 void app_error_fault_handler(void *arg) {
@@ -327,10 +335,30 @@ static void postTelemetry(uint32_t hashrateHs) {
 //board. It also logs the chip temperature + RSSI every 30s so we can see if heat
 //is a factor without needing USB.
 #define POOL_STALL_REBOOT_MS (15UL*60UL*1000UL)  //15 min without a pool job -> reboot
-static void healthWatchdog(void *unused) {
-  uint32_t bootRef = millis();   //grace reference until the first job arrives
+#if defined(NERDMINER_REPORT_URL)
+//race/gheop8: dashboard POST isolated here. If http.POST ever hangs (seen once
+//during a dashboard rollout), only telemetry stalls — the watchdog keeps running.
+static void telemetryTask(void *unused) {
   uint64_t lastTotal = (uint64_t)Mhashes * 1000000ULL + hashes;
   uint32_t lastPostMs = millis();
+  for (;;) {
+    vTaskDelay(60000 / portTICK_PERIOD_MS);
+    if (ota_active) continue;
+    uint32_t nowMs = millis();
+    uint64_t total = (uint64_t)Mhashes * 1000000ULL + hashes;
+    uint32_t dtMs = nowMs - lastPostMs;
+    uint32_t hs = (total > lastTotal && dtMs > 0)
+                      ? (uint32_t)(((total - lastTotal) * 1000ULL) / dtMs)
+                      : 0;
+    lastTotal = total;
+    lastPostMs = nowMs;
+    postTelemetry(hs);
+  }
+}
+#endif
+
+static void healthWatchdog(void *unused) {
+  uint32_t bootRef = millis();   //grace reference until the first job arrives
   for (;;) {
     vTaskDelay(30000 / portTICK_PERIOD_MS);
     uint32_t ref = (g_lastPoolJobMs != 0) ? g_lastPoolJobMs : bootRef;
@@ -338,20 +366,6 @@ static void healthWatchdog(void *unused) {
     Serial.printf("Health: temp %.1f C, RSSI %d dBm, since_job %us\n",
                   temperatureRead(), (int)WiFi.RSSI(), (unsigned)sinceJobS);
 
-#if defined(NERDMINER_REPORT_URL)
-    //telemetry POST every ~60s, with the hashrate measured over the interval
-    uint32_t nowMs = millis();
-    if (!ota_active && nowMs - lastPostMs >= 60000) {
-      uint64_t total = (uint64_t)Mhashes * 1000000ULL + hashes;
-      uint32_t dtMs = nowMs - lastPostMs;
-      uint32_t hs = (total > lastTotal && dtMs > 0)
-                        ? (uint32_t)(((total - lastTotal) * 1000ULL) / dtMs)
-                        : 0;
-      lastTotal = total;
-      lastPostMs = nowMs;
-      postTelemetry(hs);
-    }
-#endif
     if (ota_active) continue;   //mining is intentionally idle during an OTA flash
     if (WiFi.status() == WL_CONNECTED && (millis() - ref) > POOL_STALL_REBOOT_MS) {
       //Freeze diagnostic before the reboot: which task is stuck and on what.
