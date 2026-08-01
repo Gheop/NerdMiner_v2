@@ -58,3 +58,29 @@ hashrate 268,6 KH/s, mismatch=0 → **strictement identique** à avant. Ce que l
 Conclusion : les 550 cyc/nonce de `mid`+`fill`+`inter` sont **18 accès registres APB à ~17 cyc**,
 incompressibles côté logiciel. Le seul contournement possible serait le DMA (T6).
 Le gisement restant est donc l'attente moteur (341 cyc, T5).
+
+## T7 — mode headless : **GARDÉ, +4,0 %** (2026-08-01)
+
+A/B strict (même build, même instrumentation, seul `RACE_HEADLESS` change) :
+
+| | cyc/nonce | khs_hw | khs_sw | total |
+|---|---|---|---|---|
+| headless OFF | 901 | 234,5 | 38,0 | **272,5** |
+| headless ON | 885 | 241,4 | 41,9 | **283,3** |
+
+**+10,8 kH/s (+4,0 %)**, mismatch=0. Le rendu TFT/SPI ne volait pas que du CPU : `inter`
+tombe de 288 à 281 cyc et `fill` de 171 à 165 → moins de contention sur le bus périphérique.
+
+### Mesure de production (RACE_BENCH=0, RACE_RATE=1, headless=1)
+`khs_hw=262,3  khs_sw=41,9  **total=304,2 kH/s**`, mismatch=0, stable à ±0,3 sur 7 fenêtres.
+
+### Piège de mesure n°2 : l'instrumentation fausse le gate
+Le profilage par phase (7 lectures `ccount` + accumulations par nonce) coûte **~10 % du chemin
+HW** (259 → 234 khs_hw). Comparer un build instrumenté à une baseline non instrumentée donne un
+faux négatif. D'où la séparation :
+- `RACE_RATE=1` : 1 printf / 256 jobs, coût nul → **sert aux gates de perf**
+- `RACE_BENCH=1` : profil par phase, coûteux → **profils seulement, jamais un gate**
+
+### Note réseau (hors perf)
+`Report -> HTTP -1` intermittent (1 POST sur 2) à -70 dBm : échec de connexion TCP, pas un
+crash. La sonde `Rate:` série rend les mesures indépendantes du réseau.

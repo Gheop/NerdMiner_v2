@@ -134,11 +134,13 @@ void setup()
   Serial.println("NerdMiner v2 starting......");
 
   /******** INIT DISPLAY ************/
+#if !RACE_HEADLESS
   initDisplay();
-  
+
   /******** PRINT INIT SCREEN *****/
   drawLoadingScreen();
   delay(2*SECOND_MS);
+#endif
 
   /******** SHOW LED INIT STATUS (devices without screen) *****/
   mMonitor.NerdStatus = NM_waitingConfig;

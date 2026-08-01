@@ -23,6 +23,14 @@
 #define NONCE_PER_JOB_SW 4096
 #define NONCE_PER_JOB_HW 16*1024
 
+#if RACE_RATE
+//race/gheop8: cheap throughput probe (one printf per 256 jobs). Kept separate from
+//RACE_BENCH: the per-phase ccount profiling costs ~10% of the HW path, so perf
+//gates must be measured with RACE_RATE alone.
+static uint32_t s_race_rate_ms = 0, s_race_rate_hw = 0, s_race_rate_sw = 0;
+static uint32_t s_race_rate_jobs = 0;
+#endif
+
 #if RACE_BENCH
 #include <xtensa/hal.h>
 //race/gheop8: cycle accumulators for the HW hot loop, printed every RACE_BENCH_JOBS jobs.
@@ -36,6 +44,7 @@
 #define RACE_SANE_MAX 10000
 struct RaceBenchAcc { uint64_t mid, fill, w1, inter, w2, chk, tot; uint32_t nonces, jobs, dropped; };
 static RaceBenchAcc s_race_acc = {};
+
 #endif
 
 //#define I2C_SLAVE
@@ -990,6 +999,22 @@ void minerWorkerHw(void * task_id)
         s_race_acc = {};
       }
 #endif
+#if RACE_RATE
+      if (++s_race_rate_jobs >= 256) {
+        s_race_rate_jobs = 0;
+        uint32_t now_ms = millis();
+        uint32_t hw_now = race_hashes_hw, sw_now = race_hashes_sw;
+        if (s_race_rate_ms) {
+          uint32_t dt = now_ms - s_race_rate_ms;
+          if (dt > 0)
+            Serial.printf("Rate: khs_hw=%.1f khs_sw=%.1f total=%.1f mismatch=%u\n",
+              (double)(hw_now - s_race_rate_hw) / dt, (double)(sw_now - s_race_rate_sw) / dt,
+              (double)((hw_now - s_race_rate_hw) + (sw_now - s_race_rate_sw)) / dt,
+              (unsigned)race_sha_mismatch);
+        }
+        s_race_rate_ms = now_ms; s_race_rate_hw = hw_now; s_race_rate_sw = sw_now;
+      }
+#endif
       esp_sha_release_hardware();
     } else
       vTaskDelay(2 / portTICK_PERIOD_MS);
@@ -1348,7 +1373,9 @@ void runMonitor(void *name)
         upTime ++;
       }
 
+#if !RACE_HEADLESS
       drawCurrentScreen(mElapsed);
+#endif
 
       // Monitor state when hashrate is 0.0
       if (elapsedKHs == 0)
@@ -1373,8 +1400,12 @@ void runMonitor(void *name)
           currentIntervalIndex++;
       }    
     }
+#if !RACE_HEADLESS
+    //race/gheop8: worker6's panel is physically dead — skip every TFT/SPI redraw
+    //and give those cycles (and the SPI bus) back to the SW mining path.
     animateCurrentScreen(frame);
     doLedStuff(frame);
+#endif
 
     vTaskDelay(DELAY / portTICK_PERIOD_MS);
     frame++;
