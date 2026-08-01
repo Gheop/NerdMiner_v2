@@ -283,13 +283,25 @@ static void postTelemetry(uint32_t hashrateHs) {
   worker = (dot >= 0) ? worker.substring(dot + 1) : String("worker");
 
   long sinceJob = g_lastPoolJobMs ? (long)((millis() - g_lastPoolJobMs) / 1000) : -1;
-  char body[400];
+
+  //race/gheop8: per-path rate from counter deltas between two telemetry posts
+  static uint32_t s_prev_hw = 0, s_prev_sw = 0, s_prev_ms = 0;
+  uint32_t now_ms = millis();
+  uint32_t hw_now = race_hashes_hw, sw_now = race_hashes_sw;
+  float dt = (s_prev_ms == 0) ? 0.0f : (now_ms - s_prev_ms) / 1000.0f;
+  float khs_hw = (dt > 1.0f) ? (hw_now - s_prev_hw) / dt / 1000.0f : 0.0f;
+  float khs_sw = (dt > 1.0f) ? (sw_now - s_prev_sw) / dt / 1000.0f : 0.0f;
+  s_prev_hw = hw_now; s_prev_sw = sw_now; s_prev_ms = now_ms;
+
+  char body[480];
   snprintf(body, sizeof(body),
            "{\"worker\":\"%s\",\"hashrateHs\":%u,\"tempC\":%.1f,\"rssi\":%d,"
            "\"uptimeS\":%lu,\"freeHeap\":%u,\"sinceLastPoolJobS\":%ld,"
+           "\"khsHw\":%.1f,\"khsSw\":%.1f,\"shaMismatch\":%u,"
            "\"resetReason\":\"%s\",\"version\":\"%s\"}",
            worker.c_str(), (unsigned)hashrateHs, temperatureRead(), (int)WiFi.RSSI(),
            (unsigned long)(millis() / 1000), (unsigned)ESP.getFreeHeap(), sinceJob,
+           khs_hw, khs_sw, (unsigned)race_sha_mismatch,
            resetReasonStr(), CURRENT_VERSION);
 
   //Same pattern as monitor.cpp's working HTTPS calls: let HTTPClient manage the

@@ -49,6 +49,11 @@ uint32_t totalKHashes = 0;
 uint32_t elapsedKHs = 0;
 uint64_t upTime = 0;
 
+//race/gheop8: per-path hash counters (read by telemetry to split HW vs SW rate)
+volatile uint32_t race_hashes_hw = 0;
+volatile uint32_t race_hashes_sw = 0;
+volatile uint32_t race_sha_mismatch = 0;
+
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
 
@@ -627,6 +632,7 @@ void minerWorkerSw(void * task_id)
       std::lock_guard<std::mutex> lock(s_job_mutex);
       if (result)
       {
+        race_hashes_sw += result->nonce_count;
         if (s_job_result_list.size() < 16)
           s_job_result_list.push_back(result);
         result.reset();
@@ -837,6 +843,7 @@ void minerWorkerHw(void * task_id)
       std::lock_guard<std::mutex> lock(s_job_mutex);
       if (result)
       {
+        race_hashes_hw += result->nonce_count;
         if (s_job_result_list.size() < 16)
           s_job_result_list.push_back(result);
         result.reset();
@@ -901,6 +908,7 @@ void minerWorkerHw(void * task_id)
             if (hash[i] != doubleHash[i])
             {
               Serial.println("***HW sha256 esp32s3 bug detected***");
+              race_sha_mismatch++;
               break;
             }
           }
@@ -1085,6 +1093,7 @@ void minerWorkerHw(void * task_id)
       std::lock_guard<std::mutex> lock(s_job_mutex);
       if (result)
       {
+        race_hashes_hw += result->nonce_count;
         if (s_job_result_list.size() < 16)
           s_job_result_list.push_back(result);
         result.reset();

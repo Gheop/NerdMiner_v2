@@ -26,6 +26,11 @@ void runStratumWorker(void *name);
 //Set true by the OTA onStart hook so the miners idle and release the SHA engine.
 extern volatile bool ota_active;
 extern volatile uint32_t g_lastPoolJobMs;
+
+//race/gheop8: per-path hash counters + HW/SW mismatch count (telemetry split)
+extern volatile uint32_t race_hashes_hw;
+extern volatile uint32_t race_hashes_sw;
+extern volatile uint32_t race_sha_mismatch;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);
