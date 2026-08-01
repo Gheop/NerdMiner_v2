@@ -241,11 +241,33 @@ mesuré sur du matériel réel — 6 NerdMiner T-Display-S3 — et les impasses 
 leurs chiffres pour éviter de refaire le chemin. Détail complet dans
 `docs/superpowers/bench-worker6.md`.
 
+### Hashrate au fil des versions
+
+Un T-Display-S3 seul, mesuré en production (télémétrie, fenêtres de 60 s, `shaMismatch = 0`) :
+
+| version | kH/s | dont HW | dont SW | gain |
+|---------|------|---------|---------|------|
+| stock BitMaker V1.8.3 | ~250 | — | — | référence |
+| **gheop1** (SHA fast-fill) | **~300** | — | — | **+18,8 %** |
+| gheop2 → gheop7 | 297-298 | 259,4 | 38,0 | fiabilité, perf inchangée |
+| **gheop8** flotte (écran sain) | **300,3** | 259,7 | 40,6 | **+0,7 %** |
+| **gheop8** headless (dalle HS) | **304,3** | 262,4 | 41,9 | **+2,3 %** |
+
+Flotte de 6 mineurs : **1 794 → 1 806,5 kH/s**.
+
+⚠️ Mesurer toujours le **même mineur avant/après**. Les comparaisons entre mineurs sont faussées
+par le silicium, la température et l'état matériel : worker6 (dalle morte) tourne à 304 quand les
+autres plafonnent à 298. Et ne jamais valider un gain avec `RACE_BENCH` actif — le profileur coûte
+~10 % du chemin HW et transforme un gain réel en fausse régression.
+
 ### V1.8.3-gheop8 — Firmware de course : plafond matériel atteint (2026-08-01)
 
-- **Mode headless** (`RACE_HEADLESS`) : plus aucun rendu TFT/SPI. +4,0 % sur un mineur à dalle HS
-- **Redraw espacé** (`RACE_DRAW_EVERY_S=3`) : le redraw plein écran passe de 1×/s à 1×/3 s. +0,7 %
-  sur écran sain, affichage toujours lisible
+- **Mode headless** (`RACE_HEADLESS`) : plus aucun rendu TFT/SPI. **272,5 → 283,3 kH/s (+4,0 %)**
+  en A/B strict sur worker6 (dalle HS). Le rendu ne volait pas que du CPU : la phase `inter` tombe
+  de 288 à 281 cyc et `fill` de 171 à 165 → moins de contention sur le bus périphérique
+- **Redraw espacé** (`RACE_DRAW_EVERY_S=3`) : le redraw plein écran passe de 1×/s à 1×/3 s.
+  **298,3 → 300,3 kH/s (+0,7 %)** en A/B sur worker1, écran sain et toujours lisible. Le coût était
+  bien dans `drawCurrentScreen` (1×/s) et non dans les animations : les ralentir ne donnait que +0,3 %
 - **POST de télémétrie isolé dans sa propre tâche** : un `http.POST` bloqué ne gèle plus le
   watchdog anti-freeze (constaté en production). Le gain de fiabilité vaut plus que les %
 - **Compteurs par chemin** : `khsHw` / `khsSw` / `shaMismatch` remontés au dashboard, plus un
@@ -260,10 +282,10 @@ leurs chiffres pour éviter de refaire le chemin. Détail complet dans
 | tentative | résultat | cause |
 |---|---|---|
 | SHA-256 4-way en SIMD/PIE | **impossible** | `ee.vadds.s32` sature ; SHA-256 exige mod 2³² |
-| Hachage logiciel dans les attentes moteur | **−11,7 %** | l'attente n'est pas du CPU libre |
-| `fill_fast` réécrit en assembleur | **+0,0 kH/s** | latence du bus APB, pas du travail CPU |
+| Hachage logiciel dans les attentes moteur | **304,2 → 268,6 (−11,7 %)** | l'attente n'est pas du CPU libre |
+| `fill_fast` réécrit en assembleur | **262,4 → 262,4 (+0,0)** | latence du bus APB, pas du travail CPU |
 | Audit des opérations moteur | 0 % | `sha_ll_load()` est un inline vide sur S3 |
-| Jobs 4× plus longs | +0,13 % (bruit) | le coût de gestion des jobs n'est pas le facteur |
+| Jobs 4× plus longs (16k → 64k nonces) | 304,2 → 304,6 (bruit) | le coût de gestion des jobs n'est pas le facteur |
 
 **Plafond** : sur 915 cycles/nonce, ~550 sont des accès registres APB (~14 cyc chacun) et ~340 de
 l'attente moteur. La limite est le silicium, pas le code — ~300 kH/s est le maximum de cette carte.
@@ -301,7 +323,7 @@ l'attente moteur. La limite est le silicium, pas le code — ~300 kH/s est le ma
 ### V1.8.3-gheop1 — Performance et fiabilité de base
 
 - **SHA fast-fill** : on saute les écritures constantes de `SHA_TEXT[9..14]` (16 → 10 par bloc).
-  **+18,8 % de hashrate** (~250 → ~300 kH/s), zéro mismatch
+  **~250 → ~300 kH/s, +18,8 %**, zéro mismatch. De loin le plus gros gain du fork
 - **OTA WiFi** (firmware + config SPIFFS) : le moteur SHA est libéré avant `Update.end()`, sinon
   la vérification d'image se bloque
 - Correction de la résolution DNS de la pool (le retour de `hostByName` n'était pas vérifié)
