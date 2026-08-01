@@ -298,3 +298,33 @@ trois semaines plus tard sur la même carte.
 Sur la confusion « c'était sous 100 » : les versions anciennes du NerdMiner (hachage logiciel) et
 les cartes ESP32 classic tournent à 55-80 kH/s. Le T-Display-S3 part de 250 parce que le projet
 exploite son moteur SHA-256 matériel.
+
+## Overclock ? Sensibilité à la fréquence CPU (2026-08-01)
+
+L'ESP32-S3 plafonne à 240 MHz (l'IDF n'expose que 80/160/240) : pas d'overclock possible. Mais on
+peut mesurer ce qu'il *rapporterait* en sous-clockant — worker6 flashé à 160 MHz, puis remis à 240.
+
+| chemin | 240 MHz | 160 MHz | effet pour −33,3 % de fréquence |
+|---|---|---|---|
+| **HW** (moteur SHA) | 262,3 | 238,8 | **−8,9 %** |
+| **SW** (hachage CPU) | 41,9 | 27,9 | **−33,5 %** |
+| total | 304,2 | 266,7 | −12,3 % |
+
+Lecture : le chemin SW suit la fréquence **au poil** (−33,5 % pour −33,3 %) — c'est du calcul CPU
+pur. Le chemin HW n'y est presque pas sensible (−8,9 %) : il est dominé par la latence du bus APB
+(80 MHz, indépendant du CPU) et par le moteur. Confirme, par une quatrième voie indépendante, que
+le goulot du chemin matériel n'est pas le processeur.
+
+Extrapolation : un hypothétique 320 MHz rapporterait ~+9 % sur le HW et ~+33 % sur le SW, soit
+~+12 % au total. Inaccessible sur ce silicium.
+
+### Bilan des ressources de la puce
+
+| ressource | état | rendement |
+|---|---|---|
+| moteur SHA matériel | saturé | 262,3 kH/s |
+| cœur 2 (hachage logiciel) | saturé | 41,9 kH/s |
+| cœur 1 pendant les attentes moteur | **inexploitable** (testé : −11,7 %) | 0 |
+
+Les deux cœurs et le moteur tournent déjà en parallèle et à fond. Le plafond de ~300 kH/s n'est
+pas une intuition : chaque ressource est soit occupée, soit démontrée inutilisable.
