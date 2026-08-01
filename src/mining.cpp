@@ -1048,10 +1048,19 @@ void minerWorkerHw(void * task_id)
         if (s_race_rate_ms) {
           uint32_t dt = now_ms - s_race_rate_ms;
           if (dt > 0)
-            Serial.printf("Rate: khs_hw=%.1f khs_sw=%.1f total=%.1f mismatch=%u\n",
+          {
+            //Compare our per-path counters with the counter the telemetry uses
+            //(Mhashes/hashes, fed by runMiner when it harvests results): a gap
+            //means work is done but never harvested.
+            static uint64_t s_prev_official = 0;
+            uint64_t official = (uint64_t)Mhashes * 1000000ULL + hashes;
+            double khs_off = s_prev_official ? (double)(official - s_prev_official) / dt : 0.0;
+            s_prev_official = official;
+            Serial.printf("Rate: khs_hw=%.1f khs_sw=%.1f total=%.1f official=%.1f mismatch=%u\n",
               (double)(hw_now - s_race_rate_hw) / dt, (double)(sw_now - s_race_rate_sw) / dt,
               (double)((hw_now - s_race_rate_hw) + (sw_now - s_race_rate_sw)) / dt,
-              (unsigned)race_sha_mismatch);
+              khs_off, (unsigned)race_sha_mismatch);
+          }
         }
         s_race_rate_ms = now_ms; s_race_rate_hw = hw_now; s_race_rate_sw = sw_now;
       }
