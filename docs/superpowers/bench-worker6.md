@@ -169,3 +169,27 @@ sauf s'ils sont *réellement* gratuits, ce qu'ils ne sont pas.
 Le module est **conservé, désactivé** (`RACE_INTERLEAVE=0`) : il est correct et documenté,
 pour éviter que quelqu'un refasse le travail sans lire ce résultat. Retour à l'état nominal
 vérifié : **304,1 kH/s**, mismatch=0.
+
+## Écran : d'où vient vraiment le coût (2026-08-01)
+
+Le headless donne +3,8 %, mais il n'est applicable qu'à worker6 (dalle HS). Décomposition
+du coût pour récupérer le gain sur les mineurs à écran **fonctionnel** :
+
+| variante (écran actif) | total | delta |
+|---|---|---|
+| référence upstream : `DELAY=100`, redraw 1×/s | 293,1 | — |
+| animations à 2 fps (`DELAY=500`), redraw 1×/s | 294,0 | +0,3 % |
+| **animations 10 fps, redraw 1×/3 s** | **300,3** | **+2,5 %** |
+| headless total (référence worker6) | 304,2 | +3,8 % |
+
+Enseignement : le coût n'est **pas** dans `animateCurrentScreen`/`doLedStuff` (appelés toutes les
+`DELAY` ms — les ralentir ne rapporte que 0,3 %) mais dans **`drawCurrentScreen`**, le redraw
+plein écran appelé **1×/s** quelle que soit la valeur de `DELAY`. L'espacer à 3 s récupère les
+deux tiers du gain maximal en gardant un affichage parfaitement lisible (les chiffres d'un mineur
+bougent lentement).
+
+Flags : `RACE_DRAW_EVERY_S` (période de redraw en secondes, défaut 1 = comportement upstream),
+`RACE_SCREEN_MS` (période d'animation, défaut 100).
+
+**Applicable à la flotte** : +2,5 % sur les 5 mineurs à écran sain ≈ **+37 kH/s**, sans rien perdre
+d'utile. worker6 garde le headless (+3,8 %).

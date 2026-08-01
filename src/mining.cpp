@@ -1318,7 +1318,18 @@ void minerWorkerHw(void * task_id)
 #endif  //HARDWARE_SHA265
 
 
-#define DELAY 100
+//race/gheop8: screen refresh period. 100 ms = 10 fps (upstream). The redraw costs
+//CPU *and* SPI bandwidth shared with the miners — see RACE_HEADLESS (+4% with no
+//screen at all). Overridable at build time to A/B the refresh rate.
+#ifndef RACE_SCREEN_MS
+#define RACE_SCREEN_MS 100
+#endif
+#define DELAY RACE_SCREEN_MS
+//Full-screen redraw period, in seconds. Upstream redraws every second; the redraw
+//is the expensive part (CPU + SPI shared with the miners), not the animation.
+#ifndef RACE_DRAW_EVERY_S
+#define RACE_DRAW_EVERY_S 1
+#endif
 #define REDRAW_EVERY 10
 
 void restoreStat() {
@@ -1435,7 +1446,13 @@ void runMonitor(void *name)
       }
 
 #if !RACE_HEADLESS
-      drawCurrentScreen(mElapsed);
+      {
+        static uint32_t s_draw_skip = 0;
+        if (++s_draw_skip >= RACE_DRAW_EVERY_S) {
+          s_draw_skip = 0;
+          drawCurrentScreen(mElapsed);
+        }
+      }
 #endif
 
       // Monitor state when hashrate is 0.0
