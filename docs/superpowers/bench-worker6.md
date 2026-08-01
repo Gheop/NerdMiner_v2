@@ -84,3 +84,31 @@ faux négatif. D'où la séparation :
 ### Note réseau (hors perf)
 `Report -> HTTP -1` intermittent (1 POST sur 2) à -70 dBm : échec de connexion TCP, pas un
 crash. La sonde `Rate:` série rend les mesures indépendantes du réseau.
+
+## T8 — pari SIMD/PIE : **NO-GO définitif** (2026-08-01, ~30 min)
+
+L'ISA PIE (128 bits, 4 lanes de 32) est bien reconnue par l'assembleur du toolchain, et
+l'essentiel est disponible : `ee.xorq/andq/orq/notq`, `ee.vsl.32`/`ee.vsr.32` (shift par SAR),
+`ee.vld.128.ip`/`ee.vst.128.ip`, `ee.movi.32.a/q`.
+
+**Mais la seule addition 32 bits par lane est `ee.vadds.s32`, et elle sature.** Mesuré sur
+worker6 (`src/race/pie_probe.S`, sortie `PIE probe:`) :
+
+| lane | opération | résultat | wrap attendu |
+|------|-----------|----------|--------------|
+| 0 | `0x7FFFFFFF + 1` | `0x7FFFFFFF` | `0x80000000` |
+| 2 | `0x80000000 + (-1)` | `0x80000000` | `0x7FFFFFFF` |
+| 3 | pas de dépassement | `0xACF13568` | ✔ identique |
+
+SHA-256 est **entièrement bâti sur l'addition mod 2^32** → inutilisable en l'état. Aucune variante
+non saturante n'existe (`ee.vadd.32`, `ee.vaddu.s32`, `ee.addq.s32`… tous rejetés à l'assemblage)
+et aucun registre de contrôle ne désactive la saturation (`sar_byte` ne concerne que le décalage).
+
+Contournements écartés, chiffrés à la louche :
+- émuler l'add 32 bits par 2 adds 16 bits + propagation de carry : ~4-5 ops au lieu d'1 → mange
+  tout le gain du 4-way (facteur 4 théorique) ;
+- passer par `ee.vmulas.s16.qacc` (MAC vers accumulateur 40 bits) : extraction QACC coûteuse,
+  accumulateur unique partagé → pas de 4-way réel.
+
+**Conséquence : T9 (schedule 4-way) et T10 (rounds 4-way) sont annulées.** Le code de la sonde est
+conservé (`RACE_PIE_PROBE=0`) pour que personne ne retente le pari sans lire ce verdict.
