@@ -41,3 +41,20 @@ Télémétrie figée à uptime 357 s (mining intact à 297 KH/s) : la tâche `he
 (Health + POST + protection anti-gel) s'est tue, très probablement `http.POST` bloqué
 pendant le rollout du dashboard (timing exact). Gel non reproduit en conditions stables.
 Durcissement prévu : sortir le POST réseau de la tâche watchdog (tâche télémétrie dédiée).
+
+## T4 — audit des opérations moteur : **aucun gain** (verdict négatif, 2026-08-01)
+
+Mesure après nettoyage : `tot=918 mid=75 fill=171 w1=178 inter=304 w2=163 chk=24`,
+hashrate 268,6 KH/s, mismatch=0 → **strictement identique** à avant. Ce que le HAL dit :
+
+- `sha_ll_load()` est un **inline vide** sur S3 (`hal/esp32s3/include/hal/sha_ll.h:77`).
+  Les 2 appels par nonce étaient du bruit déjà effacé par le compilateur. Retirés (lisibilité).
+- `DPORT_SEQUENCE_REG_READ` = simple lecture volatile sur S3
+  (`soc/esp32s3/include/soc/dport_access.h:35`) ; le contournement séquencé est propre à l'ESP32 classic.
+- `DPORT_INTERRUPT_DISABLE/RESTORE` = **macros vides** sur S3 (la variante `XTOS_SET_INTLEVEL`
+  est sous `soc/esp32/`). Donc pas de coupure d'interruptions par nonce → **aucun lien avec l'int_wdt**.
+- `__builtin_expect` sur l'early-exit : 0 cycle gagné (prédicteur déjà correct).
+
+Conclusion : les 550 cyc/nonce de `mid`+`fill`+`inter` sont **18 accès registres APB à ~17 cyc**,
+incompressibles côté logiciel. Le seul contournement possible serait le DMA (T6).
+Le gisement restant est donc l'attente moteur (341 cyc, T5).

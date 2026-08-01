@@ -907,10 +907,10 @@ void minerWorkerHw(void * task_id)
 #endif
         //nerd_sha_hal_wait_idle();
         nerd_sha_ll_fill_text_block_sha256_fast(sha_buffer, n);
-        //sha_ll_continue_block(SHA2_256);
+        //race/gheop8: sha_ll_load() is an EMPTY inline on S3 (hal/esp32s3/sha_ll.h)
+        //— the calls that used to sit here were pure noise. SHA_MODE_REG is set
+        //once per job, so writing the CONTINUE/START trigger is the whole op.
         REG_WRITE(SHA_CONTINUE_REG, 1);
-
-        sha_ll_load(SHA2_256);
 #if RACE_BENCH
         uint32_t c2 = RACE_CC();
 #endif
@@ -919,9 +919,7 @@ void minerWorkerHw(void * task_id)
         uint32_t c3 = RACE_CC();
 #endif
         nerd_sha_ll_fill_text_block_sha256_inter();
-        //sha_ll_start_block(SHA2_256);
         REG_WRITE(SHA_START_REG, 1);
-        sha_ll_load(SHA2_256);
 #if RACE_BENCH
         uint32_t c4 = RACE_CC();
 #endif
@@ -929,7 +927,7 @@ void minerWorkerHw(void * task_id)
 #if RACE_BENCH
         uint32_t c5 = RACE_CC();
 #endif
-        if (nerd_sha_ll_read_digest_if(hash))
+        if (__builtin_expect(nerd_sha_ll_read_digest_if(hash), 0))
         {
           //Serial.printf("Hw 16bit Share, nonce=0x%X\n", n);
 #ifdef VALIDATION
