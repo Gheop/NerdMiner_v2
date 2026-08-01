@@ -112,3 +112,10 @@ Contournements écartés, chiffrés à la louche :
 
 **Conséquence : T9 (schedule 4-way) et T10 (rounds 4-way) sont annulées.** Le code de la sonde est
 conservé (`RACE_PIE_PROBE=0`) pour que personne ne retente le pari sans lire ce verdict.
+
+## Essai express — taille des jobs HW : **nul** (2026-08-01)
+
+`NONCE_PER_JOB_HW` 16k → 64k (divise par 4 le coût de gestion de job : mutex, shared_ptr,
+memcpy, `esp_sha_acquire_hardware`) : **304,2 → 304,6 kH/s**, soit +0,13 % = bruit.
+Reverté (16k, comme l'upstream). L'écart entre le théorique issu des cycles (271 kH/s) et le
+mesuré (262,7) ne vient donc pas de la gestion des jobs.
