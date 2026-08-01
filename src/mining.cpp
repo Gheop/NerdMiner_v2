@@ -23,6 +23,21 @@
 #define NONCE_PER_JOB_SW 4096
 #define NONCE_PER_JOB_HW 16*1024
 
+#if RACE_BENCH
+#include <xtensa/hal.h>
+//race/gheop8: cycle accumulators for the HW hot loop, printed every RACE_BENCH_JOBS jobs.
+//RACE_CC() must be a full compiler barrier: without it GCC reorders the ccount
+//reads (no declared side effects), a delta goes negative and reads as ~2^32
+//unsigned — that produced 16k cyc/nonce readings against a real ~920.
+#define RACE_CC() ({ uint32_t _c; __asm__ __volatile__("rsr.ccount %0" : "=r"(_c) :: "memory"); _c; })
+#define RACE_BENCH_JOBS 256
+//Any nonce whose total exceeds this was preempted (Monitor prio 5 > miner prio 3,
+//its Serial.printf blocks for ms). Those samples are dropped, not averaged in.
+#define RACE_SANE_MAX 10000
+struct RaceBenchAcc { uint64_t mid, fill, w1, inter, w2, chk, tot; uint32_t nonces, jobs, dropped; };
+static RaceBenchAcc s_race_acc = {};
+#endif
+
 //#define I2C_SLAVE
 
 //#define SHA256_VALIDATE
@@ -882,20 +897,38 @@ void minerWorkerHw(void * task_id)
       uint32_t nend = job->nonce_start + job->nonce_count;
       for (uint32_t n = job->nonce_start; n < nend; ++n)
       {
+#if RACE_BENCH
+        uint32_t c0 = RACE_CC();
+#endif
         //nerd_sha_hal_wait_idle();
         nerd_sha_ll_write_digest(digest_mid);
+#if RACE_BENCH
+        uint32_t c1 = RACE_CC();
+#endif
         //nerd_sha_hal_wait_idle();
         nerd_sha_ll_fill_text_block_sha256_fast(sha_buffer, n);
         //sha_ll_continue_block(SHA2_256);
         REG_WRITE(SHA_CONTINUE_REG, 1);
-        
+
         sha_ll_load(SHA2_256);
+#if RACE_BENCH
+        uint32_t c2 = RACE_CC();
+#endif
         nerd_sha_hal_wait_idle();
+#if RACE_BENCH
+        uint32_t c3 = RACE_CC();
+#endif
         nerd_sha_ll_fill_text_block_sha256_inter();
         //sha_ll_start_block(SHA2_256);
         REG_WRITE(SHA_START_REG, 1);
         sha_ll_load(SHA2_256);
+#if RACE_BENCH
+        uint32_t c4 = RACE_CC();
+#endif
         nerd_sha_hal_wait_idle();
+#if RACE_BENCH
+        uint32_t c5 = RACE_CC();
+#endif
         if (nerd_sha_ll_read_digest_if(hash))
         {
           //Serial.printf("Hw 16bit Share, nonce=0x%X\n", n);
@@ -925,6 +958,20 @@ void minerWorkerHw(void * task_id)
             }
           }
         }
+#if RACE_BENCH
+        uint32_t c6 = RACE_CC();
+        uint32_t tot_n = c6 - c0;
+        if (tot_n < RACE_SANE_MAX) {   //drop preempted samples
+          s_race_acc.mid   += c1 - c0;
+          s_race_acc.fill  += c2 - c1;
+          s_race_acc.w1    += c3 - c2;
+          s_race_acc.inter += c4 - c3;
+          s_race_acc.w2    += c5 - c4;
+          s_race_acc.chk   += c6 - c5;
+          s_race_acc.tot   += tot_n;
+          s_race_acc.nonces++;
+        } else s_race_acc.dropped++;
+#endif
         if (
              (uint8_t)(n & 0xFF) == 0 &&
              s_working_current_job_id != job_in_work)
@@ -933,6 +980,18 @@ void minerWorkerHw(void * task_id)
           break;
         }
       }
+#if RACE_BENCH
+      if (++s_race_acc.jobs >= RACE_BENCH_JOBS) {
+        uint32_t nn = s_race_acc.nonces ? s_race_acc.nonces : 1;
+        Serial.printf("Bench: cyc/nonce tot=%u mid=%u fill=%u w1=%u inter=%u w2=%u chk=%u (n=%u)\n",
+          (unsigned)(s_race_acc.tot/nn), (unsigned)(s_race_acc.mid/nn),
+          (unsigned)(s_race_acc.fill/nn), (unsigned)(s_race_acc.w1/nn),
+          (unsigned)(s_race_acc.inter/nn), (unsigned)(s_race_acc.w2/nn),
+          (unsigned)(s_race_acc.chk/nn), (unsigned)nn);
+        Serial.printf("Bench: dropped=%u (preempted)\n", (unsigned)s_race_acc.dropped);
+        s_race_acc = {};
+      }
+#endif
       esp_sha_release_hardware();
     } else
       vTaskDelay(2 / portTICK_PERIOD_MS);
