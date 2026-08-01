@@ -119,3 +119,35 @@ conservé (`RACE_PIE_PROBE=0`) pour que personne ne retente le pari sans lire ce
 memcpy, `esp_sha_acquire_hardware`) : **304,2 → 304,6 kH/s**, soit +0,13 % = bruit.
 Reverté (16k, comme l'upstream). L'écart entre le théorique issu des cycles (271 kH/s) et le
 mesuré (262,7) ne vient donc pas de la gestion des jobs.
+
+## T5 — interleave SW dans les attentes moteur : **REJETÉ** (2026-08-01)
+
+Hypothèse : les 341 cyc/nonce passés à sonder `SHA_BUSY_REG` sont du CPU gratuit ;
+y exécuter des rounds SHA-256 d'un flux indépendant devait rapporter ~+9 kH/s.
+
+Implémentation : `src/race/race_sw_interleave.{h,cpp}`, SHA-256d découpé en machine à
+états (crypto identique à nerdSHA256plus). **Correction validée** : auto-test contre
+mbedtls, 4 nonces, `race_sw selftest: PASS`.
+
+Résultats — **négatifs quel que soit le grain** :
+
+| variante | khs_hw | khs_sw | total | delta |
+|---|---|---|---|---|
+| référence (interleave off) | 262,3 | 41,9 | **304,2** | — |
+| 8 rounds/pas, code en flash | 110,8 | 55,7 | 166,4 | **−45,3 %** |
+| 2 rounds/pas, `IRAM_ATTR` | 220,0 | 48,6 | 268,6 | **−11,7 %** |
+
+Lecture : le SW produit bien plus (+6,7 kH/s à grain fin), mais le HW perd 42,3 kH/s pour
+cela — **rapport 6:1 défavorable**. Chaque pas de 2 rounds ajoute ~88 cyc/nonce qui
+**s'ajoutent** au temps de boucle au lieu d'être absorbés par l'attente.
+
+Conclusion, contre-intuitive mais nette : **les cycles d'attente du moteur ne sont pas du
+temps CPU récupérable.** Ce qui est mesuré comme « attente » n'est pas une fenêtre où le CPU
+serait libre — insérer du travail y retarde le lancement de l'opération suivante presque
+cycle pour cycle. Cohérent avec le rapport d'efficacité : le chemin HW hache un nonce en
+915 cyc, le SW en 5 728 (6,3× plus cher) — voler des cycles au HW est perdant par nature,
+sauf s'ils sont *réellement* gratuits, ce qu'ils ne sont pas.
+
+Le module est **conservé, désactivé** (`RACE_INTERLEAVE=0`) : il est correct et documenté,
+pour éviter que quelqu'un refasse le travail sans lire ce résultat. Retour à l'état nominal
+vérifié : **304,1 kH/s**, mismatch=0.

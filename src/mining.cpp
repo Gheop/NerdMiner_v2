@@ -23,6 +23,34 @@
 #define NONCE_PER_JOB_SW 4096
 #define NONCE_PER_JOB_HW 16*1024
 
+#if RACE_INTERLEAVE
+#include "race/race_sw_interleave.h"
+//race/gheop8: the HW loop busy-polls ~340 cyc/nonce waiting for the SHA engine.
+//We spend those cycles hashing an INDEPENDENT nonce stream in software: one
+//8-round step (~100 cyc) fits inside the shortest engine wait (163 cyc), so the
+//poll is never delayed — the engine is still busy when the step returns.
+static uint32_t s_il_nonce = 0;
+static double   s_il_best_diff = 0.0;
+static uint32_t s_il_best_nonce = 0;
+static uint8_t  s_il_best_hash[32];
+static bool     s_il_have = false;
+static uint32_t s_il_done = 0;
+static inline void race_il_pump(void)
+{
+    if (race_sw_step()) {
+        s_il_done++;
+        double d = diff_from_target((void *)race_sw_hash());
+        if (d > s_il_best_diff) {
+            s_il_best_diff = d;
+            s_il_best_nonce = s_il_nonce;
+            memcpy(s_il_best_hash, race_sw_hash(), 32);
+            s_il_have = true;
+        }
+        race_sw_reload_nonce(++s_il_nonce);
+    }
+}
+#endif
+
 #if RACE_RATE
 //race/gheop8: cheap throughput probe (one printf per 256 jobs). Kept separate from
 //RACE_BENCH: the per-phase ccount profiling costs ~10% of the HW path, so perf
@@ -889,6 +917,13 @@ void minerWorkerHw(void * task_id)
       uint8_t job_in_work = job->id & 0xFF;
       memcpy(digest_mid, job->midstate, sizeof(digest_mid));
       memcpy(sha_buffer, job->sha_buffer+64, sizeof(sha_buffer));
+#if RACE_INTERLEAVE
+      //Disjoint nonce range: the HW path owns [nonce_start, +NONCE_PER_JOB_HW).
+      s_il_nonce = job->nonce_start ^ 0x80000000u;
+      s_il_best_diff = 0.0;
+      s_il_have = false;
+      race_sw_load(job->midstate, sha_buffer, s_il_nonce);
+#endif
 #ifdef VALIDATION
       nerd_mids(diget_mid, job->sha_buffer);
       nerd_sha256_bake(diget_mid, job->sha_buffer+64, bake);
@@ -920,6 +955,9 @@ void minerWorkerHw(void * task_id)
         //— the calls that used to sit here were pure noise. SHA_MODE_REG is set
         //once per job, so writing the CONTINUE/START trigger is the whole op.
         REG_WRITE(SHA_CONTINUE_REG, 1);
+#if RACE_INTERLEAVE
+        race_il_pump();
+#endif
 #if RACE_BENCH
         uint32_t c2 = RACE_CC();
 #endif
@@ -929,6 +967,9 @@ void minerWorkerHw(void * task_id)
 #endif
         nerd_sha_ll_fill_text_block_sha256_inter();
         REG_WRITE(SHA_START_REG, 1);
+#if RACE_INTERLEAVE
+        race_il_pump();
+#endif
 #if RACE_BENCH
         uint32_t c4 = RACE_CC();
 #endif
@@ -1016,6 +1057,17 @@ void minerWorkerHw(void * task_id)
       }
 #endif
       esp_sha_release_hardware();
+#if RACE_INTERLEAVE
+      race_hashes_sw += s_il_done;
+      s_il_done = 0;
+      if (s_il_have && s_il_best_diff > result->difficulty) {
+        //Same job/midstate as the HW path, so the result is submittable as-is.
+        result->difficulty = s_il_best_diff;
+        result->nonce = s_il_best_nonce;
+        memcpy(result->hash, s_il_best_hash, 32);
+        s_il_have = false;
+      }
+#endif
     } else
       vTaskDelay(2 / portTICK_PERIOD_MS);
 

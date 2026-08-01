@@ -75,6 +75,9 @@ TaskHandle_t monitorTask = NULL, stratumTask = NULL;
 #if RACE_PIE_PROBE
 extern "C" void race_pie_add_probe(uint32_t *io);
 #endif
+#if RACE_SW_SELFTEST
+#include "race/race_sw_interleave.h"
+#endif
 
 //gheop4 freeze watchdog (defined after the OTA watchdog, created at end of setup)
 static void healthWatchdog(void *unused);
@@ -136,6 +139,11 @@ void setup()
 
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
+
+#if RACE_SW_SELFTEST
+  //race/gheop8: the interleaved state machine must match nerd_sha256d_baked exactly
+  race_sw_selftest();
+#endif
 
 #if RACE_PIE_PROBE
   //race/gheop8: does ee.vadds.s32 saturate or wrap? SHA-256 needs mod 2^32.
