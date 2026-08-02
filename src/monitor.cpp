@@ -45,7 +45,7 @@ void setup_monitor(void){
     
     // Adjust offset depending on your zone
     // GMT +2 in seconds (zona horaria de Europa Central)
-    timeClient.setTimeOffset(3600 * Settings.Timezone);
+    timeClient.setTimeOffset(lroundf(3600.0f * Settings.Timezone));
 
     Serial.println("TimeClient setup done");
 #ifdef SCREEN_WORKERS_ENABLE
