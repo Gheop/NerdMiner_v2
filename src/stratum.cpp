@@ -209,6 +209,13 @@ bool tx_mining_submit(WiFiClient& client, mining_subscribe mWorker, mining_job m
 {
     char payload[BUFFER] = {0};
 
+    //Stratum wants the nonce as exactly 8 hex chars. String(nonce, HEX) drops leading
+    //zeros, so the 1 nonce in 16 below 0x10000000 went out short ("a9a049c") and the
+    //pool rebuilt a different header from it: rejected as "high diff" with a nonsense
+    //difficulty (BitMaker-hub/NerdMiner_v2#750). A found block would be lost the same way.
+    char nonce_hex[9];
+    snprintf(nonce_hex, sizeof(nonce_hex), "%08lx", (unsigned long)(nonce & 0xFFFFFFFFUL));
+
     // Submit
     id = getNextId(id);
     submit_id = id;
@@ -218,7 +225,7 @@ bool tx_mining_submit(WiFiClient& client, mining_subscribe mWorker, mining_job m
         mJob.job_id.c_str(),
         mWorker.extranonce2.c_str(),
         mJob.ntime.c_str(),
-        String(nonce, HEX).c_str()
+        nonce_hex
         );
     Serial.print("  Sending  : "); Serial.print(payload);
     client.print(payload);
