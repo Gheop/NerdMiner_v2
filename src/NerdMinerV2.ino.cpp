@@ -195,7 +195,11 @@ void setup()
 
   // Start mining tasks
   //BaseType_t res = xTaskCreate(runWorker, name, 35000, (void*)name, 1, NULL);
-  #ifdef HARDWARE_SHA265
+  #if RACE_SW_ONLY
+  //Diagnostic: no HW miner at all, so the SW miner gets a whole core.
+  //Tells us whether the SW path is code-bound or starved by scheduling.
+  xTaskCreate(minerWorkerSw, "MinerSw-0", 6000, (void*)0, 1, &minerTask1);
+  #elif defined(HARDWARE_SHA265)
     #if defined(CONFIG_IDF_TARGET_ESP32)
     xTaskCreate(minerWorkerHw, "MinerHw-0", 3584, (void*)0, 3, &minerTask1); // Reduced for ESP32 classic
     //xTaskCreate(minerWorkerSw, "MinerSw-0", 5000, (void*)0, 1, &minerTask1); // Reduced for ESP32 classic

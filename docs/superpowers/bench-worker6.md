@@ -463,3 +463,40 @@ Notre `nerdSHA256plus` tient `W[64]` en mémoire et y accède à chaque round (~
 version travaille en registres (~10 cyc/round estimés). **Piste actionnable** : optimiser le chemin
 SW, indépendant du bus APB qui plafonne le chemin HW. Contrainte : Xtensa n'expose que 16 registres
 pour 8 mots d'état + 16 de schedule, donc le déroulement complet demande un ordonnancement soigné.
+
+## Chemin logiciel : déjà à l'optimum architectural (2026-08-02)
+
+Après le reverse de NMMiner, hypothèse de travail : leur avance viendrait d'un SHA logiciel
+3x plus rapide, donc le nôtre serait optimisable. **Réfuté par la mesure.**
+
+**1. La tâche SW n'est pas étranglée par l'ordonnancement.** Test avec `RACE_SW_ONLY` (aucune
+tâche HW, 2 tâches SW sur 2 cœurs libres) :
+
+| configuration | khs_sw total | par tâche | cyc/nonce |
+|---|---|---|---|
+| normale (1 SW + 1 HW) | 41,9 | **41,9** | 5 728 |
+| 2 SW, aucun HW | 69,6 | 34,8 | 6 897 |
+
+Une tâche seule fait déjà 41,9 kH/s : elle a son cœur. Deux tâches font *moins bien chacune*
+(contention mémoire). Rien à récupérer côté priorités ou affinité.
+
+**2. Le code tourne à 1 instruction par cycle.** Comptage sur l'objet compilé :
+
+```
+add.n 2842 | src 2769 | ssai 2767 | xor 2763 | and 966 | l32i.n 906 | or 728 | l32r 394 | s32i.n 284
+```
+
+Accès mémoire : 1 733 sur ~14 500 instructions, soit **12 %**. Les rotations utilisent déjà
+`ssai`/`src` (2 instructions), comme NMMiner. Un round complet avec message schedule demande
+**~43 instructions** ; on mesure **44,7 cycles/round**, soit **1,04 cycle par instruction**.
+
+C'est le maximum d'un cœur scalaire LX7. Aucun stall, aucune graisse. Mon estimation antérieure
+de « 32 instructions minimum » oubliait le message schedule (σ0/σ1, ~10 instructions/round).
+
+**Conclusion : le chemin SW est à l'optimum, comme le chemin HW l'est sur le bus APB.** Les deux
+chemins sont limités par le silicium. Le +5 % annoncé n'existe pas.
+
+**Corollaire sur les 398 kH/s de NMMiner** : difficile à expliquer. Leur chemin HW est le nôtre
+(avec des `memw` en plus), leur chemin SW utilise les mêmes instructions, un cœur scalaire plafonne
+à ~42 kH/s en logiciel, et le SIMD est inutilisable (saturation). Chiffre invérifiable : firmware
+sous licence.
