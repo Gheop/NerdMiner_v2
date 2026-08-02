@@ -135,10 +135,6 @@ void setup()
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
 
-#if RACE_CHECKVALID_TEST
-  checkValidSelfTest();
-#endif
-
 
   /******** INIT DISPLAY ************/
 #if !RACE_HEADLESS
