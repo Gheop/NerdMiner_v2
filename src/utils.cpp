@@ -321,7 +321,10 @@ miner_data calculateMiningData(mining_subscribe& mWorker, mining_job mJob){
       Serial.printf("%02x", mMiner.merkle_result[i]);
       snprintf(&merkle_root[i*2], 3, "%02x", mMiner.merkle_result[i]);
     }
-    merkle_root[65] = 0;
+    //The loop above already terminates the string: its last iteration calls
+    //snprintf(&merkle_root[62], 3, ...), which writes two hex digits at 62 and 63
+    //and the NUL at 64. Writing merkle_root[65] went one byte past the array
+    //(BitMaker-hub/NerdMiner_v2#771).
     Serial.println("");
 
     // calculate blockheader
