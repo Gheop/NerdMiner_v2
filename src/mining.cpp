@@ -154,7 +154,7 @@ bool checkPoolConnection(void) {
 //checks if pool is not sending any data to reconnect again.
 //Even connection could be alive, pool could stop sending new job NOTIFY
 unsigned long mStart0Hashrate = 0;
-bool checkPoolInactivity(unsigned int keepAliveTime, unsigned long inactivityTime){ 
+bool checkPoolInactivity(unsigned int keepAliveTime, unsigned long inactivityTime, double suggestDifficulty){ 
 
     unsigned long currentKHashes = (Mhashes*1000) + hashes/1000;
     unsigned long elapsedKHs = currentKHashes - totalKHashes;
@@ -169,8 +169,10 @@ bool checkPoolInactivity(unsigned int keepAliveTime, unsigned long inactivityTim
     {
       mLastTXtoPool = time_now;
       Serial.println("  Sending  : KeepAlive suggest_difficulty");
-      //if (client.print("{}\n") == 0) {
-      tx_suggest_difficulty(client, DEFAULT_DIFFICULTY);
+      //Re-suggest what the pool actually settled on, not DEFAULT_DIFFICULTY. Asking
+      //for 0.00015 twice a minute forever, on a pool whose minimum is higher, looks
+      //like a misbehaving client from the pool side (BitMaker-hub/NerdMiner_v2#805).
+      tx_suggest_difficulty(client, suggestDifficulty);
       /*if(tx_suggest_difficulty(client, DEFAULT_DIFFICULTY)){
         Serial.println("  Sending keepAlive to pool -> Detected client disconnected");
         return true;
@@ -354,7 +356,7 @@ void runStratumWorker(void *name) {
     }
 
     //Check if pool is down for almost 5minutes and then restart connection with pool (1min=600000ms)
-    if(checkPoolInactivity(KEEPALIVE_TIME_ms, POOLINACTIVITY_TIME_ms)){
+    if(checkPoolInactivity(KEEPALIVE_TIME_ms, POOLINACTIVITY_TIME_ms, currentPoolDifficulty)){
       //Restart connection
       Serial.println("  Detected more than 2 min without data form stratum server. Closing socket and reopening...");
       client.stop();
