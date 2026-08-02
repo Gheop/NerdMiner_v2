@@ -525,10 +525,26 @@ coûteux. **Il ne peut pas être plus rapide que le nôtre.**
 **Le DMA** apparaît bien dans le binaire (`DMA_START`, `DMA_BLOCK`, `DMA_CONT`) mais uniquement dans
 la fonction de bibliothèque, pas dans la boucle de minage.
 
+**Balayage étendu aux 5 segments (2026-08-02)** : la réserve « adresses calculées au lieu de
+littéraux » était infondée. Sur Xtensa, `movi` ne charge que 12 bits signés : une adresse comme
+`0x6003B080` **doit** passer par `l32r`, et si elle vivait dans une variable globale on la trouverait
+en DRAM. Vérification des 5 segments :
+
+| segment | contenu | littéraux SHA |
+|---|---|---|
+| DROM 1,2 Mo | constantes | aucun |
+| DRAM 15 Ko | données | aucun |
+| **IROM 1,2 Mo** | code flash | **tous** |
+| DRAM 7 Ko | données | aucun |
+| **IRAM 84 Ko** | code rapide | **aucun** |
+
+L'inventaire est donc complet. **Détail révélateur au passage : leur code de minage est en flash
+(IROM), le nôtre est en `IRAM_ATTR`** — sur ce point nous sommes mieux placés qu'eux.
+
 **Conclusion pour le T-Display-S3** : les 398 kH/s annoncés ne s'expliquent par rien de ce que
-contient leur binaire. Réserves subsistantes : adresses éventuellement calculées au lieu d'être
-chargées en littéraux (inhabituel), « up to 398 » visant peut-être une autre carte S3, et instructions
-par round de leur SHA logiciel non comptées.
+contient leur binaire (34 accès registres contre nos 36, +26 `memw`, poll à 3 instructions contre 2,
+code en flash, pas de DMA dans la boucle, aucun code SHA ailleurs). Seule réserve restante : le
+« up to 398 » vise peut-être une autre carte S3 que le T-Display.
 
 **Pour l'ESP32 classic, l'analyse de #618 tient toujours** : elle porte sur *notre* code (le bloc 1
 recalculé à chaque nonce, 3 blocs moteur au lieu de 2), vérifiable indépendamment de NMMiner.
