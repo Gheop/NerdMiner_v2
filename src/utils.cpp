@@ -335,7 +335,9 @@ miner_data calculateMiningData(mining_subscribe& mWorker, mining_job mJob){
       Serial.printf("%02x", mMiner.merkle_result[i]);
       snprintf(&merkle_root[i*2], 3, "%02x", mMiner.merkle_result[i]);
     }
-    merkle_root[65] = 0;
+    //(no explicit terminator here: merkle_root is char[65], so index 65 is out of
+    //bounds -- and the snprintf above already wrote the NUL at index 64.
+    //See BitMaker-hub/NerdMiner_v2#771.)
     Serial.println("");
 
     // calculate blockheader

@@ -380,3 +380,43 @@ de plan exposaient aussi le compte SSH et l'hôte du VPS : anonymisés en `<user
 
 Vérifié : l'URL est **présente dans le binaire** (la télémétrie marche) et **absente des sources
 versionnées**. Flotte reflashée, 6/6 reportent, 1806,8 kH/s.
+
+## Piste sérieuse sur la cause racine des gels (2026-08-02)
+
+En lisant l'issue #797 puis le log de connexion pool, une reconstruction cohérente apparaît.
+
+**Le log de worker6 au démarrage :**
+```
+extranonce2_size: 8                                    <- pris en charge (2/4/8)
+Receiving: {"method":"mining.set_difficulty","params":[100000]}
+Receiving: {"method":"mining.set_difficulty","params":[1]}   <- retombée à 1 !
+```
+
+À difficulté 1, les mineurs **soumettent à nouveau des shares** → `checkValid()` est appelée.
+Or `checkValid()` partait en boucle infinie (cf. section #797).
+
+**Chaîne causale, et les 4 symptômes du gel s'expliquent d'un coup :**
+
+| mécanisme | symptôme observé |
+|---|---|
+| `checkValid()` boucle → `runStratumWorker` bloqué | « 0 session pool, mine dans le vide » |
+| tâche prio 4 sur cœur 1 sans yield → affame `loop()`, qui héberge `ArduinoOTA.handle()` | « port OTA 3232 fermé » |
+| `MinerHw`/`MinerSw` sont sur l'autre cœur | « le minage et l'écran continuent, ~300 kH/s » |
+| le Task WDT ne surveille que les tâches minières, qui vont bien | « pas de reboot matériel » |
+
+**Le calendrier colle** : les gels (5-8 h) datent de l'époque où la pool donnait une difficulté de 1.
+Quand elle est passée à 100 000, plus aucune soumission → plus d'appel à `checkValid()` → 16 jours
+d'uptime. La difficulté vient de retomber à 1 : sans le correctif de ce matin, un regel était
+probable dans les heures qui suivent.
+
+**Prudence** : c'est une reconstruction, pas une preuve. Aucune capture d'un gel en flagrant délit,
+et les 2 reboots `int_wdt` (worker2, worker5) relèvent d'autre chose — l'`int_wdt` reboote, il ne
+gèle pas. Mais l'hypothèse explique les 4 symptômes simultanément, ce qu'aucune autre ne faisait.
+
+**À surveiller** : la difficulté est à 1 et le correctif est déployé. Si les uptimes tiennent
+plusieurs semaines dans ces conditions, la cause est confirmée.
+
+## Bug #771 : écriture hors limites `merkle_root[65]`
+`char merkle_root[65]` (indices 0..64) puis `merkle_root[65] = 0` → un octet de pile écrasé à chaque
+calcul de merkle root. La boucle `snprintf` écrit déjà le NUL en position 64 : la ligne est inutile
+autant que fausse. Supprimée, flotte reflashée.
