@@ -1,3 +1,32 @@
+# This fork: upstream plus a set of verified fixes
+
+This branch (`all-fixes`) is `BitMaker-hub/NerdMiner_v2` `main` with every fix below
+merged on top. Flash it and you get all of them at once. Each one also lives on its
+own branch off upstream `main`, so a maintainer can take them individually.
+
+| Fix | Issue | Branch |
+|---|---|---|
+| Submitted nonce was truncated when it had a leading zero, losing 1 share in 16 (and a found block with the same odds) | [#750](https://github.com/BitMaker-hub/NerdMiner_v2/issues/750) | `fix/nonce-padding-750` |
+| `checkValid()` compared against stack garbage and could loop forever | [#797](https://github.com/BitMaker-hub/NerdMiner_v2/issues/797) | `fix/checkvalid-797` |
+| Stats API queried public-pool.io regardless of the configured pool, on 22 of 24 boards | [#710](https://github.com/BitMaker-hub/NerdMiner_v2/issues/710), [#792](https://github.com/BitMaker-hub/NerdMiner_v2/issues/792), [#795](https://github.com/BitMaker-hub/NerdMiner_v2/issues/795) | `fix/pool-api-url-ignored` |
+| ckpool-style pools reported 0 workers and no best difficulty | [#739](https://github.com/BitMaker-hub/NerdMiner_v2/issues/739) | `fix/ckpool-stats-format-739` |
+| Keepalive kept asking for the hardcoded default difficulty instead of the negotiated one | [#805](https://github.com/BitMaker-hub/NerdMiner_v2/issues/805) | `fix/keepalive-difficulty-805` |
+| One-byte out-of-bounds write past `merkle_root` | [#771](https://github.com/BitMaker-hub/NerdMiner_v2/issues/771) | `fix/merkle-root-oob-771` |
+| Half-hour and quarter-hour time zones could not be set | [#738](https://github.com/BitMaker-hub/NerdMiner_v2/issues/738) | `fix/half-hour-timezones-738` |
+| WiFi never recovered from a lost link: reconnect, full-channel AP scan, RSSI logging | [#583](https://github.com/BitMaker-hub/NerdMiner_v2/issues/583) | `fix/wifi-reconnect` |
+| Failed pool DNS resolution cached as `0.0.0.0` | [PR #801](https://github.com/BitMaker-hub/NerdMiner_v2/pull/801) | `fix/pool-dns-resolve-retry` |
+| Pool reconnect used `rand() % 60` instead of a backoff | [PR #803](https://github.com/BitMaker-hub/NerdMiner_v2/pull/803) | `fix/pool-reconnect` |
+| Skipping constant `SHA_TEXT` writes in the hardware miner: **+16.6%** hashrate, measured | [PR #802](https://github.com/BitMaker-hub/NerdMiner_v2/pull/802) | `perf/hw-sha-fast-fill` |
+| OTA firmware and config updates over WiFi | [PR #804](https://github.com/BitMaker-hub/NerdMiner_v2/pull/804) | `feat/ota-wifi` |
+
+Builds verified for `NerdminerV2`, `TTGO-T-Display`, `ESP32-2432S028R` and
+`ESP32-devKitv1`. Running on 6 T-Display-S3 boards, about 1.8 MH/s total.
+
+Findings and measurements are written up in the linked issues. Corrections welcome:
+open an issue here if something does not hold up.
+
+---
+
 # NerdSoloMiner
 
 **The NerdSoloMiner v2**
