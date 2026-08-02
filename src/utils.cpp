@@ -240,15 +240,30 @@ miner_data calculateMiningData(mining_subscribe& mWorker, mining_job mJob){
     
     //get coinbase - coinbase_hash_bin = hashlib.sha256(hashlib.sha256(binascii.unhexlify(coinbase)).digest()).digest()
     // Use char buffer instead of String concatenation to avoid memory leaks
-    static char coinbase_buffer[512]; // Static buffer to avoid repeated allocation
+    //1024 hex chars covers a 512-byte coinbase transaction. The previous 512 was
+    //only 256 bytes, which several pools exceed once they carry a few outputs, and
+    //snprintf truncated the excess without a word: the coinbase hash, and therefore
+    //the merkle root and the whole block header, were then computed on a partial
+    //transaction and every share got rejected.
+    static char coinbase_buffer[1024];
+    size_t coinbase_len = mJob.coinb1.length() + mWorker.extranonce1.length()
+                        + mWorker.extranonce2.length() + mJob.coinb2.length();
+    if (coinbase_len >= sizeof(coinbase_buffer)) {
+        Serial.printf("    [ERROR] coinbase is %u hex chars, buffer holds %u: shares from "
+                      "this job will be rejected\n",
+                      (unsigned)coinbase_len, (unsigned)sizeof(coinbase_buffer) - 1);
+    }
     snprintf(coinbase_buffer, sizeof(coinbase_buffer), "%s%s%s%s", 
              mJob.coinb1.c_str(), mWorker.extranonce1.c_str(), 
              mWorker.extranonce2.c_str(), mJob.coinb2.c_str());
     Serial.print("    coinbase: "); Serial.println(coinbase_buffer);
-    size_t str_len = strlen(coinbase_buffer)/2;
+    //Round down to whole bytes. An odd character count would make to_byte_array
+    //emit one more byte than str_len, one past the end of the array below.
+    size_t hex_len = strlen(coinbase_buffer) & ~(size_t)1;
+    size_t str_len = hex_len/2;
     uint8_t bytearray[str_len];
 
-    size_t res = to_byte_array(coinbase_buffer, str_len*2, bytearray);
+    size_t res = to_byte_array(coinbase_buffer, hex_len, bytearray);
 
     #ifdef DEBUG_MINING
     Serial.print("    extranonce2: "); Serial.println(mWorker.extranonce2);
