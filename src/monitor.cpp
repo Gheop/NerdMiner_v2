@@ -436,6 +436,24 @@ String getPoolAPIUrl(void) {
     return poolAPIUrl;
 }
 
+//ckpool reports hashrates as suffixed strings ("0", "44.4K", "1.2M", "97G").
+//Returns the value in hashes per second, 0 for a null or unparsable input.
+static double parseSuffixedNumber(const char *s) {
+  if (!s || !*s) return 0;
+  char *end = NULL;
+  double v = strtod(s, &end);
+  if (!end) return v;
+  while (*end == ' ') end++;
+  switch (*end) {
+    case 'K': case 'k': return v * 1e3;
+    case 'M': case 'm': return v * 1e6;
+    case 'G': case 'g': return v * 1e9;
+    case 'T': case 't': return v * 1e12;
+    case 'P': case 'p': return v * 1e15;
+    default:            return v;
+  }
+}
+
 pool_data getPoolData(void){
     //pool_data pData;    
     if((mPoolUpdate == 0) || (millis() - mPoolUpdate > UPDATE_POOL_min * 60 * 1000)){      
@@ -457,30 +475,45 @@ pool_data getPoolData(void){
           if (httpCode == HTTP_CODE_OK) {
               String payload = http.getString();
               // Serial.println(payload);
-              StaticJsonDocument<300> filter;
+              StaticJsonDocument<400> filter;
+              //public-pool style
               filter["bestDifficulty"] = true;
               filter["workersCount"] = true;
               filter["workers"][0]["sessionId"] = true;
               filter["workers"][0]["hashRate"] = true;
+              //ckpool style (pool.nerdminers.org, sethforprivacy, solomining): different
+              //key names, "workers" is a count rather than an array, the per-worker list
+              //is "worker", and hashrates are suffixed strings like "44.4K"
+              //(BitMaker-hub/NerdMiner_v2#739).
+              filter["bestshare"] = true;
+              filter["workers"] = true;
+              filter["worker"][0]["workername"] = true;
+              filter["worker"][0]["hashrate1hr"] = true;
               StaticJsonDocument<2048> doc;
               deserializeJson(doc, payload, DeserializationOption::Filter(filter));
               //Serial.println(serializeJsonPretty(doc, Serial));
-              if (doc.containsKey("workersCount")) pData.workersCount = doc["workersCount"].as<int>();
-              const JsonArray& workers = doc["workers"].as<JsonArray>();
+
               float totalhashs = 0;
-              for (const JsonObject& worker : workers) {
-                totalhashs += worker["hashRate"].as<double>();
-                /* Serial.print(worker["sessionId"].as<String>()+": ");
-                Serial.print(" - "+worker["hashRate"].as<String>()+": ");
-                Serial.println(totalhashs); */
+              if (doc.containsKey("worker")) {
+                //ckpool
+                pData.workersCount = doc["workers"].as<int>();
+                for (const JsonObject& worker : doc["worker"].as<JsonArray>())
+                  totalhashs += parseSuffixedNumber(worker["hashrate1hr"].as<const char*>());
+              } else {
+                //public-pool
+                if (doc.containsKey("workersCount")) pData.workersCount = doc["workersCount"].as<int>();
+                for (const JsonObject& worker : doc["workers"].as<JsonArray>())
+                  totalhashs += worker["hashRate"].as<double>();
               }
               char totalhashs_s[16] = {0};
               suffix_string(totalhashs, totalhashs_s, 16, 0);
               pData.workersHash = String(totalhashs_s);
 
               double temp;
-              if (doc.containsKey("bestDifficulty")) {
-              temp = doc["bestDifficulty"].as<double>();            
+              const char *best_key = doc.containsKey("bestDifficulty") ? "bestDifficulty"
+                                   : (doc.containsKey("bestshare") ? "bestshare" : NULL);
+              if (best_key) {
+              temp = doc[best_key].as<double>();
               char best_diff_string[16] = {0};
               suffix_string(temp, best_diff_string, 16, 0);
               pData.bestDifficulty = String(best_diff_string);
