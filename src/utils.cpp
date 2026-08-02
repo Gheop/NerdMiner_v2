@@ -36,13 +36,19 @@ int to_byte_array(const char *in, size_t in_size, uint8_t *out) {
             if (!*in)
                 return count;
             *out = (*out << 4) | hex(*in++);
-            *out++;
+            out++;
             count++;
         }
         return count;
     } else {
         while (*in && out) {
-            *out++ = (hex(*in++) << 4) | hex(*in++);
+            //Two *in++ in one expression is undefined behaviour: the order of the
+            //two reads is unspecified, so a compiler is free to swap the nibbles of
+            //every byte. Current xtensa gcc happens to pick the right order, which
+            //is why nobody has seen it, but that is luck rather than a guarantee.
+            uint8_t hi = hex(*in++);
+            uint8_t lo = hex(*in++);
+            *out++ = (hi << 4) | lo;
             count++;
         }
         return count;
