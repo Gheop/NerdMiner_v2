@@ -348,18 +348,27 @@ static void postTelemetry(uint32_t hashrateHs) {
 //race/gheop8: dashboard POST isolated here. If http.POST ever hangs (seen once
 //during a dashboard rollout), only telemetry stalls — the watchdog keeps running.
 static void telemetryTask(void *unused) {
-  uint64_t lastTotal = (uint64_t)Mhashes * 1000000ULL + hashes;
+  //Counts from race_hashes_hw/sw, not Mhashes/hashes. The stratum task rebases
+  //those two on every new job:
+  //    uint32_t mh = hashes/1000000; Mhashes += mh; hashes -= mh*1000000;
+  //Reading between those two lines yields a total inflated by mh*1e6, and the
+  //next sample is short by the same amount. That is what produced the occasional
+  //~255 kH/s reading on a miner the serial probe showed steady at 304: the gap
+  //was 49.6 kH/s over 60 s, exactly 3e6 hashes. The race counters are monotonic
+  //and never rebased, so no such window exists. uint32 subtraction stays correct
+  //across a wrap as long as the delta is below 2^32 (18e6 per minute here).
+  uint32_t lastHw = race_hashes_hw, lastSw = race_hashes_sw;
   uint32_t lastPostMs = millis();
   for (;;) {
     vTaskDelay(60000 / portTICK_PERIOD_MS);
     if (ota_active) continue;
     uint32_t nowMs = millis();
-    uint64_t total = (uint64_t)Mhashes * 1000000ULL + hashes;
+    uint32_t hwNow = race_hashes_hw, swNow = race_hashes_sw;
     uint32_t dtMs = nowMs - lastPostMs;
-    uint32_t hs = (total > lastTotal && dtMs > 0)
-                      ? (uint32_t)(((total - lastTotal) * 1000ULL) / dtMs)
-                      : 0;
-    lastTotal = total;
+    uint64_t delta = (uint64_t)(uint32_t)(hwNow - lastHw)
+                   + (uint64_t)(uint32_t)(swNow - lastSw);
+    uint32_t hs = (dtMs > 0) ? (uint32_t)((delta * 1000ULL) / dtMs) : 0;
+    lastHw = hwNow; lastSw = swNow;
     lastPostMs = nowMs;
     postTelemetry(hs);
   }
