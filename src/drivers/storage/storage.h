@@ -55,7 +55,9 @@ struct TSettings
 	char BtcWallet[80]{ DEFAULT_WALLETID };
 	char PoolPassword[80]{ DEFAULT_POOLPASS };
 	int PoolPort{ DEFAULT_POOLPORT };
-	int Timezone{ DEFAULT_TIMEZONE };
+	//Fractional so half-hour and quarter-hour zones work (+5.5, +5.75, +9.5).
+	//Reading an old config back is fine: ArduinoJson converts a stored integer.
+	float Timezone{ DEFAULT_TIMEZONE };
 	bool saveStats{ DEFAULT_SAVESTATS };
 	bool invertColors{ DEFAULT_INVERTCOLORS };
 	int Brightness{ DEFAULT_BRIGHTNESS };

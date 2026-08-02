@@ -220,9 +220,10 @@ void init_WifiManager()
     WiFiManagerParameter addr_text_box("btcAddress", "Your BTC address", Settings.BtcWallet, 80);
 
   // Text box (Number) - 2 characters maximum
-  char charZone[6];
-  sprintf(charZone, "%d", Settings.Timezone);
-  WiFiManagerParameter time_text_box_num("TimeZone", "TimeZone fromUTC (-12/+12)", charZone, 3);
+  char charZone[8];
+  //%g keeps whole zones short ("2") and allows fractional ones ("5.5").
+  snprintf(charZone, sizeof(charZone), "%g", Settings.Timezone);
+  WiFiManagerParameter time_text_box_num("TimeZone", "TimeZone fromUTC (-12/+14, e.g. 5.5)", charZone, 6);
 
   WiFiManagerParameter features_html("<hr><br><label style=\"font-weight: bold;margin-bottom: 25px;display: inline-block;\">Features</label>");
 
@@ -278,7 +279,7 @@ void init_WifiManager()
             Settings.PoolPort = atoi(port_text_box_num.getValue());
             strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
             strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
-            Settings.Timezone = atoi(time_text_box_num.getValue());
+            Settings.Timezone = atof(time_text_box_num.getValue());
             //Serial.println(save_stats_to_nvs.getValue());
             Settings.saveStats = (strncmp(save_stats_to_nvs.getValue(), "T", 1) == 0);
             #if defined(ESP32_2432S028R) || defined(ESP32_2432S028_2USB)
@@ -311,7 +312,7 @@ void init_WifiManager()
                 Settings.PoolPort = atoi(port_text_box_num.getValue());
                 strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
                 strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
-                Settings.Timezone = atoi(time_text_box_num.getValue());
+                Settings.Timezone = atof(time_text_box_num.getValue());
                 // Serial.println(save_stats_to_nvs.getValue());
                 Settings.saveStats = (strncmp(save_stats_to_nvs.getValue(), "T", 1) == 0);
                 #if defined(ESP32_2432S028R) || defined(ESP32_2432S028_2USB)
@@ -360,7 +361,7 @@ void init_WifiManager()
         Serial.println(Settings.BtcWallet);
 
         //Convert the number value
-        Settings.Timezone = atoi(time_text_box_num.getValue());
+        Settings.Timezone = atof(time_text_box_num.getValue());
         Serial.print("TimeZone fromUTC: ");
         Serial.println(Settings.Timezone);
 
@@ -402,7 +403,7 @@ void init_WifiManager()
     Serial.println(Settings.BtcWallet);
 
     //Convert the number value
-    Settings.Timezone = atoi(time_text_box_num.getValue());
+    Settings.Timezone = atof(time_text_box_num.getValue());
     Serial.print("TimeZone fromUTC: ");
     Serial.println(Settings.Timezone);
 
