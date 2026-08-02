@@ -500,3 +500,35 @@ chemins sont limités par le silicium. Le +5 % annoncé n'existe pas.
 (avec des `memw` en plus), leur chemin SW utilise les mêmes instructions, un cœur scalaire plafonne
 à ~42 kH/s en logiciel, et le SIMD est inutilisable (saturation). Chiffre invérifiable : firmware
 sous licence.
+
+### Reverse NMMiner : les trois angles morts fermés (2026-08-02)
+
+La première passe ne couvrait que 440 octets. Balayage complet ensuite : recherche de **tous** les
+littéraux d'adresses de registres SHA du segment (15 trouvés) puis de **toutes** les `l32r` qui les
+référencent (26). Cela couvre l'intégralité du code touchant le moteur SHA.
+
+**Deux zones seulement :**
+- `0x42022554-0x42022682` : leur boucle de minage (123 instructions, aucun appel, entièrement inline)
+- `0x420d7cc3-0x420d7dbf` : bibliothèque IDF (`entry` + attente `bnez`), que notre firmware embarque aussi
+
+**Comptage de leur boucle contre la nôtre :**
+
+| | NMMiner | nous |
+|---|---|---|
+| accès registres SHA / nonce | **34** | **36** |
+| barrières `memw` | **26** | **0** |
+| boucle d'attente | `memw`+`l32i`+`bnez` (3) | `l32i`+`bnez` (2) |
+
+Leur chemin matériel fait le même nombre d'accès, avec 26 barrières mémoire en plus et un poll plus
+coûteux. **Il ne peut pas être plus rapide que le nôtre.**
+
+**Le DMA** apparaît bien dans le binaire (`DMA_START`, `DMA_BLOCK`, `DMA_CONT`) mais uniquement dans
+la fonction de bibliothèque, pas dans la boucle de minage.
+
+**Conclusion pour le T-Display-S3** : les 398 kH/s annoncés ne s'expliquent par rien de ce que
+contient leur binaire. Réserves subsistantes : adresses éventuellement calculées au lieu d'être
+chargées en littéraux (inhabituel), « up to 398 » visant peut-être une autre carte S3, et instructions
+par round de leur SHA logiciel non comptées.
+
+**Pour l'ESP32 classic, l'analyse de #618 tient toujours** : elle porte sur *notre* code (le bloc 1
+recalculé à chaque nonce, 3 blocs moteur au lieu de 2), vérifiable indépendamment de NMMiner.
