@@ -328,3 +328,45 @@ Extrapolation : un hypothétique 320 MHz rapporterait ~+9 % sur le HW et ~+33 % 
 
 Les deux cœurs et le moteur tournent déjà en parallèle et à fond. Le plafond de ~300 kH/s n'est
 pas une intuition : chaque ressource est soit occupée, soit démontrée inutilisable.
+
+## Bugs critiques de `checkValid()` — issue upstream #797 (2026-08-02)
+
+L'issue [#797](https://github.com/BitMaker-hub/NerdMiner_v2/issues/797) (ouverte le 21/06, sans
+réponse) signale des bugs dans `utils.cpp`. Vérifié : **notre fork les avait tous**, plus deux
+corollaires non signalés.
+
+| # | bug | effet |
+|---|-----|-------|
+| 1 | `memcpy(diff_target, &target, 32)` | copie l'**adresse** du pointeur depuis la pile, pas les 32 octets de la cible |
+| 2 | `for(uint8_t i=31; i>=0; i--)` | `i>=0` toujours vrai : après 0, `i` vaut 255 → lecture hors limites `hash[32..255]` **et boucle infinie** |
+| 3 | `to_byte_array(target, 32, …)` | 64 caractères hex attendus : seuls 16 des 32 octets étaient écrits |
+| 4* | swap XOR `for j<8` | dimensionné pour 16 octets ; inverse à moitié une fois le bug 3 corrigé |
+| 5* | pas de `break` si `hash[i] < target[i]` | continuait à comparer les octets moins significatifs → verdict faux |
+
+\* non signalés dans #797.
+
+Ordre des octets (vérifié, c'était le point délicat) : `hash` **et** `bytearray_target` sont en
+little-endian, poids fort à l'index 31 — cf. `diff_from_target()` qui lit via `le256todouble()` et
+le test `hash[29]==0 && hash[28]==0` pour les 32 bits de zéros. Les deux se comparent donc
+directement, et le `reverse_bytes()` de `checkValid` était de trop : il remettait la cible en
+big-endian face à un hash little-endian.
+
+### Reproduction sur PC (`docs/superpowers/checkvalid_test.cpp`)
+
+```
+cas                              | attendu | corrigé | origine
+hash nul (bien en dessous)       |  vrai   |  vrai   |  vrai   <- BOUCLE INFINIE
+octet de poids fort à 1          |  faux   |  faux   |  vrai   <- BOUCLE INFINIE
+exactement égal à la cible       |  vrai   |  vrai   |  faux
+dépasse sur un octet haut        |  faux   |  faux   |  faux
+corrigé : 4/4      origine : 2/4
+```
+
+Deux cas sur quatre bouclent à l'infini (arrêt forcé à 100 000 itérations). Sur ESP32 c'est le gel
+de la tâche pool — cohérent avec le symptôme « le minage continue mais le réseau meurt ».
+
+### Impact réel sur notre flotte : nul jusqu'ici, mais c'était une bombe à retardement
+`checkValid()` n'est appelée que pour un share à 32 bits de zéros **effectivement soumis**. La pool
+imposant une difficulté de 100 000, le cas ne s'est jamais présenté. Et `tx_mining_submit()` est
+appelée **avant** `checkValid()` : un bloc trouvé serait bien parti à la pool. Mais le drapeau
+`isValid` était faux dans tous les cas, et le jour du déclenchement c'était le gel.

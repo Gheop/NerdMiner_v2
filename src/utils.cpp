@@ -123,17 +123,27 @@ bool isSha256Valid(const void* sha256)
 
 
 bool checkValid(unsigned char* hash, unsigned char* target) {
+  //Both hash and mMiner.bytearray_target are little-endian (most significant byte
+  //at index 31) -- diff_from_target() reads the hash with le256todouble(), and the
+  //target is byte-reversed in calculateMiningData(). So they compare directly, most
+  //significant byte first, and no reverse_bytes() is needed here.
+  //
+  //Fixes (see BitMaker-hub/NerdMiner_v2#797):
+  //  - memcpy took &target: it copied the pointer's own address off the stack, not
+  //    the 32 target bytes, so every comparison ran against garbage.
+  //  - the loop index was uint8_t, so i >= 0 was always true: after 0 it wrapped to
+  //    255 and read hash[32..255] out of bounds.
+  //  - it only broke on hash[i] > target[i]; when hash[i] < target[i] (i.e. the hash
+  //    is already valid) it kept comparing less significant bytes and could wrongly
+  //    conclude "invalid".
   bool valid = true;
   unsigned char diff_target[32];
-  memcpy(diff_target, &target, 32);
-  //convert target to little endian for comparison
-  reverse_bytes(diff_target, 32);
+  memcpy(diff_target, target, 32);
 
-  for(uint8_t i=31; i>=0; i--) {
-    if(hash[i] > diff_target[i]) {
-      valid = false;
-      break;
-    }
+  for (int i = 31; i >= 0; i--) {
+    if (hash[i] > diff_target[i]) { valid = false; break; }  //hash > target
+    if (hash[i] < diff_target[i]) { valid = true;  break; }  //hash < target
+    //equal so far: keep going with the next less significant byte
   }
 
   #ifdef DEBUG_MINING
@@ -200,9 +210,13 @@ miner_data calculateMiningData(mining_subscribe& mWorker, mining_job mJob){
     Serial.print("    target: "); Serial.println(target);
     
     // bytearray target
-    size_t size_target = to_byte_array(target, 32, mMiner.bytearray_target);
+    //64 hex chars = the full 32-byte target. Passing 32 only converted 16 bytes and
+    //left the upper half uninitialised (BitMaker-hub/NerdMiner_v2#797).
+    size_t size_target = to_byte_array(target, 64, mMiner.bytearray_target);
 
-    for (size_t j = 0; j < 8; j++) {
+    //Reverse the whole array (the loop below swaps j with size_target-1-j, so it must
+    //run over half its length -- it was hardcoded to 8, sized for the old 16 bytes).
+    for (size_t j = 0; j < size_target / 2; j++) {
       mMiner.bytearray_target[j] ^= mMiner.bytearray_target[size_target - 1 - j];
       mMiner.bytearray_target[size_target - 1 - j] ^= mMiner.bytearray_target[j];
       mMiner.bytearray_target[j] ^= mMiner.bytearray_target[size_target - 1 - j];
@@ -606,3 +620,45 @@ uint32_t crc32_finish(uint32_t crc32)
     return crc32 ^ 0xFFFFFFFF;
 }
 
+
+#if RACE_CHECKVALID_TEST
+//race/gheop8: known-vector test for the checkValid()/target fixes of #797.
+//Byte order convention (verified against diff_from_target/le256todouble and the
+//is32bit test hash[29]==hash[28]==0): both arrays are little-endian, i.e. index 31
+//holds the most significant byte. Difficulty-1 target, big-endian, is
+//00000000FFFF0000...00 -> reversed, byte 27 is 0xFF and 31..28 are 0x00.
+bool checkValidSelfTest(void)
+{
+    uint8_t target[32];
+    memset(target, 0, sizeof(target));
+    target[27] = 0xFF;
+    target[26] = 0xFF;
+
+    struct { const char *name; uint8_t hash[32]; bool expect; } cases[4] = {
+        {"below target (leading zeros)", {0}, true},
+        {"above target (msb set)",       {0}, false},
+        {"equal to target",              {0}, true},
+        {"just above on byte 27",        {0}, false},
+    };
+    //case 0: all zero -> smaller than target
+    //case 1: most significant byte non-zero
+    cases[1].hash[31] = 0x01;
+    //case 2: exactly the target
+    memcpy(cases[2].hash, target, 32);
+    //case 3: same as target but one more on the deciding byte
+    memcpy(cases[3].hash, target, 32);
+    cases[3].hash[28] = 0x01;   //byte 28 outranks 27, and target[28] is 0 -> above
+
+    bool ok = true;
+    for (int i = 0; i < 4; ++i) {
+        bool got = checkValid(cases[i].hash, target);
+        if (got != cases[i].expect) {
+            ok = false;
+            Serial.printf("checkValid FAIL: %s -> got %d, expected %d\n",
+                          cases[i].name, (int)got, (int)cases[i].expect);
+        }
+    }
+    Serial.printf("checkValid selftest: %s\n", ok ? "PASS" : "FAIL");
+    return ok;
+}
+#endif

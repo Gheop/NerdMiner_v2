@@ -10,6 +10,7 @@
 #include "mbedtls/md.h"
 #include "wManager.h"
 #include "mining.h"
+#include "utils.h"
 #include "monitor.h"
 #include "drivers/displays/display.h"
 #include "drivers/storage/SDCard.h"
@@ -133,6 +134,10 @@ void setup()
 
   /******** INIT NERDMINER ************/
   Serial.println("NerdMiner v2 starting......");
+
+#if RACE_CHECKVALID_TEST
+  checkValidSelfTest();
+#endif
 
 
   /******** INIT DISPLAY ************/
