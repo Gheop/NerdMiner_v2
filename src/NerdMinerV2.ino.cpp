@@ -33,8 +33,6 @@
 #ifndef OTA_PASSWORD
 #define OTA_PASSWORD ""
 #endif
-//Refuse un firmware OTA sans mot de passe (NERDMINER_OTA_PWD absent au build)
-static_assert(sizeof(OTA_PASSWORD) > 1, "OTA password vide : exporter NERDMINER_OTA_PWD avant le build");
 //#define HW_SHA256_TEST
 
 //3 seconds WDT
@@ -490,6 +488,12 @@ static void setupOTA() {
   static char host[24];
   snprintf(host, sizeof(host), "nerdminer-%02x%02x", mac[4], mac[5]);
   ArduinoOTA.setHostname(host);
+  //Never expose an unauthenticated OTA endpoint: anyone on the LAN could flash the
+  //device. Builds that do not define OTA_PASSWORD simply run without OTA.
+  if (sizeof(OTA_PASSWORD) <= 1) {
+    Serial.println("OTA disabled: no OTA_PASSWORD set at build time");
+    return;
+  }
   ArduinoOTA.setPassword(OTA_PASSWORD);
   ArduinoOTA.onStart([]() {
     //Ask the miners to idle at a safe point and release the SHA engine lock,
