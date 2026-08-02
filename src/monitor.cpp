@@ -48,10 +48,11 @@ void setup_monitor(void){
     timeClient.setTimeOffset(lroundf(3600.0f * Settings.Timezone));
 
     Serial.println("TimeClient setup done");
-#ifdef SCREEN_WORKERS_ENABLE
+    //Was behind SCREEN_WORKERS_ENABLE, which only two boards define, so every other
+    //board left poolAPIUrl empty and queried public-pool.io regardless of the
+    //configured pool (BitMaker-hub/NerdMiner_v2#710, #792, #795).
     poolAPIUrl = getPoolAPIUrl();
     Serial.println("poolAPIUrl: " + poolAPIUrl);
-#endif
 }
 
 unsigned long mGlobalUpdate =0;
@@ -447,12 +448,8 @@ pool_data getPoolData(void){
           String btcWallet = Settings.BtcWallet;
           // Serial.println(btcWallet);
           if (btcWallet.indexOf(".")>0) btcWallet = btcWallet.substring(0,btcWallet.indexOf("."));
-#ifdef SCREEN_WORKERS_ENABLE
           Serial.println("Pool API : " + poolAPIUrl+btcWallet);
           http.begin(poolAPIUrl+btcWallet);
-#else
-          http.begin(String(getPublicPool)+btcWallet);
-#endif
           int httpCode = http.GET();
           if (httpCode == HTTP_CODE_OK) {
               String payload = http.getString();
