@@ -420,3 +420,46 @@ plusieurs semaines dans ces conditions, la cause est confirmée.
 `char merkle_root[65]` (indices 0..64) puis `merkle_root[65] = 0` → un octet de pile écrasé à chaque
 calcul de merkle root. La boucle `snprintf` écrit déjà le NUL en position 64 : la ligne est inutile
 autant que fausse. Supprimée, flotte reflashée.
+
+## Reverse du firmware NMMiner (fermé) — 2026-08-02
+
+Objectif : comprendre l'écart annoncé (398 kH/s sur S3 contre nos 304).
+
+**Le firmware est sous licence** : binaire librement téléchargeable sur
+`github.com/NMminer1024/NMMiner` (pas de sources, pas de licence déclarée), mais au démarrage il
+exige une clé liée à l'ID de puce (`Licence not found in nvs, Waiting a license from UART`).
+Impossible de le tester : flashé sur worker6, il refuse de miner. worker6 restauré intégralement
+(sauvegarde NVS avant flash → WiFi et config récupérés sans repasser par le portail).
+
+**Méthode de reverse** : image ESP-IDF v4.4.6, segment 2 chargé à `0x42000020`. Localisation du
+literal pool contenant les adresses des registres SHA, puis scan de toutes les instructions `l32r`
+pointant dessus (décodage `vAddr = ((PC+3) & ~3) + (0xFFFC0000 | imm16<<2)`). 16 hits concentrés
+sur 440 octets → la boucle de minage.
+
+**Ce qu'on y trouve :**
+
+1. **Un SHA-256 logiciel entièrement déroulé**, tout en registres :
+```asm
+ssai 6  ; src a5,a12,a12     ROTR(x,6)
+ssai 11 ; src a6,a12,a12     ROTR(x,11)   } Σ1
+ssai 25 ; src a6,a12,a12     ROTR(x,25)
+xor / or / and                Ch et Maj
+l32r a15, <K[t]>              constante de round
+```
+Aucun accès mémoire dans le corps du round.
+
+2. **Un chemin matériel quasi identique au nôtre** : même séquence H→TEXT (8 `l32i` puis 8 `s32i`),
+même attente active (`bnez a6, <retour>`), mêmes accès registres — **avec des `memw` en plus**,
+donc plutôt plus lent que notre version.
+
+**Conclusion : aucune astuce matérielle cachée.** L'écart vient du chemin logiciel :
+
+| | chemin HW | chemin SW | total |
+|---|---|---|---|
+| nous | 262 | **42** | 304 |
+| NMMiner (annoncé) | ~262 | **~136** | ~398 |
+
+Notre `nerdSHA256plus` tient `W[64]` en mémoire et y accède à chaque round (~44 cyc/round) ; leur
+version travaille en registres (~10 cyc/round estimés). **Piste actionnable** : optimiser le chemin
+SW, indépendant du bus APB qui plafonne le chemin HW. Contrainte : Xtensa n'expose que 16 registres
+pour 8 mots d'état + 16 de schedule, donc le déroulement complet demande un ordonnancement soigné.
