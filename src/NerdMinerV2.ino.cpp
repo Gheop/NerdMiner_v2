@@ -264,7 +264,7 @@ static void otaStallWatchdog(void *unused) {
   }
 }
 
-//gheop6: push miner telemetry to the dashboard (miner.gheop.com) every ~60s.
+//gheop6: push miner telemetry to the dashboard (URL from the build env) every ~60s.
 //Sent from healthWatchdog, out of the mining hot loop → no hashrate impact.
 //HTTPS via WiFiClientSecure (insecure: payload is non-sensitive telemetry, and
 //ingestion is gated by a shared token the server checks).

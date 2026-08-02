@@ -370,3 +370,13 @@ de la tâche pool — cohérent avec le symptôme « le minage continue mais le 
 imposant une difficulté de 100 000, le cas ne s'est jamais présenté. Et `tx_mining_submit()` est
 appelée **avant** `checkValid()` : un bloc trouvé serait bien parti à la pool. Mais le drapeau
 `isValid` était faux dans tous les cas, et le jour du déclenchement c'était le gel.
+
+
+## Hygiène : URL du dashboard hors dépôt (2026-08-02)
+
+`NERDMINER_REPORT_URL` était en dur dans `platformio.ini`, donc public sur le fork. Passée en
+`${sysenv.NERDMINER_REPORT_URL}`, comme le token d'ingestion et le mot de passe OTA. Les documents
+de plan exposaient aussi le compte SSH et l'hôte du VPS : anonymisés en `<user>@<vps>`.
+
+Vérifié : l'URL est **présente dans le binaire** (la télémétrie marche) et **absente des sources
+versionnées**. Flotte reflashée, 6/6 reportent, 1806,8 kH/s.
