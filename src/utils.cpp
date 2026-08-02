@@ -123,17 +123,19 @@ bool isSha256Valid(const void* sha256)
 
 
 bool checkValid(unsigned char* hash, unsigned char* target) {
+  //hash and mMiner.bytearray_target are both little-endian (most significant byte
+  //at index 31): diff_from_target() reads the hash through le256todouble(), the
+  //32-zero-bits test is hash[29]==hash[28]==0, and the target is byte-reversed at
+  //the end of calculateMiningData(). They compare directly, most significant byte
+  //first, so no reverse_bytes() is needed here.
   bool valid = true;
   unsigned char diff_target[32];
-  memcpy(diff_target, &target, 32);
-  //convert target to little endian for comparison
-  reverse_bytes(diff_target, 32);
+  memcpy(diff_target, target, 32);
 
-  for(uint8_t i=31; i>=0; i--) {
-    if(hash[i] > diff_target[i]) {
-      valid = false;
-      break;
-    }
+  for (int i = 31; i >= 0; i--) {
+    if (hash[i] > diff_target[i]) { valid = false; break; }  //hash above target
+    if (hash[i] < diff_target[i]) { valid = true;  break; }  //hash below target
+    //equal so far: keep comparing with the next less significant byte
   }
 
   #ifdef DEBUG_MINING
@@ -200,9 +202,13 @@ miner_data calculateMiningData(mining_subscribe& mWorker, mining_job mJob){
     Serial.print("    target: "); Serial.println(target);
     
     // bytearray target
-    size_t size_target = to_byte_array(target, 32, mMiner.bytearray_target);
+    //64 hex chars make up the 32-byte target; passing 32 only converted 16 bytes
+    //and left the upper half of bytearray_target uninitialised.
+    size_t size_target = to_byte_array(target, 64, mMiner.bytearray_target);
 
-    for (size_t j = 0; j < 8; j++) {
+    //Reverse the whole array: this swaps j with size_target-1-j, so it has to run
+    //over half the length. It was hardcoded to 8, which suited the old 16 bytes.
+    for (size_t j = 0; j < size_target / 2; j++) {
       mMiner.bytearray_target[j] ^= mMiner.bytearray_target[size_target - 1 - j];
       mMiner.bytearray_target[size_target - 1 - j] ^= mMiner.bytearray_target[j];
       mMiner.bytearray_target[j] ^= mMiner.bytearray_target[size_target - 1 - j];
