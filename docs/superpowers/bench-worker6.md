@@ -548,3 +548,40 @@ code en flash, pas de DMA dans la boucle, aucun code SHA ailleurs). Seule réser
 
 **Pour l'ESP32 classic, l'analyse de #618 tient toujours** : elle porte sur *notre* code (le bloc 1
 recalculé à chaque nonce, 3 blocs moteur au lieu de 2), vérifiable indépendamment de NMMiner.
+
+## Attente par nop au lieu du polling SHA_BUSY (2026-08-02) — RÉFUTÉ sur S3
+
+Idée venue du binaire NMMiner ESP32 classic : leur boucle n'interroge jamais `SHA_BUSY_REG`, elle
+attend par séries de `nop` déroulés (13, 53, 5, 32). Chaque lecture de `BUSY` coûte ~14 cycles de bus
+APB, et pendant que le CPU martèle le bus il concurrence le moteur SHA qui s'en sert aussi. Si une
+partie des 341 cycles d'attente mesurés venait de cette contention, la remplacer par des `nop`
+libérerait le bus.
+
+Trois essais sur worker6, `VALIDATION=1` actif en permanence :
+
+| variante | khs_hw | écart | pourquoi |
+|---|---|---|---|
+| polling `SHA_BUSY_REG` (référence) | 262,3 | — | |
+| 40 nop **puis** polling | 231,1 | −31,2 | on ajoute l'attente sans retirer le poll |
+| 150 nop en boucle `for`, sans poll | 114,6 | −147,7 | la boucle coûte ~4 cyc/nop (inc, test, saut) |
+| **120 nop déroulés, sans poll** | — | **hashs invalides en masse** | le moteur n'avait pas fini |
+
+Le troisième essai tranche : avec 120 cycles d'attente le moteur SHA du S3 **n'a pas terminé**, et le
+garde-fou `VALIDATION` a immédiatement craché des milliers de `HW sha256 esp32s3 bug detected`. Les
+177 et 163 cycles d'attente mesurés dans le profil par phase ne sont donc pas gonflés par la
+contention de bus : c'est le **temps réel de l'opération** sur ce silicium.
+
+La technique de NMMiner reste valable sur ESP32 classic (moteur différent, 53 nop suffisent chez eux)
+mais **ne se transpose pas au S3**. Code retiré, rien à garder.
+
+Note d'exploitation : le firmware fautif inonde le port série de messages de mismatch au boot, ce qui
+empêche esptool de synchroniser son stub (`Unable to verify flash chip connection`). Le flash passe
+avec `--no-stub` :
+
+```
+esptool.py --chip esp32s3 --port /dev/ttyACM0 --baud 115200 --no-stub write_flash -z \
+  --flash_mode dio --flash_freq 80m --flash_size 16MB \
+  0x0000 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin
+```
+
+Retour vérifié : 304,1 kH/s (khs_hw 262,3 + khs_sw 42,0), mismatch=0.
