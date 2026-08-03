@@ -36,6 +36,7 @@ bool screenNoteInput(void);      //true if the press only woke the screen
 
 //race/gheop8: per-path hash counters + HW/SW mismatch count (telemetry split)
 extern volatile uint32_t race_hashes_hw;
+extern volatile float race_khs_hw, race_khs_sw;
 extern volatile uint32_t race_hashes_sw;
 extern volatile uint32_t race_sha_mismatch;
 void runMiner(void *name);

@@ -79,6 +79,11 @@ static void healthWatchdog(void *unused);
 #if defined(NERDMINER_REPORT_URL)
 static void telemetryTask(void *unused);
 #endif
+#if RACE_WEBUI
+//Experiment: does a permanent web server cost hashrate? Its own task, low priority,
+//pinned to core 1 so it can never contend with the HW miner on core 0.
+static void webUiTask(void *unused);
+#endif
 
 //void runMonitor(void *name);
 
@@ -265,6 +270,9 @@ void setup()
 #if defined(NERDMINER_REPORT_URL)
   xTaskCreate(telemetryTask, "Telemetry", 8192, NULL, 1, NULL);
 #endif
+#if RACE_WEBUI
+  xTaskCreatePinnedToCore(webUiTask, "WebUI", 4096, NULL, 1, NULL, 1);
+#endif
 }
 
 void app_error_fault_handler(void *arg) {
@@ -400,6 +408,45 @@ static void telemetryTask(void *unused) {
     lastHw = hwNow; lastSw = swNow;
     lastPostMs = nowMs;
     postTelemetry(hs);
+  }
+}
+#endif
+
+#if RACE_WEBUI
+#include <WebServer.h>
+static WebServer s_web(80);
+
+static void webUiHandleRoot(void)
+{
+  char body[640];
+  snprintf(body, sizeof(body),
+    "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>"
+    "<title>NerdMiner</title>"
+    "<style>body{font-family:system-ui;margin:2rem;line-height:1.6}"
+    "td:first-child{padding-right:1.5rem;color:#666}</style>"
+    "<h2>%s</h2><table>"
+    "<tr><td>hashrate</td><td>%.1f kH/s (hw %.1f + sw %.1f)</td></tr>"
+    "<tr><td>temperature</td><td>%.1f C</td></tr>"
+    "<tr><td>uptime</td><td>%lu s</td></tr>"
+    "<tr><td>RSSI</td><td>%d dBm</td></tr>"
+    "<tr><td>free heap</td><td>%u</td></tr>"
+    "<tr><td>sha mismatch</td><td>%u</td></tr>"
+    "<tr><td>version</td><td>%s</td></tr></table>",
+    Settings.BtcWallet,
+    (double)(race_khs_hw + race_khs_sw), (double)race_khs_hw, (double)race_khs_sw,
+    temperatureRead(), (unsigned long)(millis()/1000), (int)WiFi.RSSI(),
+    (unsigned)ESP.getFreeHeap(), (unsigned)race_sha_mismatch, CURRENT_VERSION);
+  s_web.send(200, "text/html", body);
+}
+
+static void webUiTask(void *unused)
+{
+  s_web.on("/", webUiHandleRoot);
+  s_web.begin();
+  Serial.println("WebUI listening on port 80");
+  for (;;) {
+    s_web.handleClient();
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 #endif
