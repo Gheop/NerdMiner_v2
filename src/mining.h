@@ -27,6 +27,13 @@ void runStratumWorker(void *name);
 extern volatile bool ota_active;
 extern volatile uint32_t g_lastPoolJobMs;
 
+//race: screen auto-off. The screen costs 1.07% of hashrate on a healthy panel
+//(measured 301.48 -> 304.70 kH/s on worker1), so it sleeps when nobody is looking.
+//Any button press wakes it and the first press is consumed by the wake-up.
+extern volatile bool g_screen_on;
+extern volatile uint32_t g_lastInputMs;
+bool screenNoteInput(void);      //true if the press only woke the screen
+
 //race/gheop8: per-path hash counters + HW/SW mismatch count (telemetry split)
 extern volatile uint32_t race_hashes_hw;
 extern volatile uint32_t race_hashes_sw;

@@ -77,6 +77,27 @@ uint64_t upTime = 0;
 volatile uint32_t race_hashes_hw = 0;
 //race: times a miner task found its queue empty and had to sleep (starvation)
 volatile uint32_t race_starved_hw = 0, race_starved_sw = 0;
+
+#ifndef SCREEN_TIMEOUT_S
+#define SCREEN_TIMEOUT_S 0          //0 disables the feature
+#endif
+volatile bool g_screen_on = true;
+volatile uint32_t g_lastInputMs = 0;
+
+//Called from the button callbacks. Returns with the screen on and the idle timer
+//restarted. The caller checks whether the press was consumed by the wake-up.
+bool screenNoteInput(void)
+{
+  g_lastInputMs = millis();
+#if SCREEN_TIMEOUT_S && !RACE_HEADLESS
+  if (!g_screen_on) {
+    alternateScreenState();
+    g_screen_on = true;
+    return true;              //this press woke the screen, do not also act on it
+  }
+#endif
+  return false;
+}
 volatile uint32_t race_hashes_sw = 0;
 volatile uint32_t race_sha_mismatch = 0;
 
@@ -1403,10 +1424,22 @@ void runMonitor(void *name)
 
 #if !RACE_HEADLESS
       {
-        static uint32_t s_draw_skip = 0;
-        if (++s_draw_skip >= RACE_DRAW_EVERY_S) {
-          s_draw_skip = 0;
-          drawCurrentScreen(mElapsed);
+#if SCREEN_TIMEOUT_S
+        //Blank after SCREEN_TIMEOUT_S without a button press. Cutting the backlight
+        //alone would save nothing: the cost is the redraw and its SPI traffic, so
+        //stop drawing too.
+        if (g_screen_on && (uint32_t)(millis() - g_lastInputMs) > (SCREEN_TIMEOUT_S * 1000UL)) {
+          alternateScreenState();
+          g_screen_on = false;
+          Serial.printf("Screen off after %ds idle\n", SCREEN_TIMEOUT_S);
+        }
+#endif
+        if (g_screen_on) {
+          static uint32_t s_draw_skip = 0;
+          if (++s_draw_skip >= RACE_DRAW_EVERY_S) {
+            s_draw_skip = 0;
+            drawCurrentScreen(mElapsed);
+          }
         }
       }
 #endif
