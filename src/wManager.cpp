@@ -278,8 +278,14 @@ void init_WifiManager()
             Settings.PoolAddress = pool_text_box.getValue();
             Settings.PoolPort = atoi(port_text_box_num.getValue());
             strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
+            Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
             strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
+<<<<<<< HEAD
             Settings.Timezone = atof(time_text_box_num.getValue());
+=======
+            Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
+            Settings.Timezone = atoi(time_text_box_num.getValue());
+>>>>>>> fix/pool-password-overflow
             //Serial.println(save_stats_to_nvs.getValue());
             Settings.saveStats = (strncmp(save_stats_to_nvs.getValue(), "T", 1) == 0);
             #if defined(ESP32_2432S028R) || defined(ESP32_2432S028_2USB)
@@ -317,8 +323,14 @@ void init_WifiManager()
                 Settings.PoolAddress = pool_text_box.getValue();
                 Settings.PoolPort = atoi(port_text_box_num.getValue());
                 strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
+                Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
                 strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
+<<<<<<< HEAD
                 Settings.Timezone = atof(time_text_box_num.getValue());
+=======
+                Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
+                Settings.Timezone = atoi(time_text_box_num.getValue());
+>>>>>>> fix/pool-password-overflow
                 // Serial.println(save_stats_to_nvs.getValue());
                 Settings.saveStats = (strncmp(save_stats_to_nvs.getValue(), "T", 1) == 0);
                 #if defined(ESP32_2432S028R) || defined(ESP32_2432S028_2USB)
@@ -358,11 +370,13 @@ void init_WifiManager()
 
         // Copy the string value
         strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
+        Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
         Serial.print("poolPassword: ");
         Serial.println(Settings.PoolPassword);
 
         // Copy the string value
         strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
+        Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
         Serial.print("btcString: ");
         Serial.println(Settings.BtcWallet);
 
@@ -400,11 +414,13 @@ void init_WifiManager()
 
     // Copy the string value
     strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
+    Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
     Serial.print("poolPassword: ");
     Serial.println(Settings.PoolPassword);
 
     // Copy the string value
     strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
+    Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
     Serial.print("btcString: ");
     Serial.println(Settings.BtcWallet);
 
