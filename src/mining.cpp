@@ -647,7 +647,7 @@ void runStratumWorker(void *name) {
 void minerWorkerSw(void * task_id)
 {
   unsigned int miner_id = (uint32_t)task_id;
-  Serial.printf("[MINER] %d Started minerWorkerSw Task!\n", miner_id);
+  Serial.printf("[MINER] %d Started minerWorkerSw Task on core %d!\n", miner_id, xPortGetCoreID());
 
   std::shared_ptr<JobRequest> job;
   std::shared_ptr<JobResult> result;
@@ -846,7 +846,7 @@ static inline void nerd_sha_hal_wait_idle()
 void minerWorkerHw(void * task_id)
 {
   unsigned int miner_id = (uint32_t)task_id;
-  Serial.printf("[MINER] %d Started minerWorkerHw Task!\n", miner_id);
+  Serial.printf("[MINER] %d Started minerWorkerHw Task on core %d!\n", miner_id, xPortGetCoreID());
 
   std::shared_ptr<JobRequest> job;
   std::shared_ptr<JobResult> result;

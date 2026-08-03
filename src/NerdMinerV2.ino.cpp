@@ -215,7 +215,14 @@ void setup()
     xTaskCreate(minerWorkerHw, "MinerHw-0", 3584, (void*)0, 3, &minerTask1); // Reduced for ESP32 classic
     //xTaskCreate(minerWorkerSw, "MinerSw-0", 5000, (void*)0, 1, &minerTask1); // Reduced for ESP32 classic
     #else
+    #if RACE_PIN_CORES
+    //Experiment: the HW miner produces most of the hashrate but lands on core 1 by
+    //default, alongside Monitor (prio 5), Stratum (prio 4) and loopTask (prio 4).
+    //Pin it to core 0 and give the SW miner the busy core instead.
+    xTaskCreatePinnedToCore(minerWorkerHw, "MinerHw-0", 4096, (void*)0, 3, &minerTask1, 0);
+    #else
     xTaskCreate(minerWorkerHw, "MinerHw-0", 4096, (void*)0, 3, &minerTask1);
+    #endif
     #endif
   #else
     #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -230,7 +237,11 @@ void setup()
   #if defined(CONFIG_IDF_TARGET_ESP32)
   xTaskCreate(minerWorkerSw, "MinerSw-1", 5000, (void*)1, 1, &minerTask2); // Reduced for ESP32 classic
   #else
+  #if RACE_PIN_CORES
+  xTaskCreatePinnedToCore(minerWorkerSw, "MinerSw-1", 6000, (void*)1, 1, &minerTask2, 1);
+  #else
   xTaskCreate(minerWorkerSw, "MinerSw-1", 6000, (void*)1, 1, &minerTask2);
+  #endif
   #endif
   esp_task_wdt_add(minerTask2);
 #endif
