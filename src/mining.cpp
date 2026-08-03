@@ -75,6 +75,8 @@ uint64_t upTime = 0;
 
 //race/gheop8: per-path hash counters (read by telemetry to split HW vs SW rate)
 volatile uint32_t race_hashes_hw = 0;
+//race: times a miner task found its queue empty and had to sleep (starvation)
+volatile uint32_t race_starved_hw = 0, race_starved_sw = 0;
 volatile uint32_t race_hashes_sw = 0;
 volatile uint32_t race_sha_mismatch = 0;
 
@@ -1019,10 +1021,10 @@ void minerWorkerHw(void * task_id)
             uint64_t official = (uint64_t)Mhashes * 1000000ULL + hashes;
             double khs_off = s_prev_official ? (double)(official - s_prev_official) / dt : 0.0;
             s_prev_official = official;
-            Serial.printf("Rate: khs_hw=%.1f khs_sw=%.1f total=%.1f official=%.1f mismatch=%u\n",
+            Serial.printf("Rate: khs_hw=%.1f khs_sw=%.1f total=%.1f official=%.1f mismatch=%u starvedHw=%u\n",
               (double)(hw_now - s_race_rate_hw) / dt, (double)(sw_now - s_race_rate_sw) / dt,
               (double)((hw_now - s_race_rate_hw) + (sw_now - s_race_rate_sw)) / dt,
-              khs_off, (unsigned)race_sha_mismatch);
+              khs_off, (unsigned)race_sha_mismatch, (unsigned)race_starved_hw);
           }
         }
         s_race_rate_ms = now_ms; s_race_rate_hw = hw_now; s_race_rate_sw = sw_now;
@@ -1258,8 +1260,10 @@ void minerWorkerHw(void * task_id)
         }
       }
       esp_sha_unlock_engine(SHA2_256);
-    } else
+    } else {
+      race_starved_hw++;
       vTaskDelay(2 / portTICK_PERIOD_MS);
+    }
 
     esp_task_wdt_reset();
   }
