@@ -1202,6 +1202,23 @@ void resetStat() {
     saveStat();
 }
 
+//Screen blanking (BitMaker-hub/NerdMiner_v2#625). Cutting the backlight alone saves
+//nothing, as #766 shows: the cost is the redraw and its SPI traffic, so the draw call
+//is skipped as well. Any button press wakes the screen and restarts the timer.
+static bool s_screen_on = true;
+static uint32_t s_last_input_ms = 0;
+
+bool screenNoteInput(void)
+{
+  s_last_input_ms = millis();
+  if (!s_screen_on) {
+    alternateScreenState();
+    s_screen_on = true;
+    return true;              //this press woke the screen, do not also act on it
+  }
+  return false;
+}
+
 void runMonitor(void *name)
 {
 
@@ -1242,7 +1259,14 @@ void runMonitor(void *name)
         upTime ++;
       }
 
-      drawCurrentScreen(mElapsed);
+      if (Settings.ScreenTimeoutS > 0 && s_screen_on &&
+          (uint32_t)(millis() - s_last_input_ms) > (uint32_t)Settings.ScreenTimeoutS * 1000UL) {
+        alternateScreenState();
+        s_screen_on = false;
+        Serial.printf("Screen off after %ds idle\n", Settings.ScreenTimeoutS);
+      }
+      if (s_screen_on)
+        drawCurrentScreen(mElapsed);
 
       // Monitor state when hashrate is 0.0
       if (elapsedKHs == 0)

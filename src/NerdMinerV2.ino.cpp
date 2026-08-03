@@ -56,6 +56,13 @@ const char* ntpServer = "pool.ntp.org";
 //void runMonitor(void *name);
 
 
+//Any button press restarts the screen idle timer. When the screen is asleep the
+//press is consumed by waking it, which is what a user expects.
+static void onButtonNextScreen()  { if (screenNoteInput()) return; switchToNextScreen(); }
+static void onButtonRotation()    { if (screenNoteInput()) return; alternateScreenRotation(); }
+static void onButtonScreenState() { if (screenNoteInput()) return; alternateScreenState(); }
+static void onButtonReset()       { screenNoteInput(); reset_configuration(); }
+
 /********* INIT *****/
 void setup()
 {
@@ -87,22 +94,22 @@ void setup()
   // Setup the buttons
   #if defined(PIN_BUTTON_1) && !defined(PIN_BUTTON_2) //One button device
     button1.setPressMs(5*SECOND_MS);
-    button1.attachClick(switchToNextScreen);
-    button1.attachDoubleClick(alternateScreenRotation);
-    button1.attachLongPressStart(reset_configuration);
-    button1.attachMultiClick(alternateScreenState);
+    button1.attachClick(onButtonNextScreen);
+    button1.attachDoubleClick(onButtonRotation);
+    button1.attachLongPressStart(onButtonReset);
+    button1.attachMultiClick(onButtonScreenState);
   #endif
 
   #if defined(PIN_BUTTON_1) && defined(PIN_BUTTON_2) //Button 1 of two button device
     button1.setPressMs(5*SECOND_MS);
-    button1.attachClick(alternateScreenState);
-    button1.attachDoubleClick(alternateScreenRotation);
+    button1.attachClick(onButtonScreenState);
+    button1.attachDoubleClick(onButtonRotation);
   #endif
 
   #if defined(PIN_BUTTON_2) //Button 2 of two button device
     button2.setPressMs(5*SECOND_MS);
-    button2.attachClick(switchToNextScreen);
-    button2.attachLongPressStart(reset_configuration);
+    button2.attachClick(onButtonNextScreen);
+    button2.attachLongPressStart(onButtonReset);
   #endif
 
   /******** INIT NERDMINER ************/

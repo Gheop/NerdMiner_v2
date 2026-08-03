@@ -19,6 +19,9 @@
 #define DEFAULT_TIMEZONE	2
 #define DEFAULT_SAVESTATS	false
 #define DEFAULT_INVERTCOLORS	false
+//Seconds of inactivity before the screen blanks. 0 keeps it always on, which is
+//the behaviour of every release since v1.6.02.
+#define DEFAULT_SCREENTIMEOUT	0
 #define DEFAULT_BRIGHTNESS	250
 
 // JSON config files
@@ -35,6 +38,7 @@
 #define JSON_KEY_STATS2NV	"SaveStats"
 #define JSON_KEY_INVCOLOR	"invertColors"
 #define JSON_KEY_BRIGHTNESS	"Brightness"
+#define JSON_KEY_SCREENTIMEOUT	"ScreenTimeout"
 
 // JSON config file SPIFFS (different for backward compatibility with existing devices)
 #define JSON_SPIFFS_KEY_POOLURL		"poolString"
@@ -45,6 +49,7 @@
 #define JSON_SPIFFS_KEY_STATS2NV	"saveStatsToNVS"
 #define JSON_SPIFFS_KEY_INVCOLOR	"invertColors"
 #define JSON_SPIFFS_KEY_BRIGHTNESS	"Brightness"
+#define JSON_SPIFFS_KEY_SCREENTIMEOUT	"ScreenTimeout"
 
 // settings
 struct TSettings
@@ -59,6 +64,7 @@ struct TSettings
 	bool saveStats{ DEFAULT_SAVESTATS };
 	bool invertColors{ DEFAULT_INVERTCOLORS };
 	int Brightness{ DEFAULT_BRIGHTNESS };
+	int ScreenTimeoutS{ DEFAULT_SCREENTIMEOUT };
 };
 
 #endif // _STORAGE_H_

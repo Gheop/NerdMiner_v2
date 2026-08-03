@@ -18,6 +18,10 @@
 
 void runMonitor(void *name);
 
+//Screen blanking: call from every button callback. Returns true when the press only
+//woke the screen, so the caller should not also act on it.
+bool screenNoteInput(void);
+
 void runStratumWorker(void *name);
 void runMiner(void *name);
 
