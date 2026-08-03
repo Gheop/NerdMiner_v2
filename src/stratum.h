@@ -21,7 +21,9 @@ typedef struct {
     String extranonce2;
     int extranonce2_size;
     char wName[80];
-    char wPass[20];
+    //Sized like Settings.PoolPassword, which the config portal lets the user fill
+    //with up to 80 characters (BitMaker-hub/NerdMiner_v2, wPass used to be 20).
+    char wPass[80];
 } mining_subscribe;
 
 typedef struct {
