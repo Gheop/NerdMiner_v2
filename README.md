@@ -9,6 +9,7 @@ own branch off upstream `main`, so a maintainer can take them individually.
 | Submitted nonce was truncated when it had a leading zero, losing 1 share in 16 (and a found block with the same odds) | [#750](https://github.com/BitMaker-hub/NerdMiner_v2/issues/750) | `fix/nonce-padding-750` |
 | `checkValid()` compared against stack garbage and could loop forever | [#797](https://github.com/BitMaker-hub/NerdMiner_v2/issues/797) | `fix/checkvalid-797` |
 | Stats API queried public-pool.io regardless of the configured pool, on 22 of 24 boards | [#710](https://github.com/BitMaker-hub/NerdMiner_v2/issues/710), [#792](https://github.com/BitMaker-hub/NerdMiner_v2/issues/792), [#795](https://github.com/BitMaker-hub/NerdMiner_v2/issues/795) | `fix/pool-api-url-ignored` |
+| USB CDC writes blocked the stratum task: **19% hashrate** lost on S3/C3 boards plugged into a host | [#810](https://github.com/BitMaker-hub/NerdMiner_v2/issues/810) | `fix/usb-cdc-blocks-mining` |
 | Coinbase over 255 bytes silently truncated, so the pool rejected every share | [#809](https://github.com/BitMaker-hub/NerdMiner_v2/issues/809) | `fix/coinbase-truncation` |
 | ckpool-style pools reported 0 workers and no best difficulty | [#739](https://github.com/BitMaker-hub/NerdMiner_v2/issues/739) | `fix/ckpool-stats-format-739` |
 | Keepalive kept asking for the hardcoded default difficulty instead of the negotiated one | [#805](https://github.com/BitMaker-hub/NerdMiner_v2/issues/805) | `fix/keepalive-difficulty-805` |
