@@ -85,6 +85,17 @@ void setup()
 #endif //MONITOR_SPEED
 
   Serial.setTimeout(0);
+#if ARDUINO_USB_CDC_ON_BOOT
+  //Native USB CDC: HWCDC sets tx_timeout_ms to 100 as soon as a host enumerates the
+  //port, and write() then waits that long whenever the ring buffer is full. A board
+  //plugged into a computer that never opens the serial monitor fills that buffer and
+  //every log line blocks the task that emitted it. The stratum task logs on each job
+  //and is also the one feeding work to the miners, so it stops refilling the queue and
+  //the miners idle. Measured on a T-Display-S3: 304 kH/s with a reader attached,
+  //255 kH/s without, and the die runs 2 degrees cooler because it is doing less work.
+  //Zero makes writes non-blocking: logs are dropped instead of stalling mining.
+  Serial.setTxTimeoutMs(0);
+#endif
   delay(SECOND_MS/10);
 
   esp_task_wdt_init(WDT_MINER_TIMEOUT, true);
