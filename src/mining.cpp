@@ -1128,8 +1128,24 @@ static inline void nerd_sha_ll_read_digest(void* ptr)
 static struct { uint32_t total, wait, n; } s_cbench;
 #endif
 
+//Chaque tour de polling lit SHA_BUSY sur le bus APB, ce qui coute bien plus qu'un
+//cycle. Le moteur prend environ 91 cycles par bloc (mesure RACE_CLASSIC_BENCH), donc
+//attendre d'abord en nop puis poller supprime plusieurs lectures inutiles. C'est ce
+//que fait le firmware NMMiner sur cette puce. RACE_NOP_WAIT est le nombre de nop.
+//Sous-estimer est sans danger : le poll qui suit rattrape.
+#if RACE_NOP_WAIT
+#define RACE_NOP8  __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;nop")
+static inline void nerd_sha_nop_delay(void)
+{
+    for (int i = 0; i < (RACE_NOP_WAIT / 8); ++i) RACE_NOP8;
+}
+#endif
+
 static inline void nerd_sha_hal_wait_idle()
 {
+#if RACE_NOP_WAIT
+    nerd_sha_nop_delay();
+#endif
 #if RACE_SHA_DIRECT_READ
     while (_DPORT_REG_READ(SHA_256_BUSY_REG))
     {}
