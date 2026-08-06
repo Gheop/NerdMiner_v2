@@ -31,7 +31,7 @@ static uint32_t s_race_rate_ms = 0, s_race_rate_hw = 0, s_race_rate_sw = 0;
 static uint32_t s_race_rate_jobs = 0;
 #endif
 
-#if RACE_BENCH
+#if RACE_BENCH || RACE_CLASSIC_BENCH
 #include <xtensa/hal.h>
 //race/gheop8: cycle accumulators for the HW hot loop, printed every RACE_BENCH_JOBS jobs.
 //RACE_CC() must be a full compiler barrier: without it GCC reorders the ccount
@@ -1124,6 +1124,10 @@ static inline void nerd_sha_ll_read_digest(void* ptr)
 //call8 avec rotation de fenetre a chaque tour, pour lire un simple registre d'etat.
 //RACE_SHA_DIRECT_READ passe en lecture brute. Le second coeur fait du SHA logiciel
 //et ne touche jamais ces registres ; VALIDATION verifie chaque hash pendant les essais.
+#if RACE_CLASSIC_BENCH
+static struct { uint32_t total, wait, n; } s_cbench;
+#endif
+
 static inline void nerd_sha_hal_wait_idle()
 {
 #if RACE_SHA_DIRECT_READ
@@ -1135,6 +1139,34 @@ static inline void nerd_sha_hal_wait_idle()
 #endif
 }
 
+#if RACE_ASM_FILL
+//gcc materialise l'adresse absolue de chaque mot avec un l32r, soit trois
+//instructions par ecriture. Ici la base est chargee une fois et les seize mots
+//partent en offsets immediats, comme le fait SparkMiner.
+static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text)
+{
+    __asm__ __volatile__(
+        "l32i.n  a8,  %0, 0\n\t"   "s32i.n  a8,  %1, 0\n\t"
+        "l32i.n  a9,  %0, 4\n\t"   "s32i.n  a9,  %1, 4\n\t"
+        "l32i.n  a10, %0, 8\n\t"   "s32i.n  a10, %1, 8\n\t"
+        "l32i.n  a11, %0, 12\n\t"  "s32i.n  a11, %1, 12\n\t"
+        "l32i.n  a8,  %0, 16\n\t"  "s32i.n  a8,  %1, 16\n\t"
+        "l32i.n  a9,  %0, 20\n\t"  "s32i.n  a9,  %1, 20\n\t"
+        "l32i.n  a10, %0, 24\n\t"  "s32i.n  a10, %1, 24\n\t"
+        "l32i.n  a11, %0, 28\n\t"  "s32i.n  a11, %1, 28\n\t"
+        "l32i.n  a8,  %0, 32\n\t"  "s32i.n  a8,  %1, 32\n\t"
+        "l32i.n  a9,  %0, 36\n\t"  "s32i.n  a9,  %1, 36\n\t"
+        "l32i.n  a10, %0, 40\n\t"  "s32i.n  a10, %1, 40\n\t"
+        "l32i.n  a11, %0, 44\n\t"  "s32i.n  a11, %1, 44\n\t"
+        "l32i.n  a8,  %0, 48\n\t"  "s32i.n  a8,  %1, 48\n\t"
+        "l32i.n  a9,  %0, 52\n\t"  "s32i.n  a9,  %1, 52\n\t"
+        "l32i.n  a10, %0, 56\n\t"  "s32i.n  a10, %1, 56\n\t"
+        "l32i.n  a11, %0, 60\n\t"  "s32i.n  a11, %1, 60\n\t"
+        :
+        : "r"(input_text), "r"((uint32_t *)(SHA_TEXT_BASE))
+        : "a8", "a9", "a10", "a11", "memory");
+}
+#else
 static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text)
 {
     uint32_t *data_words = (uint32_t *)input_text;
@@ -1157,6 +1189,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text)
     reg_addr_buf[14] = data_words[14];
     reg_addr_buf[15] = data_words[15];
 }
+#endif
 
 static inline void nerd_sha_ll_fill_text_block_sha256_upper(const void *input_text, uint32_t nonce)
 {
@@ -1266,28 +1299,53 @@ void minerWorkerHw(void * task_id)
       }
       for (uint32_t n = 0; n < job->nonce_count; ++n)
       {
-        //((uint32_t*)(sha_buffer+64+12))[0] = __builtin_bswap32(job->nonce_start+n);
-
-        //sha_hal_hash_block(SHA2_256, s_test_buffer, 64/4, true);
-        //nerd_sha_hal_wait_idle();
+#if RACE_CLASSIC_BENCH
+        //Profil : cycles passes a attendre le moteur contre cycles CPU. Determine
+        //s'il reste quelque chose a gagner ou si le silicium fixe le plafond.
+        uint32_t cb0 = RACE_CC();
+#endif
         nerd_sha_ll_fill_text_block_sha256(sha_buffer);
         sha_ll_start_block(SHA2_256);
 
         //sha_hal_hash_block(SHA2_256, s_test_buffer+64, 64/4, false);
+#if RACE_CLASSIC_BENCH
+        { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
+#else
         nerd_sha_hal_wait_idle();
+#endif
         nerd_sha_ll_fill_text_block_sha256_upper(sha_buffer+64, job->nonce_start+n);
         sha_ll_continue_block(SHA2_256);
 
+#if RACE_CLASSIC_BENCH
+        { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
+#else
         nerd_sha_hal_wait_idle();
+#endif
         sha_ll_load(SHA2_256);
 
-        //sha_hal_hash_block(SHA2_256, interResult, 64/4, true);
+#if RACE_CLASSIC_BENCH
+        { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
+#else
         nerd_sha_hal_wait_idle();
+#endif
         nerd_sha_ll_fill_text_block_sha256_double();
         sha_ll_start_block(SHA2_256);
 
+#if RACE_CLASSIC_BENCH
+        { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
+#else
         nerd_sha_hal_wait_idle();
+#endif
         sha_ll_load(SHA2_256);
+#if RACE_CLASSIC_BENCH
+        s_cbench.total += RACE_CC()-cb0; s_cbench.n++;
+        if (s_cbench.n >= 200000) {
+          Serial.printf("ClassicBench: %u cyc/nonce dont %u en attente moteur (%.0f%%)\n",
+            s_cbench.total/s_cbench.n, s_cbench.wait/s_cbench.n,
+            100.0*s_cbench.wait/s_cbench.total);
+          s_cbench.total=0; s_cbench.wait=0; s_cbench.n=0;
+        }
+#endif
         if (nerd_sha_ll_read_digest_swap_if(hash))
         {
           //~5 per second
