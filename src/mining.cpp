@@ -1205,6 +1205,10 @@ void minerWorkerHw(void * task_id)
 
   while (1)
   {
+    //Idle during an OTA so the SHA engine lock is released: esp_image_verify()
+    //needs the engine to check the uploaded image, and without this the upload
+    //completes then fails at verification. The S3 path already had this guard.
+    if (ota_active) { vTaskDelay(100 / portTICK_PERIOD_MS); continue; }
     {
       std::lock_guard<std::mutex> lock(s_job_mutex);
       if (result)

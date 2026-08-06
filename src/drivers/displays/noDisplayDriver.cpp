@@ -7,7 +7,14 @@
 #include "wManager.h"
 
 extern monitor_data mMonitor;
-bool ledOn = true;
+//Etat de la LED au demarrage. En NM_hashing elle bascule toutes les 100 ms, ce qui
+//est penible dans une piece sombre. -D LED_DEFAULT_ON=false la laisse eteinte ;
+//le bouton (alternateScreenState) la rallume toujours ponctuellement pour
+//identifier une carte dans un rack.
+#ifndef LED_DEFAULT_ON
+#define LED_DEFAULT_ON true
+#endif
+bool ledOn = LED_DEFAULT_ON;
 
 void noDisplay_Init(void)
 {
