@@ -1072,23 +1072,35 @@ void minerWorkerHw(void * task_id)
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
 
+//RACE_SHA_DIRECT_READ: lire SHA_TEXT sans la sequence DPORT.
+//La sequence protege d'un bug de concurrence entre les deux coeurs sur le bus
+//DPORT, et chaque DPORT_SEQUENCE_REG_READ est un appel de fonction (call8) : 8 par
+//nonce rien que pour lire le digest. Ici le second coeur fait du SHA logiciel et ne
+//touche jamais ces registres, et les interruptions sont deja masquees, donc la
+//lecture directe est sure. VALIDATION verifie chaque hash pendant les essais.
+#if RACE_SHA_DIRECT_READ
+#define SHA_READ(addr) _DPORT_REG_READ(addr)
+#else
+#define SHA_READ(addr) DPORT_SEQUENCE_REG_READ(addr)
+#endif
+
 static inline bool nerd_sha_ll_read_digest_swap_if(void* ptr)
 {
   DPORT_INTERRUPT_DISABLE();
-  uint32_t fin = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 7 * 4);
+  uint32_t fin = SHA_READ(SHA_TEXT_BASE + 7 * 4);
   if ( (uint32_t)(fin & 0xFFFF) != 0)
   {
     DPORT_INTERRUPT_RESTORE();
     return false;
   }
   ((uint32_t*)ptr)[7] = __builtin_bswap32(fin);
-  ((uint32_t*)ptr)[0] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 0 * 4));
-  ((uint32_t*)ptr)[1] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 1 * 4));
-  ((uint32_t*)ptr)[2] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 2 * 4));
-  ((uint32_t*)ptr)[3] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 3 * 4));
-  ((uint32_t*)ptr)[4] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 4 * 4));
-  ((uint32_t*)ptr)[5] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 5 * 4));
-  ((uint32_t*)ptr)[6] = __builtin_bswap32(DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 6 * 4));
+  ((uint32_t*)ptr)[0] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 0 * 4));
+  ((uint32_t*)ptr)[1] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 1 * 4));
+  ((uint32_t*)ptr)[2] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 2 * 4));
+  ((uint32_t*)ptr)[3] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 3 * 4));
+  ((uint32_t*)ptr)[4] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 4 * 4));
+  ((uint32_t*)ptr)[5] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 5 * 4));
+  ((uint32_t*)ptr)[6] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 6 * 4));
   DPORT_INTERRUPT_RESTORE();
   return true;
 }
@@ -1096,21 +1108,31 @@ static inline bool nerd_sha_ll_read_digest_swap_if(void* ptr)
 static inline void nerd_sha_ll_read_digest(void* ptr)
 {
   DPORT_INTERRUPT_DISABLE();
-  ((uint32_t*)ptr)[0] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 0 * 4);
-  ((uint32_t*)ptr)[1] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 1 * 4);
-  ((uint32_t*)ptr)[2] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 2 * 4);
-  ((uint32_t*)ptr)[3] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 3 * 4);
-  ((uint32_t*)ptr)[4] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 4 * 4);
-  ((uint32_t*)ptr)[5] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 5 * 4);
-  ((uint32_t*)ptr)[6] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 6 * 4);
-  ((uint32_t*)ptr)[7] = DPORT_SEQUENCE_REG_READ(SHA_TEXT_BASE + 7 * 4);
+  ((uint32_t*)ptr)[0] = SHA_READ(SHA_TEXT_BASE + 0 * 4);
+  ((uint32_t*)ptr)[1] = SHA_READ(SHA_TEXT_BASE + 1 * 4);
+  ((uint32_t*)ptr)[2] = SHA_READ(SHA_TEXT_BASE + 2 * 4);
+  ((uint32_t*)ptr)[3] = SHA_READ(SHA_TEXT_BASE + 3 * 4);
+  ((uint32_t*)ptr)[4] = SHA_READ(SHA_TEXT_BASE + 4 * 4);
+  ((uint32_t*)ptr)[5] = SHA_READ(SHA_TEXT_BASE + 5 * 4);
+  ((uint32_t*)ptr)[6] = SHA_READ(SHA_TEXT_BASE + 6 * 4);
+  ((uint32_t*)ptr)[7] = SHA_READ(SHA_TEXT_BASE + 7 * 4);
   DPORT_INTERRUPT_RESTORE();
 }
 
+//DPORT_REG_READ se resout en appel de fonction (esp_dport_access_sequence_reg_read)
+//quand le contournement DPORT est actif. Dans une boucle de polling, cela coute un
+//call8 avec rotation de fenetre a chaque tour, pour lire un simple registre d'etat.
+//RACE_SHA_DIRECT_READ passe en lecture brute. Le second coeur fait du SHA logiciel
+//et ne touche jamais ces registres ; VALIDATION verifie chaque hash pendant les essais.
 static inline void nerd_sha_hal_wait_idle()
 {
+#if RACE_SHA_DIRECT_READ
+    while (_DPORT_REG_READ(SHA_256_BUSY_REG))
+    {}
+#else
     while (DPORT_REG_READ(SHA_256_BUSY_REG))
     {}
+#endif
 }
 
 static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text)
