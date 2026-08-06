@@ -1228,6 +1228,27 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper(const void *input_te
 #endif
 }
 
+#if RACE_ASM_FILL
+//Bloc 2, meme principe que le bloc 1 : une seule base, offsets immediats.
+static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *input_text, uint32_t nonce)
+{
+    const uint32_t be_nonce = __builtin_bswap32(nonce);
+    __asm__ __volatile__(
+        "l32i.n  a8,  %0, 0\n\t"      "s32i.n  a8,  %1, 0\n\t"
+        "l32i.n  a9,  %0, 4\n\t"      "s32i.n  a9,  %1, 4\n\t"
+        "l32i.n  a10, %0, 8\n\t"      "s32i.n  a10, %1, 8\n\t"
+        "s32i.n  %2,  %1, 12\n\t"
+        "movi    a11, 0x80000000\n\t" "s32i.n  a11, %1, 16\n\t"
+        "movi.n  a8,  0\n\t"
+        "s32i.n  a8,  %1, 20\n\t"     "s32i.n  a8,  %1, 24\n\t"
+        "s32i.n  a8,  %1, 28\n\t"     "s32i.n  a8,  %1, 32\n\t"
+        "movi    a9,  0x280\n\t"      "s32i.n  a9,  %1, 60\n\t"
+        :
+        : "r"(input_text), "r"((uint32_t *)(SHA_TEXT_BASE)), "r"(be_nonce)
+        : "a8", "a9", "a10", "a11", "memory");
+}
+#endif
+
 static inline void nerd_sha_ll_fill_text_block_sha256_double()
 {
     uint32_t *reg_addr_buf = (uint32_t *)(SHA_TEXT_BASE);
@@ -1313,7 +1334,11 @@ void minerWorkerHw(void * task_id)
 #else
         nerd_sha_hal_wait_idle();
 #endif
+#if RACE_ASM_FILL
+        nerd_sha_ll_fill_text_block_sha256_upper_asm(sha_buffer+64, job->nonce_start+n);
+#else
         nerd_sha_ll_fill_text_block_sha256_upper(sha_buffer+64, job->nonce_start+n);
+#endif
         sha_ll_continue_block(SHA2_256);
 
 #if RACE_CLASSIC_BENCH
