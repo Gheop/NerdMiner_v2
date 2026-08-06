@@ -1147,16 +1147,15 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper(const void *input_te
     reg_addr_buf[3]  = __builtin_bswap32(nonce);
 #if 1
     reg_addr_buf[4]  = 0x80000000;
+    //5..7 are overwritten by the digest on the LOAD that follows, so they must be
+    //rewritten here. 9..14 stay zero for the whole job: both this padding and the
+    //one in _double() put zeros there, and the engine never touches them. They are
+    //zeroed once in minerWorkerHw instead, saving 6 APB writes per nonce here and
+    //6 more in _double(). Same trick the S3 path already uses.
     reg_addr_buf[5]  = 0x00000000;
     reg_addr_buf[6]  = 0x00000000;
     reg_addr_buf[7]  = 0x00000000;
     reg_addr_buf[8]  = 0x00000000;
-    reg_addr_buf[9]  = 0x00000000;
-    reg_addr_buf[10] = 0x00000000;
-    reg_addr_buf[11] = 0x00000000;
-    reg_addr_buf[12] = 0x00000000;
-    reg_addr_buf[13] = 0x00000000;
-    reg_addr_buf[14] = 0x00000000;
     reg_addr_buf[15] = 0x00000280;
 #else
     reg_addr_buf[4]  = data_words[4];
@@ -1190,12 +1189,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256_double()
     reg_addr_buf[7]  = data_words[7];
 #endif
     reg_addr_buf[8]  = 0x80000000;
-    reg_addr_buf[9]  = 0x00000000;
-    reg_addr_buf[10] = 0x00000000;
-    reg_addr_buf[11] = 0x00000000;
-    reg_addr_buf[12] = 0x00000000;
-    reg_addr_buf[13] = 0x00000000;
-    reg_addr_buf[14] = 0x00000000;
+    //9..14 kept at zero for the whole job, see _upper()
     reg_addr_buf[15] = 0x00000100;
 }
 
@@ -1238,6 +1232,12 @@ void minerWorkerHw(void * task_id)
       memcpy(sha_buffer, job->sha_buffer, 80);
 
       esp_sha_lock_engine(SHA2_256);
+      //SHA_TEXT[9..14] are zero in both paddings used below and the engine never
+      //writes them, so they are set once here instead of twice per nonce.
+      {
+        uint32_t *tb = (uint32_t *)(SHA_TEXT_BASE);
+        for (int i = 9; i <= 14; ++i) tb[i] = 0x00000000;
+      }
       for (uint32_t n = 0; n < job->nonce_count; ++n)
       {
         //((uint32_t*)(sha_buffer+64+12))[0] = __builtin_bswap32(job->nonce_start+n);

@@ -128,8 +128,29 @@ void reset_configuration()
     ESP.restart();
 }
 
+//One-shot WiFi seeding. Build with -D WIFI_SEED_SSID / -D WIFI_SEED_PWD, flash once,
+//then reflash without them: the credentials live in NVS from then on, exactly as if
+//they had been typed into the portal. Do NOT ship a build with these defined: at boot
+//WiFi.SSID() is empty until NVS loads, so a permanent seed overwrites whatever the
+//user configured, on every reboot.
+#if defined(WIFI_SEED_SSID)
+static void seedWifiCredentialsOnce()
+{
+    if (WiFi.SSID().length() > 0) return;      //already provisioned
+    Serial.println("Seeding WiFi credentials into NVS (one-shot build)");
+    WiFi.persistent(true);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SEED_SSID, WIFI_SEED_PWD);
+    for (int i = 0; i < 40 && WiFi.status() != WL_CONNECTED; i++) delay(250);
+    Serial.printf("Seed result: %s\n", WiFi.status() == WL_CONNECTED ? "connected" : "failed");
+}
+#endif
+
 void init_WifiManager()
 {
+#if defined(WIFI_SEED_SSID)
+    seedWifiCredentialsOnce();
+#endif
 #ifdef MONITOR_SPEED
     Serial.begin(MONITOR_SPEED);
 #else
