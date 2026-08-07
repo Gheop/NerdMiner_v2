@@ -1156,7 +1156,14 @@ static inline void nerd_sha_hal_wait_idle()
 #if RACE_NOP_WAIT
     nerd_sha_nop_delay();
 #endif
-#if RACE_SHA_DIRECT_READ
+#if RACE_ASM_FILL
+    //BUSY est a SHA_TEXT_BASE+0x9C. La boucle garde l'adresse dans un registre au
+    //lieu de la rematerialiser, et le poll tient en deux instructions.
+    __asm__ __volatile__(
+        "1: l32i  a8, %0, 0x9C\n\t"
+        "   bnez  a8, 1b\n\t"
+        : : "r"((uint32_t *)(SHA_TEXT_BASE)) : "a8", "memory");
+#elif RACE_SHA_DIRECT_READ
     while (_DPORT_REG_READ(SHA_256_BUSY_REG))
     {}
 #else
