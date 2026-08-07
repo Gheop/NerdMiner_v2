@@ -809,7 +809,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256_inter()
 
 static inline void nerd_sha_ll_read_digest(void* ptr)
 {
-  DPORT_INTERRUPT_DISABLE();
+  SHA_RD_ENTER();
   ((uint32_t*)ptr)[0] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 0 * 4);
   ((uint32_t*)ptr)[1] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 1 * 4);
   ((uint32_t*)ptr)[2] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 2 * 4);
@@ -1084,13 +1084,24 @@ void minerWorkerHw(void * task_id)
 #define SHA_READ(addr) DPORT_SEQUENCE_REG_READ(addr)
 #endif
 
+//Le masquage d'interruptions n'existe que pour la sequence DPORT : elle lit deux
+//registres et exige que rien ne s'intercale. En lecture brute il ne protege plus rien
+//et coute deux acces registre par nonce, sur le chemin le plus chaud du firmware.
+#if RACE_SHA_DIRECT_READ
+#define SHA_RD_ENTER() do {} while (0)
+#define SHA_RD_LEAVE() do {} while (0)
+#else
+#define SHA_RD_ENTER() DPORT_INTERRUPT_DISABLE()
+#define SHA_RD_LEAVE() DPORT_INTERRUPT_RESTORE()
+#endif
+
 static inline bool nerd_sha_ll_read_digest_swap_if(void* ptr)
 {
-  DPORT_INTERRUPT_DISABLE();
+  SHA_RD_ENTER();
   uint32_t fin = SHA_READ(SHA_TEXT_BASE + 7 * 4);
   if ( (uint32_t)(fin & 0xFFFF) != 0)
   {
-    DPORT_INTERRUPT_RESTORE();
+    SHA_RD_LEAVE();
     return false;
   }
   ((uint32_t*)ptr)[7] = __builtin_bswap32(fin);
@@ -1101,13 +1112,13 @@ static inline bool nerd_sha_ll_read_digest_swap_if(void* ptr)
   ((uint32_t*)ptr)[4] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 4 * 4));
   ((uint32_t*)ptr)[5] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 5 * 4));
   ((uint32_t*)ptr)[6] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + 6 * 4));
-  DPORT_INTERRUPT_RESTORE();
+  SHA_RD_LEAVE();
   return true;
 }
 
 static inline void nerd_sha_ll_read_digest(void* ptr)
 {
-  DPORT_INTERRUPT_DISABLE();
+  SHA_RD_ENTER();
   ((uint32_t*)ptr)[0] = SHA_READ(SHA_TEXT_BASE + 0 * 4);
   ((uint32_t*)ptr)[1] = SHA_READ(SHA_TEXT_BASE + 1 * 4);
   ((uint32_t*)ptr)[2] = SHA_READ(SHA_TEXT_BASE + 2 * 4);
@@ -1116,7 +1127,7 @@ static inline void nerd_sha_ll_read_digest(void* ptr)
   ((uint32_t*)ptr)[5] = SHA_READ(SHA_TEXT_BASE + 5 * 4);
   ((uint32_t*)ptr)[6] = SHA_READ(SHA_TEXT_BASE + 6 * 4);
   ((uint32_t*)ptr)[7] = SHA_READ(SHA_TEXT_BASE + 7 * 4);
-  DPORT_INTERRUPT_RESTORE();
+  SHA_RD_LEAVE();
 }
 
 //DPORT_REG_READ se resout en appel de fonction (esp_dport_access_sequence_reg_read)
@@ -1173,6 +1184,12 @@ static inline void nerd_sha_hal_wait_idle()
 }
 
 #if RACE_ASM_FILL
+//Note d'ordonnancement : aucune barriere memw ici. Une ecriture de commande est
+//postee, donc en theorie la lecture de BUSY qui suit peut la doubler et voir le
+//moteur encore au repos. En pratique les instructions de raccord entre blocs asm
+//suffisent, ce que verifie le test a reponse connue joue au demarrage. Mettre un
+//memw apres chaque commande rend l'ordre explicite mais coute 4 % (643 -> 618 kH/s).
+//Si le KAT echoue apres un changement de compilateur, c'est la premiere piste.
 //gcc materialise l'adresse absolue de chaque mot avec un l32r, soit trois
 //instructions par ecriture. Ici la base est chargee une fois et les seize mots
 //partent en offsets immediats, comme le fait SparkMiner.
@@ -1403,6 +1420,142 @@ static inline void nerd_sha_ll_fill_text_block_sha256_double()
     reg_addr_buf[15] = 0x00000100;
 }
 
+#if RACE_ASM_NONCE
+//Tout le corps d'un nonce en un seul bloc assembleur. Decoupe en cinq blocs separes,
+//gcc rematerialise la base SHA_TEXT a chaque bloc et repasse par du C entre eux ;
+//ici la base est chargee une fois, les registres de commande sont atteints par une
+//seconde base (base+0x90) qui autorise la forme etroite de s32i, et chaque attente
+//tient en deux instructions. C'est la structure de SparkMiner.
+//Retourne SHA_TEXT[7] brut : le C ne relit le digest complet que sur un candidat.
+static inline uint32_t nerd_sha_nonce_asm(const void *in, uint32_t be_nonce)
+{
+    uint32_t fin;
+    __asm__ __volatile__(
+        "l32i.n  a8,  %[in], 0\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
+        "l32i.n  a8,  %[in], 4\n\t"  "s32i.n  a8,  %[sb], 4\n\t"
+        "l32i.n  a8,  %[in], 8\n\t"  "s32i.n  a8,  %[sb], 8\n\t"
+        "l32i.n  a8,  %[in], 12\n\t"  "s32i.n  a8,  %[sb], 12\n\t"
+        "l32i.n  a8,  %[in], 16\n\t"  "s32i.n  a8,  %[sb], 16\n\t"
+        "l32i.n  a8,  %[in], 20\n\t"  "s32i.n  a8,  %[sb], 20\n\t"
+        "l32i.n  a8,  %[in], 24\n\t"  "s32i.n  a8,  %[sb], 24\n\t"
+        "l32i.n  a8,  %[in], 28\n\t"  "s32i.n  a8,  %[sb], 28\n\t"
+        "l32i.n  a8,  %[in], 32\n\t"  "s32i.n  a8,  %[sb], 32\n\t"
+        "l32i.n  a8,  %[in], 36\n\t"  "s32i.n  a8,  %[sb], 36\n\t"
+        "l32i.n  a8,  %[in], 40\n\t"  "s32i.n  a8,  %[sb], 40\n\t"
+        "l32i.n  a8,  %[in], 44\n\t"  "s32i.n  a8,  %[sb], 44\n\t"
+        "l32i.n  a8,  %[in], 48\n\t"  "s32i.n  a8,  %[sb], 48\n\t"
+        "l32i.n  a8,  %[in], 52\n\t"  "s32i.n  a8,  %[sb], 52\n\t"
+        "l32i.n  a8,  %[in], 56\n\t"  "s32i.n  a8,  %[sb], 56\n\t"
+        "l32i.n  a8,  %[in], 60\n\t"  "s32i.n  a8,  %[sb], 60\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"   //START bloc 1
+        //Bloc 2 ecrit pendant que le moteur calcule le bloc 1.
+        "l32i.n  a8,  %[in], 64\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
+        "l32i.n  a8,  %[in], 68\n\t"  "s32i.n  a8,  %[sb], 4\n\t"
+        "l32i.n  a8,  %[in], 72\n\t"  "s32i.n  a8,  %[sb], 8\n\t"
+        "s32i.n  %[nonce], %[sb], 12\n\t"
+        "movi    a10, 0x80000000\n\t" "s32i.n  a10, %[sb], 16\n\t"
+        "movi.n  a9, 0\n\t"
+        "s32i.n  a9,  %[sb], 20\n\t"
+        "s32i.n  a9,  %[sb], 24\n\t"
+        "s32i.n  a9,  %[sb], 28\n\t"
+        "s32i.n  a9,  %[sb], 32\n\t"
+        "s32i.n  a9,  %[sb], 36\n\t"
+        "s32i.n  a9,  %[sb], 40\n\t"
+        "s32i.n  a9,  %[sb], 44\n\t"
+        "s32i.n  a9,  %[sb], 48\n\t"
+        "s32i.n  a9,  %[sb], 52\n\t"
+        "s32i.n  a9,  %[sb], 56\n\t"
+        "movi    a10, 0x280\n\t"      "s32i.n  a10, %[sb], 60\n\t"
+        "1: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 1b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x94\n\t"  "memw\n\t"   //CONTINUE bloc 2
+        "2: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 2b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"   //LOAD digest
+        "3: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 3b\n\t"
+#if RACE_ASM_DBG1
+        "l32i.n  %[fin], %[sb], 0\n\t"
+        "j       9f\n\t"
+#endif
+        //Apres un SHA_LOAD, BUSY retombe AVANT que les huit mots du digest soient
+        //reellement dans SHA_TEXT. Sans cette temporisation le second sha part sur un
+        //digest incomplet : hash faux, de facon deterministe. La version en blocs
+        //separes passait par hasard, les instructions de raccord suffisaient.
+        //Second sha : le digest est deja dans TEXT[0..7], il reste le padding.
+        "movi    a10, 0x80000000\n\t" "s32i.n  a10, %[sb], 32\n\t"
+        "movi    a10, 0x100\n\t"      "s32i.n  a10, %[sb], 60\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"   //START bloc 3
+        "4: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 4b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"   //LOAD
+        "5: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 5b\n\t"
+        "l32i.n  %[fin], %[sb], 28\n\t"
+        "9:\n\t"
+        : [fin] "=&r" (fin)
+        : [sb] "r" ((uint32_t *)(SHA_TEXT_BASE)), [in] "r" (in), [nonce] "r" (be_nonce)
+        : "a8", "a9", "a10", "memory");
+    return fin;
+}
+#endif
+
+#ifdef VALIDATION
+//Test a reponse connue, joue une fois au demarrage sur la sequence reellement
+//compilee : bloc 125552, en-tete et nonce publics, digest connu. Verdict immediat en
+//une ligne de log, la ou attendre le compteur de desaccords demande des minutes de
+//statistiques. Le padding corrompu du 7 aout aurait ete vu en vingt secondes.
+static void nerd_classic_kat(void)
+{
+  static const uint8_t kat[80] = {
+    0x00,0x00,0x00,0x01,0xab,0x02,0xcd,0x81,0x8b,0x9e,0x56,0x7e,0xe2,0x17,0x93,0xcd,
+    0xde,0xf2,0x99,0xfe,0xb2,0x9a,0xd4,0x44,0xa4,0x1b,0x85,0xb8,0x00,0x00,0x08,0xa3,
+    0x00,0x00,0x00,0x00,0xc2,0xb6,0x20,0xe3,0x75,0x8d,0xfc,0xff,0x8b,0xdb,0x23,0x04,
+    0xae,0x42,0xb9,0x1e,0x1e,0x95,0x0e,0x71,0xaf,0xf7,0x97,0xd7,0xb0,0x92,0x88,0xfc,
+    0x2b,0x12,0xfc,0xf1,0x4d,0xd7,0xf5,0xc7,0x1a,0x44,0xb9,0xf2,0x95,0x46,0xa1,0x42 };
+  static const uint32_t want[8] = {
+    0x1dbd981f,0xe6985776,0xb644b173,0xa4d0385d,0xdc1aa2a8,0x29688d1e,0x00000000,0x00000000 };
+  //L'en-tete doit etre lu depuis la RAM comme en production : depuis la flash les
+  //chargements passent par le cache et sont plus lents, ce qui donne au moteur un
+  //repit que la boucle reelle n'a pas. Un KAT plus lent que la production valide des
+  //sequences qui echouent ensuite, c'est arrive le 7 aout.
+  uint8_t hdr[80] __attribute__((aligned(4)));
+  memcpy(hdr, kat, sizeof(hdr));
+  uint32_t *tb = (uint32_t *)(SHA_TEXT_BASE);
+  for (int i = 9; i <= 14; ++i) tb[i] = 0;
+#if RACE_ASM_NONCE
+  nerd_sha_nonce_asm(hdr, __builtin_bswap32(0x9546a142));
+#else
+  nerd_sha_ll_fill_text_block_sha256(hdr);
+#if !RACE_ASM_FILL
+  sha_ll_start_block(SHA2_256);
+#endif
+  nerd_sha_hal_wait_idle();
+  nerd_sha_ll_fill_text_block_sha256_upper(hdr+64, 0x9546a142);
+  sha_ll_continue_block(SHA2_256);
+  nerd_sha_hal_wait_idle();
+  sha_ll_load(SHA2_256);
+  nerd_sha_hal_wait_idle();
+  nerd_sha_ll_fill_text_block_sha256_double();
+  sha_ll_start_block(SHA2_256);
+  nerd_sha_hal_wait_idle();
+  sha_ll_load(SHA2_256);
+  nerd_sha_hal_wait_idle();
+#endif
+  bool ok = true;
+  for (int i = 0; i < 8; ++i)
+    if (_DPORT_REG_READ(SHA_TEXT_BASE + i*4) != want[i]) ok = false;
+  if (ok) {
+    Serial.println("KAT: ok (bloc 125552)");
+  } else {
+    //Une seule ecriture serie : les autres taches loggent en parallele et
+    //decoupaient la ligne en morceaux illisibles.
+    char line[160];
+    int k = snprintf(line, sizeof(line), "KAT: ECHEC got=");
+    for (int i = 0; i < 8; ++i)
+      k += snprintf(line+k, sizeof(line)-k, "%08x", (unsigned)_DPORT_REG_READ(SHA_TEXT_BASE + i*4));
+    snprintf(line+k, sizeof(line)-k, " attendu=1dbd981fe6985776...");
+    Serial.println(line);
+  }
+  for (int i = 9; i <= 14; ++i) tb[i] = 0;
+}
+#endif
+
 void minerWorkerHw(void * task_id)
 {
   unsigned int miner_id = (uint32_t)task_id;
@@ -1466,6 +1619,9 @@ void minerWorkerHw(void * task_id)
 #endif
 
       esp_sha_lock_engine(SHA2_256);
+#ifdef VALIDATION
+      { static bool kat_done = false; if (!kat_done) { kat_done = true; nerd_classic_kat(); } }
+#endif
       //SHA_TEXT[9..14] are zero in both paddings used below and the engine never
       //writes them, so they are set once here instead of twice per nonce.
       {
@@ -1480,7 +1636,9 @@ void minerWorkerHw(void * task_id)
         //s'il reste quelque chose a gagner ou si le silicium fixe le plafond.
         uint32_t cb0 = RACE_CC();
 #endif
-#if RACE_PREFILL
+#if RACE_ASM_NONCE
+        const uint32_t fin_w7 = nerd_sha_nonce_asm(sha_buffer, __builtin_bswap32(job->nonce_start+n));
+#elif RACE_PREFILL
         //Variante recouvrement : les ecritures qui ne dependent pas du resultat en
         //cours partent pendant que le moteur calcule, au lieu d'attendre leur tour.
         nerd_sha_ll_fill_text_block_sha256(sha_buffer);          //bloc 1 + START
@@ -1552,13 +1710,15 @@ void minerWorkerHw(void * task_id)
 #else
         sha_ll_load(SHA2_256);
 #endif
-#endif  //RACE_PREFILL
+#endif  //RACE_ASM_NONCE / RACE_PREFILL
+#if !RACE_ASM_NONCE
         //Le LOAD copie le digest dans SHA_TEXT et n'est pas instantane. La lecture
         //DPORT brute est assez rapide pour passer devant : sans cette attente on lit
         //le contenu precedent des registres, ce que la validation voit tout de suite
         //(1969 desaccords en 4 minutes contre 1). La sequence DPORT d'origine etait
         //assez lente pour masquer la course.
         nerd_sha_hal_wait_idle();
+#endif
 #if RACE_CLASSIC_BENCH
         s_cbench.total += RACE_CC()-cb0; s_cbench.n++;
         if (s_cbench.n >= 200000) {
@@ -1568,7 +1728,13 @@ void minerWorkerHw(void * task_id)
           s_cbench.total=0; s_cbench.wait=0; s_cbench.n=0;
         }
 #endif
+#if RACE_ASM_NONCE
+        //Le bloc assembleur a deja lu le mot 7 : on ne relit le digest complet que
+        //quand les 16 bits de poids faible sont nuls, soit environ 9 fois par seconde.
+        if (__builtin_expect((fin_w7 & 0xFFFF) == 0, 0) && nerd_sha_ll_read_digest_swap_if(hash))
+#else
         if (nerd_sha_ll_read_digest_swap_if(hash))
+#endif
         {
 #ifdef VALIDATION
           //nerd_sha256d_baked a son propre filtre 16 bits et ne remplit doubleHash que
