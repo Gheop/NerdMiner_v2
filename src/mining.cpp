@@ -1280,6 +1280,17 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *inpu
 #endif
 
 #if RACE_ASM_FILL
+//LOAD depuis la base : sha_ll_load() recharge l'adresse a chaque appel, et il y en a
+//deux par nonce.
+static inline void nerd_sha_ll_load_asm(void)
+{
+    __asm__ __volatile__(
+        "movi.n  a8, 1\n\t"  "s32i  a8, %0, 0x98\n\t"
+        : : "r"((uint32_t *)(SHA_TEXT_BASE)) : "a8", "memory");
+}
+#endif
+
+#if RACE_ASM_FILL
 //Padding du second sha256 puis START, depuis la meme base.
 static inline void nerd_sha_ll_fill_text_block_sha256_double_asm(void)
 {
@@ -1392,7 +1403,11 @@ void minerWorkerHw(void * task_id)
 #else
         nerd_sha_hal_wait_idle();
 #endif
+#if RACE_ASM_FILL
+        nerd_sha_ll_load_asm();
+#else
         sha_ll_load(SHA2_256);
+#endif
 
 #if RACE_CLASSIC_BENCH
         { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
@@ -1411,7 +1426,11 @@ void minerWorkerHw(void * task_id)
 #else
         nerd_sha_hal_wait_idle();
 #endif
+#if RACE_ASM_FILL
+        nerd_sha_ll_load_asm();
+#else
         sha_ll_load(SHA2_256);
+#endif
 #if RACE_CLASSIC_BENCH
         s_cbench.total += RACE_CC()-cb0; s_cbench.n++;
         if (s_cbench.n >= 200000) {
