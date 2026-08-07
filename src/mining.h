@@ -7,6 +7,9 @@
 #define MAX_NONCE       25000000U
 #define TARGET_NONCE    471136297U
 #define DEFAULT_DIFFICULTY  0.00015
+// Fallback pool IP used when DNS resolution fails (WiFi.hostByName returns 0/0.0.0.0).
+// Comment out to disable the fallback (upstream/generic behaviour).
+#define POOL_FALLBACK_IP        "38.51.144.232"   // public-pool.io
 #define KEEPALIVE_TIME_ms       30000
 #define POOLINACTIVITY_TIME_ms  60000
 
@@ -22,6 +25,24 @@ void runStratumWorker(void *name);
 
 //Set true by the OTA onStart hook so the miners idle and release the SHA engine.
 extern volatile bool ota_active;
+extern volatile uint32_t g_lastPoolJobMs;
+
+//race: screen auto-off. The screen costs 1.07% of hashrate on a healthy panel
+//(measured 301.48 -> 304.70 kH/s on one board), so it sleeps when nobody is looking.
+//Any button press wakes it and the first press is consumed by the wake-up.
+extern volatile bool g_screen_on;
+extern volatile uint32_t g_lastInputMs;
+bool screenNoteInput(void);      //true if the press only woke the screen
+
+//per-path hash counters + HW/SW mismatch count (telemetry split)
+extern volatile uint32_t race_hashes_hw;
+extern volatile float race_khs_hw, race_khs_sw;
+extern volatile uint32_t race_hashes_sw;
+extern volatile uint32_t race_sha_mismatch;
+//Resultat du test a reponse connue joue au demarrage : -1 pas encore joue, 0 echec,
+//1 succes. Remonte dans la telemetrie parce que les cartes S3 sont au rack, sans
+//port serie : un autotest dont on ne peut pas lire le verdict ne sert a rien.
+extern volatile int8_t race_kat_state;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);
