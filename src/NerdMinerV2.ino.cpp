@@ -69,6 +69,13 @@ TaskHandle_t monitorTask = NULL, stratumTask = NULL;
 
 
 /********* INIT *****/
+//Screen auto-off (SCREEN_TIMEOUT_S): any press wakes the panel, and that first press
+//is consumed by the wake-up instead of also switching screen. Without these wrappers
+//the panel would blank and never come back.
+static void onButtonNextScreen()   { if (screenNoteInput()) return; switchToNextScreen(); }
+static void onButtonRotation()     { if (screenNoteInput()) return; alternateScreenRotation(); }
+static void onButtonScreenState()  { if (screenNoteInput()) return; alternateScreenState(); }
+
 void setup()
 {
       //Init pin 15 to eneble 5V external power (LilyGo bug)
@@ -110,21 +117,21 @@ void setup()
   // Setup the buttons
   #if defined(PIN_BUTTON_1) && !defined(PIN_BUTTON_2) //One button device
     button1.setPressMs(5*SECOND_MS);
-    button1.attachClick(switchToNextScreen);
-    button1.attachDoubleClick(alternateScreenRotation);
+    button1.attachClick(onButtonNextScreen);
+    button1.attachDoubleClick(onButtonRotation);
     button1.attachLongPressStart(reset_configuration);
-    button1.attachMultiClick(alternateScreenState);
+    button1.attachMultiClick(onButtonScreenState);
   #endif
 
   #if defined(PIN_BUTTON_1) && defined(PIN_BUTTON_2) //Button 1 of two button device
     button1.setPressMs(5*SECOND_MS);
-    button1.attachClick(alternateScreenState);
-    button1.attachDoubleClick(alternateScreenRotation);
+    button1.attachClick(onButtonScreenState);
+    button1.attachDoubleClick(onButtonRotation);
   #endif
 
   #if defined(PIN_BUTTON_2) //Button 2 of two button device
     button2.setPressMs(5*SECOND_MS);
-    button2.attachClick(switchToNextScreen);
+    button2.attachClick(onButtonNextScreen);
     button2.attachLongPressStart(reset_configuration);
   #endif
 
