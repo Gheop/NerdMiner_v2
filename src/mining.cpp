@@ -1134,10 +1134,20 @@ static struct { uint32_t total, wait, n; } s_cbench;
 //que fait le firmware NMMiner sur cette puce. RACE_NOP_WAIT est le nombre de nop.
 //Sous-estimer est sans danger : le poll qui suit rattrape.
 #if RACE_NOP_WAIT
-#define RACE_NOP8  __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;nop")
+//Nops DEROULES, sans boucle : une boucle for coute environ 4 cycles par nop
+//(increment, test, saut) et masque completement ce qu'on cherche a mesurer.
+#define NOP8   "nop;nop;nop;nop;nop;nop;nop;nop\n\t"
 static inline void nerd_sha_nop_delay(void)
 {
-    for (int i = 0; i < (RACE_NOP_WAIT / 8); ++i) RACE_NOP8;
+#if   RACE_NOP_WAIT == 16
+    __asm__ __volatile__(NOP8 NOP8);
+#elif RACE_NOP_WAIT == 32
+    __asm__ __volatile__(NOP8 NOP8 NOP8 NOP8);
+#elif RACE_NOP_WAIT == 48
+    __asm__ __volatile__(NOP8 NOP8 NOP8 NOP8 NOP8 NOP8);
+#else
+    __asm__ __volatile__(NOP8 NOP8 NOP8 NOP8 NOP8 NOP8 NOP8 NOP8);
+#endif
 }
 #endif
 
