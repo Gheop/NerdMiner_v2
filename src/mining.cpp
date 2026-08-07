@@ -1495,6 +1495,91 @@ static inline uint32_t nerd_sha_nonce_asm(const void *in, uint32_t be_nonce)
 }
 #endif
 
+#if RACE_ASM_LOOP
+//Boucle complete sur les nonces en assembleur : le C ne revient qu'a la sortie, sur
+//un candidat ou en fin de tranche. Chaque bloc asm declare un clobber memoire, donc
+//sortir vers le C a chaque nonce forcait gcc a tout relire ; ici rien ne sort.
+//
+//Le nonce est tenu sous sa forme grand-boutiste, celle qui part directement dans
+//SHA_TEXT[3]. Deux nonces consecutifs ne different que par leur octet de poids
+//faible, qui devient l'octet de poids fort une fois inverse : incrementer revient a
+//ajouter 0x01000000, valable sur 256 tours. Le C rappelle la fonction tous les 256
+//nonces avec une nouvelle base, ce qui evite tout echange d'octets dans la boucle
+//(le Xtensa LX6 n'a pas d'instruction pour ca).
+//
+//Le compteur est decroissant et passe en entree-sortie : une variante avec un index
+//et un drapeau de sortie separes epuisait l'allocateur de registres. Retourne le
+//nombre de nonces restants ; sur un candidat le digest est encore dans SHA_TEXT et
+//le C le reconnait en relisant le mot 7, une lecture par tranche.
+static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0, uint32_t count)
+{
+    uint32_t remaining = count;
+    __asm__ __volatile__(
+        "mov     a13, %[n0]\n\t"
+        "movi    a12, 0x01000000\n\t"
+    "0:\n\t"
+        "l32i.n  a8,  %[in], 0\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
+        "l32i.n  a8,  %[in], 4\n\t"  "s32i.n  a8,  %[sb], 4\n\t"
+        "l32i.n  a8,  %[in], 8\n\t"  "s32i.n  a8,  %[sb], 8\n\t"
+        "l32i.n  a8,  %[in], 12\n\t"  "s32i.n  a8,  %[sb], 12\n\t"
+        "l32i.n  a8,  %[in], 16\n\t"  "s32i.n  a8,  %[sb], 16\n\t"
+        "l32i.n  a8,  %[in], 20\n\t"  "s32i.n  a8,  %[sb], 20\n\t"
+        "l32i.n  a8,  %[in], 24\n\t"  "s32i.n  a8,  %[sb], 24\n\t"
+        "l32i.n  a8,  %[in], 28\n\t"  "s32i.n  a8,  %[sb], 28\n\t"
+        "l32i.n  a8,  %[in], 32\n\t"  "s32i.n  a8,  %[sb], 32\n\t"
+        "l32i.n  a8,  %[in], 36\n\t"  "s32i.n  a8,  %[sb], 36\n\t"
+        "l32i.n  a8,  %[in], 40\n\t"  "s32i.n  a8,  %[sb], 40\n\t"
+        "l32i.n  a8,  %[in], 44\n\t"  "s32i.n  a8,  %[sb], 44\n\t"
+        "l32i.n  a8,  %[in], 48\n\t"  "s32i.n  a8,  %[sb], 48\n\t"
+        "l32i.n  a8,  %[in], 52\n\t"  "s32i.n  a8,  %[sb], 52\n\t"
+        "l32i.n  a8,  %[in], 56\n\t"  "s32i.n  a8,  %[sb], 56\n\t"
+        "l32i.n  a8,  %[in], 60\n\t"  "s32i.n  a8,  %[sb], 60\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"
+        //Bloc 2 pendant que le moteur calcule le bloc 1.
+        "l32i.n  a8,  %[in], 64\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
+        "l32i.n  a8,  %[in], 68\n\t"  "s32i.n  a8,  %[sb], 4\n\t"
+        "l32i.n  a8,  %[in], 72\n\t"  "s32i.n  a8,  %[sb], 8\n\t"
+        "s32i.n  a13, %[sb], 12\n\t"
+        "movi    a10, 0x80000000\n\t" "s32i.n  a10, %[sb], 16\n\t"
+        "movi.n  a9, 0\n\t"
+        "s32i.n  a9,  %[sb], 20\n\t"
+        "s32i.n  a9,  %[sb], 24\n\t"
+        "s32i.n  a9,  %[sb], 28\n\t"
+        "s32i.n  a9,  %[sb], 32\n\t"
+        "s32i.n  a9,  %[sb], 36\n\t"
+        "s32i.n  a9,  %[sb], 40\n\t"
+        "s32i.n  a9,  %[sb], 44\n\t"
+        "s32i.n  a9,  %[sb], 48\n\t"
+        "s32i.n  a9,  %[sb], 52\n\t"
+        "s32i.n  a9,  %[sb], 56\n\t"
+        "movi    a11, 0x280\n\t"      "s32i.n  a11, %[sb], 60\n\t"
+        "1: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 1b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x94\n\t"  "memw\n\t"
+        "2: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 2b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"
+        //Travail utile pendant le LOAD : preparer le padding du second sha.
+        "movi    a11, 0x100\n\t"
+        "3: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 3b\n\t"
+        "s32i.n  a10, %[sb], 32\n\t"  "s32i.n  a11, %[sb], 60\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"
+        //Pendant le second sha : avancer le nonce et decrementer le compteur.
+        "add     a13, a13, a12\n\t"
+        "addi    %[cnt], %[cnt], -1\n\t"
+        "4: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 4b\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"
+        "5: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 5b\n\t"
+        //Rejet precoce : seuls les hashs dont les 16 bits bas sont nuls sortent.
+        "l16ui   a8, %[sb], 28\n\t"
+        "beqz.n  a8, 9f\n\t"
+        "bnez    %[cnt], 0b\n\t"
+    "9:\n\t"
+        : [cnt] "+r" (remaining)
+        : [sb] "r" ((uint32_t *)(SHA_TEXT_BASE)), [in] "r" (in), [n0] "r" (be_nonce0)
+        : "a8", "a9", "a10", "a11", "a12", "a13", "memory");
+    return remaining;
+}
+#endif
+
 #ifdef VALIDATION
 //Test a reponse connue, joue une fois au demarrage sur la sequence reellement
 //compilee : bloc 125552, en-tete et nonce publics, digest connu. Verdict immediat en
@@ -1518,7 +1603,12 @@ static void nerd_classic_kat(void)
   memcpy(hdr, kat, sizeof(hdr));
   uint32_t *tb = (uint32_t *)(SHA_TEXT_BASE);
   for (int i = 9; i <= 14; ++i) tb[i] = 0;
-#if RACE_ASM_NONCE
+#if RACE_ASM_LOOP
+  //67 tours qui finissent sur le nonce connu : verifie l'enchainement, pas seulement
+  //une iteration isolee. 0x9546a100 + 0x42 = 0x9546a142 sans retenue sur l'octet de
+  //poids faible, donc l'increment en forme grand-boutiste reste valable.
+  nerd_sha_nonce_run_asm(hdr, __builtin_bswap32(0x9546a100), 0x43);
+#elif RACE_ASM_NONCE
   nerd_sha_nonce_asm(hdr, __builtin_bswap32(0x9546a142));
 #else
   nerd_sha_ll_fill_text_block_sha256(hdr);
@@ -1628,6 +1718,46 @@ void minerWorkerHw(void * task_id)
         uint32_t *tb = (uint32_t *)(SHA_TEXT_BASE);
         for (int i = 9; i <= 14; ++i) tb[i] = 0x00000000;
       }
+      const uint32_t nonce_start = job->nonce_start;
+      const uint32_t nonce_count = job->nonce_count;
+#if RACE_ASM_LOOP
+      //La boucle vit dans l'assembleur, par tranches de 256 nonces : au-dela, la forme
+      //grand-boutiste du nonce ne s'incremente plus par un simple ajout constant.
+      uint32_t n = 0;
+      while (n < nonce_count)
+      {
+        //La tranche ne doit jamais franchir une frontiere de 256 : au-dela, l'octet
+        //de poids faible du nonce deborde et l'increment de 0x01000000 sur la forme
+        //grand-boutiste ne correspond plus. Apres un candidat, n avance d'une valeur
+        //quelconque, donc la base n'est plus alignee : c'est le cas qui fait tout
+        //derailler si on decoupe naivement par 256.
+        const uint32_t base = nonce_start + n;
+        uint32_t chunk = 256 - (base & 0xFF);
+        if (chunk > nonce_count - n) chunk = nonce_count - n;
+        n += chunk - nerd_sha_nonce_run_asm(sha_buffer, __builtin_bswap32(base), chunk);
+        if (nerd_sha_ll_read_digest_swap_if(hash))
+        {
+          const uint32_t nonce_hit = nonce_start + n - 1;
+#ifdef VALIDATION
+          ((uint32_t*)(hdr+64+12))[0] = nonce_hit;
+          if (!nerd_sha256d_baked(digest_mid_v, hdr+64, bake, doubleHash))
+            race_sha_mismatch++;
+          else
+            for (int i = 0; i < 32; ++i)
+              if (hash[i] != doubleHash[i]) { race_sha_mismatch++; break; }
+#endif
+          double diff_hash = diff_from_target(hash);
+          if (diff_hash > result->difficulty && isSha256Valid(hash))
+          {
+            result->difficulty = diff_hash;
+            result->nonce = nonce_hit;
+            memcpy(result->hash, hash, sizeof(hash));
+          }
+        }
+        if (s_working_current_job_id != job_in_work) break;
+      }
+      result->nonce_count = n;
+#else
       for (uint32_t n = 0; n < job->nonce_count; ++n)
       {
 
@@ -1776,6 +1906,7 @@ void minerWorkerHw(void * task_id)
           break;
         }
       }
+#endif
       esp_sha_unlock_engine(SHA2_256);
     } else {
       race_starved_hw++;
