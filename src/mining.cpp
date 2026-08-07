@@ -1279,6 +1279,20 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *inpu
 }
 #endif
 
+#if RACE_ASM_FILL
+//Padding du second sha256 puis START, depuis la meme base.
+static inline void nerd_sha_ll_fill_text_block_sha256_double_asm(void)
+{
+    __asm__ __volatile__(
+        "movi    a8, 0x80000000\n\t"  "s32i.n  a8, %0, 32\n\t"
+        "movi    a9, 0x100\n\t"       "s32i.n  a9, %0, 60\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %0, 0x90\n\t"   //START
+        :
+        : "r"((uint32_t *)(SHA_TEXT_BASE))
+        : "a8", "a9", "memory");
+}
+#endif
+
 static inline void nerd_sha_ll_fill_text_block_sha256_double()
 {
     uint32_t *reg_addr_buf = (uint32_t *)(SHA_TEXT_BASE);
@@ -1385,8 +1399,12 @@ void minerWorkerHw(void * task_id)
 #else
         nerd_sha_hal_wait_idle();
 #endif
+#if RACE_ASM_FILL
+        nerd_sha_ll_fill_text_block_sha256_double_asm();
+#else
         nerd_sha_ll_fill_text_block_sha256_double();
         sha_ll_start_block(SHA2_256);
+#endif
 
 #if RACE_CLASSIC_BENCH
         { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
