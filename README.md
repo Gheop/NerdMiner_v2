@@ -1,8 +1,114 @@
-# This fork: upstream plus a set of verified fixes
+# NerdMiner v2, fork: verified fixes and a rebuilt hardware SHA path
 
-This branch (`all-fixes`) is `BitMaker-hub/NerdMiner_v2` `main` with every fix below
-merged on top. Flash it and you get all of them at once. Each one also lives on its
-own branch off upstream `main`, so a maintainer can take them individually.
+This branch (`all-fixes`) is `BitMaker-hub/NerdMiner_v2` `main` with everything below
+merged on top. Flash it and you get the lot. Each change also lives on its own branch
+off upstream `main`, so a maintainer can take them one at a time.
+
+Three things you get that upstream does not have yet:
+
+1. **More than twice the hashrate on ESP32 classic**, and a few percent on ESP32-S3.
+2. **Fixes for four silent failures** where the miner reported a healthy rate while
+   producing work the pool could never accept.
+3. **OTA updates over WiFi**, firmware and config, so a miner on a shelf never has to
+   come back to a USB cable.
+
+## Hashrate
+
+Same board, before and after, measured over 15 minute windows with every submitted
+hash cross-checked against a software implementation.
+
+```mermaid
+xychart-beta
+    title "ESP32 classic, one board, cumulative (kH/s)"
+    x-axis ["upstream", "raw DPORT + asm fills", "block 2 overlap", "no per-nonce IRQ mask", "nonce loop in asm"]
+    y-axis "kH/s" 300 --> 800
+    line [354, 522, 608, 643, 755]
+    bar [354, 522, 608, 643, 755]
+```
+
+| Chip | Upstream | This branch | Gain |
+|---|---|---|---|
+| ESP32 classic (D0WD-V3, bare DevKit) | 354 kH/s | **755 kH/s** | **+113%** |
+| ESP32-S3 (T-Display-S3) | 304.6 kH/s | **315.4 kH/s** | **+3.6%** |
+
+The gap between the two is not an accident. The S3 spends most of a nonce waiting on
+the APB bus, roughly 16 cycles per register access and about 39 accesses per nonce, so
+there is little software left to remove. On the classic the software overhead was the
+dominant term, and that is what these changes take out.
+
+### Where the time goes, per nonce
+
+```mermaid
+flowchart LR
+    subgraph C["ESP32 classic, 3 engine blocks"]
+        direction LR
+        C1["fill block 1<br/>16 words"] --> C2["START"] --> C3["fill block 2<br/>during block 1"] --> C4["CONTINUE"] --> C5["LOAD digest"] --> C6["pad + START<br/>second sha"] --> C7["LOAD"]
+    end
+    subgraph S["ESP32-S3, 2 engine blocks"]
+        direction LR
+        S1["restore midstate<br/>8 words"] --> S2["fill block 2"] --> S3["CONTINUE"] --> S4["digest to text"] --> S5["START<br/>second sha"]
+    end
+```
+
+The S3 can restore a midstate because `SHA_H` is writable there, so block 1 is hashed
+once per job instead of once per nonce. The classic cannot: it exposes `SHA_TEXT` and
+the command registers only, and writing `SHA_TEXT` supplies a *message*, never a
+*state*. Since the second sha destroys the accumulator, block 1 has to be replayed for
+every nonce. Three engine blocks on classic is not waste, it is the only thing the
+silicon allows.
+
+### What each change does
+
+| Change | Gain | Why it works |
+|---|---|---|
+| Raw DPORT reads | +28% | `DPORT_REG_READ` becomes a function call when the DPORT workaround is on, and the busy-wait paid it on every poll |
+| SHA blocks filled in assembly | +9% | gcc materialises an absolute address per register write, three instructions each; one base register and immediate offsets removes that |
+| Block 2 written during block 1 | +16% | its words do not depend on block 1's result, and the engine latches its message at `START` |
+| Nonce loop inside the assembly | +19% | every asm block clobbers memory, so returning to C between them forced gcc to reload everything, five times per nonce |
+| Per-nonce DPORT interrupt mask dropped | +5.7% | it only ever protected the two-read DPORT sequence, which the raw read no longer uses |
+
+## Four silent failures
+
+The pattern that cost us the most time: the miner shows a normal hashrate, a normal
+temperature, and produces nothing the pool will take. Nothing in the firmware said so.
+
+| What | Effect |
+|---|---|
+| Submitted nonce lost its leading zeros | 1 submission in 16 malformed, including a found block with the same odds |
+| Coinbase over 255 bytes silently truncated | every share rejected, on any pool with a slightly larger coinbase |
+| Block 2 padding held leftover header words (classic path, introduced by an earlier optimisation of ours) | every hash computed over a wrong padding block |
+| A posted command write overtaken by the busy poll | the engine read as idle before it had started |
+
+Two habits came out of it, both in this branch:
+
+- **A known-answer test at startup.** The firmware hashes block 125552, whose header,
+  nonce and hash are public, through the exact compiled path, and compares against an
+  independent software implementation. Verdict in 20 seconds instead of minutes of
+  statistics. Enable with `-D VALIDATION=1 -D RACE_KAT=1`.
+- **Cross-checking every candidate.** With `-D VALIDATION=1`, every hash that passes
+  the 16-zero-bit filter is recomputed in software and compared, about 5 to 11 times a
+  second. A systematic breakage shows up within seconds.
+
+## OTA over WiFi
+
+A miner on a shelf, behind furniture, or in a rack should not need a USB cable to get a
+fix. This branch adds firmware **and** SPIFFS config updates over the network:
+
+```bash
+pio run -e <env>-OTA -t upload   --upload-port <miner-ip>   # firmware
+pio run -e <env>-OTA -t uploadfs --upload-port <miner-ip>   # config
+```
+
+The miner announces itself over mDNS as `nerdminer-<last 2 bytes of MAC>.local`, so the
+address survives a DHCP change. Updates are password protected, and the password is
+supplied from the environment at build time, never committed.
+
+One subtlety worth knowing, because it cost us an evening: the SHA engine has to be
+free when `esp_image_verify()` checks the uploaded image. The miner tasks go idle and
+release the engine lock while an update is in flight, otherwise the upload completes
+and then fails verification with no useful message.
+
+## The fixes, one branch each
 
 | Fix | Issue | Branch |
 |---|---|---|
@@ -19,14 +125,44 @@ own branch off upstream `main`, so a maintainer can take them individually.
 | WiFi never recovered from a lost link: reconnect, full-channel AP scan, RSSI logging | [#583](https://github.com/BitMaker-hub/NerdMiner_v2/issues/583) | `fix/wifi-reconnect` |
 | Failed pool DNS resolution cached as `0.0.0.0` | [PR #801](https://github.com/BitMaker-hub/NerdMiner_v2/pull/801) | `fix/pool-dns-resolve-retry` |
 | Pool reconnect used `rand() % 60` instead of a backoff | [PR #803](https://github.com/BitMaker-hub/NerdMiner_v2/pull/803) | `fix/pool-reconnect` |
+| Undefined behaviour in `to_byte_array`, two `*in++` in one expression | not reported | `fix/to-byte-array-ub` |
 | Skipping constant `SHA_TEXT` writes in the hardware miner: **+16.6%** hashrate, measured | [PR #802](https://github.com/BitMaker-hub/NerdMiner_v2/pull/802) | `perf/hw-sha-fast-fill` |
+| Rebuilt hardware SHA path, ESP32 and ESP32-S3 | this README | `perf/esp32-sha` |
 | OTA firmware and config updates over WiFi | [PR #804](https://github.com/BitMaker-hub/NerdMiner_v2/pull/804) | `feat/ota-wifi` |
 
-Builds verified for `NerdminerV2`, `TTGO-T-Display`, `ESP32-2432S028R` and
-`ESP32-devKitv1`. Running on 6 T-Display-S3 boards, about 1.8 MH/s total.
+## Measure it yourself
 
-Findings and measurements are written up in the linked issues. Corrections welcome:
-open an issue here if something does not hold up.
+The optimisations are on by default and need no `platformio.ini` change. Set any one to
+`0` to measure it in isolation:
+
+```
+-D RACE_SHA_DIRECT_READ=0   # back to the protected DPORT sequence
+-D RACE_ASM_FILL=0          # back to C register writes
+-D RACE_PREFILL=0           # stop overlapping block 2 with block 1
+-D RACE_ASM_LOOP=0          # classic: nonce loop back in C
+-D RACE_ASM_LOOP_S3=0       # S3: same
+-D VALIDATION=1 -D RACE_KAT=1   # cross-check every candidate, and test at startup
+```
+
+Compare only the same board before and after. Comparisons between boards are polluted
+by silicon, temperature and the state of the panel: we measured a 15x difference in
+rare hash disagreements between two boards running byte-identical firmware.
+
+## What is measured, and what is not
+
+Honesty matters more than the numbers here, so:
+
+- The hashrate figures come from this code running on our own fleet, three ESP32
+  classic and six ESP32-S3, and are cross-checked against pool-side accepted shares.
+- **This branch itself has been compiled for `ESP32-devKitv1`, `NerdminerV2`,
+  `ESP32-S3-devKitv1` and `TTGO-T-Display`, but not yet run on hardware.** It is a
+  clean rebuild of the work on top of upstream, so it needs a real run on both chip
+  families before anyone should trust it in production.
+- The raw DPORT read assumes nothing else touches those registers while the engine
+  lock is held. That holds in our configuration. Boards that drive a display or I2C
+  from the second core should verify it.
+- We got things wrong along the way and corrected them in public. If something here
+  does not hold up, open an issue on this fork.
 
 ---
 
