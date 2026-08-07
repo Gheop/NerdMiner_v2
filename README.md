@@ -39,6 +39,12 @@ which costs both builds the same few percent, so the absolute numbers run a litt
 and the ratio is what to read. On a board with a healthy panel, and with the display
 options below, the same firmware reaches 315.4 kH/s.
 
+Why two numbers for this branch, 303 and 315: the 303 above is measured with the same
+options upstream runs, panel redrawn every second and nothing tuned, so that the
+comparison isolates the SHA path. Turning on the two display options costs upstream
+nothing to adopt and is worth the rest. Same board, all-fixes, before and after those
+options: 303.5 then 315.4 kH/s.
+
 The gap between the two is not an accident. The S3 spends most of a nonce waiting on
 the APB bus, roughly 16 cycles per register access and about 39 accesses per nonce, so
 there is little software left to remove. On the classic the software overhead was the
@@ -199,6 +205,10 @@ Two flags, both off by default, both measured:
 Together they are worth about 1.8% on a healthy panel, and they spare a screen nobody
 is looking at. On a board whose panel is dead or absent they matter more, because the
 SPI traffic happens regardless.
+
+The hardware miner is also pinned to core 0 on dual-core boards, away from Monitor and
+Stratum, worth about 0.8 kH/s per board. Set `-D PIN_HW_MINER_CORE0=0` to go back to
+the default placement.
 
 ---
 

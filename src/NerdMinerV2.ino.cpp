@@ -200,7 +200,18 @@ void setup()
     xTaskCreate(minerWorkerHw, "MinerHw-0", 3584, (void*)0, 3, &minerTask1); // Reduced for ESP32 classic
     //xTaskCreate(minerWorkerSw, "MinerSw-0", 5000, (void*)0, 1, &minerTask1); // Reduced for ESP32 classic
     #else
+    //The HW miner produces most of the hashrate but lands on core 1 by default,
+    //next to Monitor (prio 5), Stratum (prio 4) and loopTask (prio 4). Pinning it to
+    //core 0 and leaving the busy core to the SW miner is worth about 0.8 kH/s per
+    //board, measured on six T-Display-S3. Set -D PIN_HW_MINER_CORE0=0 to go back.
+    #ifndef PIN_HW_MINER_CORE0
+    #define PIN_HW_MINER_CORE0 1
+    #endif
+    #if PIN_HW_MINER_CORE0
+    xTaskCreatePinnedToCore(minerWorkerHw, "MinerHw-0", 4096, (void*)0, 3, &minerTask1, 0);
+    #else
     xTaskCreate(minerWorkerHw, "MinerHw-0", 4096, (void*)0, 3, &minerTask1);
+    #endif
     #endif
   #else
     #if defined(CONFIG_IDF_TARGET_ESP32)
