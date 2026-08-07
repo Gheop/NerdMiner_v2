@@ -1247,6 +1247,15 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper(const void *input_te
     reg_addr_buf[6]  = 0x00000000;
     reg_addr_buf[7]  = 0x00000000;
     reg_addr_buf[8]  = 0x00000000;
+    //9..14 DOIVENT etre reecrits ici : le remplissage du bloc 1 ecrit les seize mots,
+    //donc il y laisse des mots d'en-tete. Les mettre a zero une fois par job ne suffit
+    //que pour le bloc 3 (le LOAD n'ecrit que 0..7), pas pour le bloc 2.
+    reg_addr_buf[9]  = 0x00000000;
+    reg_addr_buf[10] = 0x00000000;
+    reg_addr_buf[11] = 0x00000000;
+    reg_addr_buf[12] = 0x00000000;
+    reg_addr_buf[13] = 0x00000000;
+    reg_addr_buf[14] = 0x00000000;
     reg_addr_buf[15] = 0x00000280;
 #else
     reg_addr_buf[4]  = data_words[4];
@@ -1264,6 +1273,66 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper(const void *input_te
 #endif
 }
 
+#if RACE_PREFILL
+//Le contenu du bloc 2 ne depend pas du resultat du bloc 1 : c'est l'en-tete plus le
+//nonce, connus avant meme le START. On l'ecrit donc PENDANT que le moteur calcule le
+//bloc 1, pour cacher dix ecritures APB (~30 cycles) dans les ~91 cycles d'attente.
+//Cela n'est correct que si le moteur a deja consomme le message au START. Si ce n'est
+//pas le cas il hache un message ecrase et VALIDATION le dit immediatement.
+//Le CONTINUE reste apres l'attente, lui : il ne doit partir que moteur au repos.
+static inline void nerd_sha_ll_fill_text_block_sha256_upper_nocont(const void *input_text, uint32_t nonce)
+{
+    const uint32_t be_nonce = __builtin_bswap32(nonce);
+    __asm__ __volatile__(
+        "l32i.n  a8,  %0, 0\n\t"      "s32i.n  a8,  %1, 0\n\t"
+        "l32i.n  a9,  %0, 4\n\t"      "s32i.n  a9,  %1, 4\n\t"
+        "l32i.n  a10, %0, 8\n\t"      "s32i.n  a10, %1, 8\n\t"
+        "s32i.n  %2,  %1, 12\n\t"
+        "movi    a11, 0x80000000\n\t" "s32i.n  a11, %1, 16\n\t"
+        "movi.n  a8,  0\n\t"
+        "s32i.n  a8,  %1, 20\n\t"     "s32i.n  a8,  %1, 24\n\t"
+        "s32i.n  a8,  %1, 28\n\t"     "s32i.n  a8,  %1, 32\n\t"
+        "s32i.n  a8,  %1, 36\n\t"     "s32i.n  a8,  %1, 40\n\t"
+        "s32i.n  a8,  %1, 44\n\t"     "s32i.n  a8,  %1, 48\n\t"
+        "s32i.n  a8,  %1, 52\n\t"     "s32i.n  a8,  %1, 56\n\t"
+        "movi    a9,  0x280\n\t"      "s32i.n  a9,  %1, 60\n\t"
+        :
+        : "r"(input_text), "r"((uint32_t *)(SHA_TEXT_BASE)), "r"(be_nonce)
+        : "a8", "a9", "a10", "a11", "memory");
+}
+
+static inline void nerd_sha_continue_asm(void)
+{
+    __asm__ __volatile__(
+        "movi.n  a8, 1\n\t"  "s32i  a8, %0, 0x94\n\t"
+        : : "r"((uint32_t *)(SHA_TEXT_BASE)) : "a8", "memory");
+}
+
+//Padding du second sha, sans le START. TEXT[8] et TEXT[15] ne sont touches ni par le
+//LOAD (qui n'ecrit que TEXT[0..7]) ni par le moteur, donc ces deux mots peuvent partir
+//en avance eux aussi.
+static inline void nerd_sha_ll_fill_double_nostart(void)
+{
+    __asm__ __volatile__(
+        "movi    a8, 0x80000000\n\t"  "s32i.n  a8, %0, 32\n\t"
+        "movi    a9, 0x100\n\t"       "s32i.n  a9, %0, 60\n\t"
+        : : "r"((uint32_t *)(SHA_TEXT_BASE)) : "a8", "a9", "memory");
+}
+
+#if RACE_CLASSIC_BENCH
+#define RACE_WAITB() { uint32_t a_=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a_; }
+#else
+#define RACE_WAITB() nerd_sha_hal_wait_idle()
+#endif
+
+static inline void nerd_sha_start_asm(void)
+{
+    __asm__ __volatile__(
+        "movi.n  a8, 1\n\t"  "s32i  a8, %0, 0x90\n\t"
+        : : "r"((uint32_t *)(SHA_TEXT_BASE)) : "a8", "memory");
+}
+#endif
+
 #if RACE_ASM_FILL
 //Bloc 2, meme principe que le bloc 1 : une seule base, offsets immediats.
 static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *input_text, uint32_t nonce)
@@ -1278,6 +1347,9 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *inpu
         "movi.n  a8,  0\n\t"
         "s32i.n  a8,  %1, 20\n\t"     "s32i.n  a8,  %1, 24\n\t"
         "s32i.n  a8,  %1, 28\n\t"     "s32i.n  a8,  %1, 32\n\t"
+        "s32i.n  a8,  %1, 36\n\t"     "s32i.n  a8,  %1, 40\n\t"
+        "s32i.n  a8,  %1, 44\n\t"     "s32i.n  a8,  %1, 48\n\t"
+        "s32i.n  a8,  %1, 52\n\t"     "s32i.n  a8,  %1, 56\n\t"
         "movi    a9,  0x280\n\t"      "s32i.n  a9,  %1, 60\n\t"
         "movi.n  a8, 1\n\t"          "s32i    a8,  %1, 0x94\n\t"   //CONTINUE
         :
@@ -1341,6 +1413,20 @@ void minerWorkerHw(void * task_id)
   uint8_t hash[32];
   uint8_t sha_buffer[128];
 
+  //Le chemin classic n'avait aucun controle de hash : le compteur de mismatch etait
+  //cablé au chemin S3 seulement, donc un "mismatch=0" sur une carte classic ne
+  //prouvait rien. Meme controle que sur S3 : chaque hash qui passe le filtre des 16
+  //bits de poids faible est recalcule en logiciel et compare.
+#ifdef VALIDATION
+  uint8_t doubleHash[32];
+  uint32_t digest_mid_v[8];
+  uint32_t bake[16];
+  //Le job materiel du classic porte l'en-tete deja inverse mot par mot
+  //(sha_buffer_swap, cote stratum). La reference logicielle veut l'en-tete d'origine,
+  //on le reconstruit ici plutot que de faire porter deux buffers au job.
+  uint8_t hdr[80];
+#endif
+
   while (1)
   {
     //Idle during an OTA so the SHA engine lock is released: esp_image_verify()
@@ -1372,6 +1458,12 @@ void minerWorkerHw(void * task_id)
       result->difficulty = job->difficulty;
       uint8_t job_in_work = job->id & 0xFF;
       memcpy(sha_buffer, job->sha_buffer, 80);
+#ifdef VALIDATION
+      for (int i = 0; i < 20; ++i)
+        ((uint32_t*)hdr)[i] = __builtin_bswap32(((const uint32_t*)job->sha_buffer)[i]);
+      nerd_mids(digest_mid_v, hdr);
+      nerd_sha256_bake(digest_mid_v, hdr+64, bake);
+#endif
 
       esp_sha_lock_engine(SHA2_256);
       //SHA_TEXT[9..14] are zero in both paddings used below and the engine never
@@ -1382,11 +1474,33 @@ void minerWorkerHw(void * task_id)
       }
       for (uint32_t n = 0; n < job->nonce_count; ++n)
       {
+
 #if RACE_CLASSIC_BENCH
         //Profil : cycles passes a attendre le moteur contre cycles CPU. Determine
         //s'il reste quelque chose a gagner ou si le silicium fixe le plafond.
         uint32_t cb0 = RACE_CC();
 #endif
+#if RACE_PREFILL
+        //Variante recouvrement : les ecritures qui ne dependent pas du resultat en
+        //cours partent pendant que le moteur calcule, au lieu d'attendre leur tour.
+        nerd_sha_ll_fill_text_block_sha256(sha_buffer);          //bloc 1 + START
+        nerd_sha_ll_fill_text_block_sha256_upper_nocont(sha_buffer+64, job->nonce_start+n);
+        RACE_WAITB();
+        nerd_sha_continue_asm();
+#if RACE_PREFILL >= 2
+        nerd_sha_ll_fill_double_nostart();                       //TEXT[8] et TEXT[15]
+#endif
+        RACE_WAITB();
+        nerd_sha_ll_load_asm();
+        RACE_WAITB();
+#if RACE_PREFILL >= 2
+        nerd_sha_start_asm();
+#else
+        nerd_sha_ll_fill_text_block_sha256_double_asm();
+#endif
+        RACE_WAITB();
+        nerd_sha_ll_load_asm();
+#else
         nerd_sha_ll_fill_text_block_sha256(sha_buffer);
 #if !RACE_ASM_FILL
         sha_ll_start_block(SHA2_256);
@@ -1438,6 +1552,13 @@ void minerWorkerHw(void * task_id)
 #else
         sha_ll_load(SHA2_256);
 #endif
+#endif  //RACE_PREFILL
+        //Le LOAD copie le digest dans SHA_TEXT et n'est pas instantane. La lecture
+        //DPORT brute est assez rapide pour passer devant : sans cette attente on lit
+        //le contenu precedent des registres, ce que la validation voit tout de suite
+        //(1969 desaccords en 4 minutes contre 1). La sequence DPORT d'origine etait
+        //assez lente pour masquer la course.
+        nerd_sha_hal_wait_idle();
 #if RACE_CLASSIC_BENCH
         s_cbench.total += RACE_CC()-cb0; s_cbench.n++;
         if (s_cbench.n >= 200000) {
@@ -1449,6 +1570,26 @@ void minerWorkerHw(void * task_id)
 #endif
         if (nerd_sha_ll_read_digest_swap_if(hash))
         {
+#ifdef VALIDATION
+          //nerd_sha256d_baked a son propre filtre 16 bits et ne remplit doubleHash que
+          //s'il passe : un retour faux alors que le materiel a passe le filtre est
+          //deja un desaccord, on le compte comme tel.
+          ((uint32_t*)(hdr+64+12))[0] = job->nonce_start+n;
+          if (!nerd_sha256d_baked(digest_mid_v, hdr+64, bake, doubleHash))
+          {
+            race_sha_mismatch++;
+          }
+          else
+          for (int i = 0; i < 32; ++i)
+          {
+            if (hash[i] != doubleHash[i])
+            {
+              Serial.println("***HW sha256 esp32 mismatch***");
+              race_sha_mismatch++;
+              break;
+            }
+          }
+#endif
           //~5 per second
           double diff_hash = diff_from_target(hash);
           if (diff_hash > result->difficulty)
