@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+<rect width="760" height="300" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+<text x="24" y="28" font-size="16" font-weight="600" fill="#1f2328">ESP32 classic, one board, cumulative (kH/s)</text>
+<line x1="60" y1="142" x2="736" y2="142" stroke="#eaeef2"/>
+<text x="24" y="146" font-size="10" fill="#8c959f">400</text>
+<line x1="60" y1="117" x2="736" y2="117" stroke="#eaeef2"/>
+<text x="24" y="121" font-size="10" fill="#8c959f">500</text>
+<line x1="60" y1="93" x2="736" y2="93" stroke="#eaeef2"/>
+<text x="24" y="97" font-size="10" fill="#8c959f">600</text>
+<line x1="60" y1="68" x2="736" y2="68" stroke="#eaeef2"/>
+<text x="24" y="72" font-size="10" fill="#8c959f">700</text>
+<rect x="60" y="153" width="118" height="87" rx="4" fill="#9aa4b2"/>
+<text x="119" y="146" font-size="12" font-weight="600" text-anchor="middle" fill="#1f2328">354</text>
+<text x="119" y="256" font-size="10" text-anchor="middle" fill="#57606a">upstream</text>
+<rect x="194" y="112" width="118" height="128" rx="4" fill="#8fbcbb"/>
+<text x="253" y="105" font-size="12" font-weight="600" text-anchor="middle" fill="#1f2328">522</text>
+<text x="253" y="256" font-size="10" text-anchor="middle" fill="#57606a">raw DPORT</text>
+<text x="253" y="268" font-size="10" text-anchor="middle" fill="#57606a">+ asm fills</text>
+<rect x="328" y="91" width="118" height="149" rx="4" fill="#8fbcbb"/>
+<text x="387" y="84" font-size="12" font-weight="600" text-anchor="middle" fill="#1f2328">608</text>
+<text x="387" y="256" font-size="10" text-anchor="middle" fill="#57606a">block 2</text>
+<text x="387" y="268" font-size="10" text-anchor="middle" fill="#57606a">overlap</text>
+<rect x="462" y="82" width="118" height="158" rx="4" fill="#8fbcbb"/>
+<text x="521" y="75" font-size="12" font-weight="600" text-anchor="middle" fill="#1f2328">643</text>
+<text x="521" y="256" font-size="10" text-anchor="middle" fill="#57606a">no per-nonce</text>
+<text x="521" y="268" font-size="10" text-anchor="middle" fill="#57606a">IRQ mask</text>
+<rect x="596" y="55" width="118" height="185" rx="4" fill="#2da44e"/>
+<text x="655" y="48" font-size="12" font-weight="600" text-anchor="middle" fill="#1f2328">755</text>
+<text x="655" y="256" font-size="10" text-anchor="middle" fill="#57606a">nonce loop</text>
+<text x="655" y="268" font-size="10" text-anchor="middle" fill="#57606a">in asm</text>
+<text x="24" y="290" font-size="11" fill="#57606a">Each step measured on the same board, zero hash disagreements at every stage.</text>
+</svg>

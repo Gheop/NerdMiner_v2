@@ -14,54 +14,41 @@ Three things you get that upstream does not have yet:
 
 ## Hashrate
 
-Same board, before and after, measured over 15 minute windows with every submitted
-hash cross-checked against a software implementation.
+![Hashrate comparison](images/hashrate.svg)
 
-```mermaid
-xychart-beta
-    title "ESP32 classic, one board, cumulative (kH/s)"
-    x-axis ["upstream", "raw DPORT + asm fills", "block 2 overlap", "no per-nonce IRQ mask", "nonce loop in asm"]
-    y-axis "kH/s" 200 --> 800
-    line [354, 522, 608, 643, 755]
-    bar [354, 522, 608, 643, 755]
-```
+| Chip | Upstream `main` | This branch | Same, with the display options | Gain |
+|---|---|---|---|---|
+| ESP32 classic (D0WD-V3, bare DevKit) | 354 kH/s | **755 kH/s** | no display on this board | **+113%** |
+| ESP32-S3 (T-Display-S3) | 253.6 kH/s | **306.2 kH/s** | **315.4 kH/s** | **+21%** to **+24%** |
 
-| Chip | Upstream `main` | This branch | Gain |
-|---|---|---|---|
-| ESP32 classic (D0WD-V3, bare DevKit) | 354 kH/s | **755 kH/s** | **+113%** |
-| ESP32-S3 (T-Display-S3) | 253.6 kH/s | **303.0 kH/s** | **+19.5%** |
+Every pair is one board before and after, never one board against another. Five minutes
+per build, around 290 samples, every submitted hash cross-checked against a software
+implementation.
 
-Both rows are the same board before and after, never one board against another.
-The S3 pair was measured back to back on one T-Display-S3 with the display driven in
-both builds, five minutes each, about 290 samples per build: upstream 253.6 kH/s
-(251.7 to 255.3), this branch 303.0 kH/s (300.2 to 305.7). That board has a dead panel,
-which costs both builds the same few percent, so the absolute numbers run a little low
-and the ratio is what to read. On a board with a healthy panel, and with the display
-options below, the same firmware reaches 315.4 kH/s.
+The middle column is measured with the same options upstream runs, so the comparison
+isolates the SHA path. The fourth column adds two display flags that cost nothing to
+adopt and are described further down. Both are the same firmware.
 
-Why two numbers for this branch, 303 and 315: the 303 above is measured with the same
-options upstream runs, panel redrawn every second and nothing tuned, so that the
-comparison isolates the SHA path. Turning on the two display options costs upstream
-nothing to adopt and is worth the rest. Same board, all-fixes, before and after those
-options: 303.5 then 315.4 kH/s.
+![ESP32 classic step by step](images/classic-steps.svg)
 
-The gap between the two is not an accident. The S3 spends most of a nonce waiting on
-the APB bus, roughly 16 cycles per register access and about 39 accesses per nonce, so
-there is little software left to remove. On the classic the software overhead was the
+The gap between the two chips is not an accident. The S3 spends most of a nonce waiting
+on the APB bus, roughly 16 cycles per register access and about 39 accesses per nonce,
+so there is little software left to remove. On the classic the software overhead was the
 dominant term, and that is what these changes take out.
 
 ### Where the time goes, per nonce
 
-```mermaid
-flowchart LR
-    subgraph C["ESP32 classic, 3 engine blocks"]
-        direction LR
-        C1["fill block 1<br/>16 words"] --> C2["START"] --> C3["fill block 2<br/>during block 1"] --> C4["CONTINUE"] --> C5["LOAD digest"] --> C6["pad + START<br/>second sha"] --> C7["LOAD"]
-    end
-    subgraph S["ESP32-S3, 2 engine blocks"]
-        direction LR
-        S1["restore midstate<br/>8 words"] --> S2["fill block 2"] --> S3["CONTINUE"] --> S4["digest to text"] --> S5["START<br/>second sha"]
-    end
+```
+ESP32 classic, 3 engine blocks per nonce
+  fill block 1 (16 words) -> START -.
+                                     \  block 2 is written while the engine
+  fill block 2 (16 words) <----------'   is still hashing block 1
+  CONTINUE -> wait -> LOAD digest
+  pad + START (second sha) -> wait -> LOAD -> read word 7, reject early
+
+ESP32-S3, 2 engine blocks per nonce
+  restore midstate (8 words) -> fill block 2 -> CONTINUE -> wait
+  digest H -> TEXT -> START (second sha) -> wait -> read H[7], reject early
 ```
 
 The S3 can restore a midstate because `SHA_H` is writable there, so block 1 is hashed
@@ -203,8 +190,7 @@ Two flags, both off by default, both measured:
 ```
 
 Together they are worth about 1.8% on a healthy panel, and they spare a screen nobody
-is looking at. On a board whose panel is dead or absent they matter more, because the
-SPI traffic happens regardless.
+is looking at.
 
 The hardware miner is also pinned to core 0 on dual-core boards, away from Monitor and
 Stratum, worth about 0.8 kH/s per board. Set `-D PIN_HW_MINER_CORE0=0` to go back to
