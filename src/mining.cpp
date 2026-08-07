@@ -1188,6 +1188,9 @@ static inline void nerd_sha_ll_fill_text_block_sha256(const void *input_text)
         "l32i.n  a9,  %0, 52\n\t"  "s32i.n  a9,  %1, 52\n\t"
         "l32i.n  a10, %0, 56\n\t"  "s32i.n  a10, %1, 56\n\t"
         "l32i.n  a11, %0, 60\n\t"  "s32i.n  a11, %1, 60\n\t"
+        //START est a SHA_TEXT_BASE+0x90, donc atteignable depuis la base deja en
+        //registre : cela evite le l32r que sha_ll_start_block refait a chaque appel.
+        "movi.n  a8, 1\n\t"        "s32i    a8,  %1, 0x90\n\t"
         :
         : "r"(input_text), "r"((uint32_t *)(SHA_TEXT_BASE))
         : "a8", "a9", "a10", "a11", "memory");
@@ -1269,6 +1272,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256_upper_asm(const void *inpu
         "s32i.n  a8,  %1, 20\n\t"     "s32i.n  a8,  %1, 24\n\t"
         "s32i.n  a8,  %1, 28\n\t"     "s32i.n  a8,  %1, 32\n\t"
         "movi    a9,  0x280\n\t"      "s32i.n  a9,  %1, 60\n\t"
+        "movi.n  a8, 1\n\t"          "s32i    a8,  %1, 0x94\n\t"   //CONTINUE
         :
         : "r"(input_text), "r"((uint32_t *)(SHA_TEXT_BASE)), "r"(be_nonce)
         : "a8", "a9", "a10", "a11", "memory");
@@ -1352,7 +1356,9 @@ void minerWorkerHw(void * task_id)
         uint32_t cb0 = RACE_CC();
 #endif
         nerd_sha_ll_fill_text_block_sha256(sha_buffer);
+#if !RACE_ASM_FILL
         sha_ll_start_block(SHA2_256);
+#endif
 
         //sha_hal_hash_block(SHA2_256, s_test_buffer+64, 64/4, false);
 #if RACE_CLASSIC_BENCH
@@ -1364,8 +1370,8 @@ void minerWorkerHw(void * task_id)
         nerd_sha_ll_fill_text_block_sha256_upper_asm(sha_buffer+64, job->nonce_start+n);
 #else
         nerd_sha_ll_fill_text_block_sha256_upper(sha_buffer+64, job->nonce_start+n);
-#endif
         sha_ll_continue_block(SHA2_256);
+#endif
 
 #if RACE_CLASSIC_BENCH
         { uint32_t a=RACE_CC(); nerd_sha_hal_wait_idle(); s_cbench.wait += RACE_CC()-a; }
