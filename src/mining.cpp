@@ -102,6 +102,7 @@ bool screenNoteInput(void)
 }
 volatile uint32_t race_hashes_sw = 0;
 volatile uint32_t race_sha_mismatch = 0;
+volatile int8_t race_kat_state = -1;
 
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
@@ -809,7 +810,7 @@ static inline void nerd_sha_ll_fill_text_block_sha256_inter()
 
 static inline void nerd_sha_ll_read_digest(void* ptr)
 {
-  SHA_RD_ENTER();
+  DPORT_INTERRUPT_DISABLE();
   ((uint32_t*)ptr)[0] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 0 * 4);
   ((uint32_t*)ptr)[1] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 1 * 4);
   ((uint32_t*)ptr)[2] = DPORT_SEQUENCE_REG_READ(SHA_H_BASE + 2 * 4);
@@ -868,6 +869,146 @@ static inline void nerd_sha_hal_wait_idle()
 }
 
 //#define VALIDATION
+#if RACE_ASM_LOOP_S3
+//Boucle sur les nonces en assembleur, version S3. Meme raison que sur classic : les
+//blocs asm declarent un clobber memoire, donc repasser par du C entre eux force gcc a
+//tout relire. Plus simple ici : un seul registre de base couvre le peripherique
+//(MODE +0x00, START +0x10, CONTINUE +0x14, BUSY +0x18, H +0x40, TEXT +0x80) et le
+//nonce s'ecrit tel quel dans TEXT[3], donc il s'incremente de 1 sans decoupage.
+//SHA_TEXT[9..14] restent a zero pour tout le job, comme dans la version C.
+//Retourne le nombre de nonces restants ; sur un candidat le digest est dans SHA_H.
+static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
+                                           uint32_t *nonce_io, uint32_t count)
+{
+    uint32_t remaining = count, nonce = *nonce_io;
+    __asm__ __volatile__(
+    "0:\n\t"
+        //Midstate reinjecte : le moteur ecrase H a chaque hash.
+        "l32i    a8, %[mid], 0\n\t"  "s32i    a8, %[sc], 0x40\n\t"
+        "l32i    a8, %[mid], 4\n\t"  "s32i    a8, %[sc], 0x44\n\t"
+        "l32i    a8, %[mid], 8\n\t"  "s32i    a8, %[sc], 0x48\n\t"
+        "l32i    a8, %[mid], 12\n\t"  "s32i    a8, %[sc], 0x4C\n\t"
+        "l32i    a8, %[mid], 16\n\t"  "s32i    a8, %[sc], 0x50\n\t"
+        "l32i    a8, %[mid], 20\n\t"  "s32i    a8, %[sc], 0x54\n\t"
+        "l32i    a8, %[mid], 24\n\t"  "s32i    a8, %[sc], 0x58\n\t"
+        "l32i    a8, %[mid], 28\n\t"  "s32i    a8, %[sc], 0x5C\n\t"
+        //Bloc 2 : en-tete, nonce, puis le padding que inter() avait remplace.
+        "l32i    a8, %[in], 0\n\t"    "s32i    a8, %[sc], 0x80\n\t"
+        "l32i    a8, %[in], 4\n\t"    "s32i    a8, %[sc], 0x84\n\t"
+        "l32i    a8, %[in], 8\n\t"    "s32i    a8, %[sc], 0x88\n\t"
+        "s32i    %[nonce], %[sc], 0x8C\n\t"
+        "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0x90\n\t"
+        "movi.n  a9, 0\n\t"
+        "s32i    a9, %[sc], 0x94\n\t" "s32i    a9, %[sc], 0x98\n\t"
+        "s32i    a9, %[sc], 0x9C\n\t" "s32i    a9, %[sc], 0xA0\n\t"
+        "movi    a8, 0x80020000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x14\n\t"
+        "1: l32i a8, %[sc], 0x18\n\t" "bnez.n  a8, 1b\n\t"
+        //Second sha : le digest passe de H vers TEXT, puis son padding.
+        "l32i    a8, %[sc], 0x40\n\t"  "s32i    a8, %[sc], 0x80\n\t"
+        "l32i    a8, %[sc], 0x44\n\t"  "s32i    a8, %[sc], 0x84\n\t"
+        "l32i    a8, %[sc], 0x48\n\t"  "s32i    a8, %[sc], 0x88\n\t"
+        "l32i    a8, %[sc], 0x4C\n\t"  "s32i    a8, %[sc], 0x8C\n\t"
+        "l32i    a8, %[sc], 0x50\n\t"  "s32i    a8, %[sc], 0x90\n\t"
+        "l32i    a8, %[sc], 0x54\n\t"  "s32i    a8, %[sc], 0x94\n\t"
+        "l32i    a8, %[sc], 0x58\n\t"  "s32i    a8, %[sc], 0x98\n\t"
+        "l32i    a8, %[sc], 0x5C\n\t"  "s32i    a8, %[sc], 0x9C\n\t"
+        "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0xA0\n\t"
+        "movi    a8, 0x00010000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+        "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x10\n\t"
+        "2: l32i a8, %[sc], 0x18\n\t" "bnez.n  a8, 2b\n\t"
+        //Rejet precoce : candidat quand les 16 bits de poids fort de H[7] sont nuls.
+        "l32i    a8, %[sc], 0x5C\n\t"
+        "extui   a8, a8, 16, 16\n\t"
+        "addi    %[nonce], %[nonce], 1\n\t"
+        "addi    %[cnt], %[cnt], -1\n\t"
+        "beqz    a8, 9f\n\t"
+        "bnez    %[cnt], 0b\n\t"
+    "9:\n\t"
+        : [cnt] "+r" (remaining), [nonce] "+r" (nonce)
+        : [sc] "r" ((uint32_t *)(SHA_TEXT_BASE - 0x80)), [in] "r" (in), [mid] "r" (mid)
+        : "a8", "a9", "memory");
+    *nonce_io = nonce;
+    return remaining;
+}
+#endif
+
+//RACE_KAT: le test a reponse connue coute environ 1,2 % sur S3, non par son
+//execution (une fois) mais par la disposition du code generee autour. Sur ce chemin
+//il fait double emploi : la validation logicielle tourne deja sur chaque candidat,
+//environ 5 fois par seconde, et la comptabilite de la pool sert de troisieme filet.
+//On le garde compilable pour s'en servir des qu'on touche a la boucle chaude, mais
+//il n'est pas actif en production S3. Sur classic il est actif : c'est le seul
+//controle disponible au demarrage.
+#if defined(VALIDATION) && RACE_KAT
+//Test a reponse connue joue une fois au demarrage, sur la sequence S3 reellement
+//compilee : bloc 125552, en-tete et nonce publics. Le resultat materiel est compare
+//a la reference logicielle, pas a une constante recopiee du materiel, sinon le test
+//ne validerait que lui-meme. Verdict remonte dans la telemetrie (race_kat_state) :
+//les six S3 sont au rack, sans port serie.
+static void __attribute__((noinline)) nerd_s3_kat(void)
+{
+  static const uint8_t kat[80] = {
+    0x01,0x00,0x00,0x00,0x81,0xcd,0x02,0xab,0x7e,0x56,0x9e,0x8b,0xcd,0x93,0x17,0xe2,
+    0xfe,0x99,0xf2,0xde,0x44,0xd4,0x9a,0xb2,0xb8,0x85,0x1b,0xa4,0xa3,0x08,0x00,0x00,
+    0x00,0x00,0x00,0x00,0xe3,0x20,0xb6,0xc2,0xff,0xfc,0x8d,0x75,0x04,0x23,0xdb,0x8b,
+    0x1e,0xb9,0x42,0xae,0x71,0x0e,0x95,0x1e,0xd7,0x97,0xf7,0xaf,0xfc,0x88,0x92,0xb0,
+    0xf1,0xfc,0x12,0x2b,0xc7,0xf5,0xd7,0x4d,0xf2,0xb9,0x44,0x1a,0x42,0xa1,0x46,0x95 };
+  uint8_t hdr[80] __attribute__((aligned(4)));
+  memcpy(hdr, kat, sizeof(hdr));   //depuis la RAM, comme en production
+  const uint32_t nonce = 0x9546a142;
+
+  uint32_t hw_mid[8];
+  sha_hal_hash_block(SHA2_256, hdr, 64/4, true);
+  sha_hal_read_digest(SHA2_256, hw_mid);
+  REG_WRITE(SHA_MODE_REG, SHA2_256);
+  //Le remplissage rapide saute les mots 9 a 14 en supposant qu'ils sont nuls : la
+  //production les met a zero une fois par job, il faut faire pareil ici. Sans ca le
+  //calcul du midstate laisse des mots d'en-tete a leur place et le test echoue alors
+  //que la production est correcte. Meme classe de defaut que le padding du 7 aout.
+  {
+    uint32_t *tb = (uint32_t *)(SHA_TEXT_BASE);
+    for (int i = 9; i <= 14; ++i) REG_WRITE(&tb[i], 0x00000000);
+  }
+
+  uint8_t hash[32];
+#if RACE_ASM_LOOP_S3
+  { uint32_t nn = nonce; nerd_sha_s3_run_asm(hdr+64, hw_mid, &nn, 1); }
+#else
+  nerd_sha_ll_write_digest(hw_mid);
+  nerd_sha_ll_fill_text_block_sha256_fast(hdr+64, nonce);
+  REG_WRITE(SHA_CONTINUE_REG, 1);
+  nerd_sha_hal_wait_idle();
+  nerd_sha_ll_fill_text_block_sha256_inter();
+  REG_WRITE(SHA_START_REG, 1);
+  nerd_sha_hal_wait_idle();
+#endif
+
+  //Le point d'echec est encode dans la valeur remontee : les S3 sont au rack, sans
+  //port serie, et un verdict binaire ne dit pas ou chercher.
+  //1 succes, 2 le materiel n'a pas rendu de digest filtre, 3 la reference logicielle
+  //a refuse, 4 les deux ne concordent pas.
+  int8_t st;
+  if (!nerd_sha_ll_read_digest_if(hash)) {
+    st = 2;
+  } else {
+    uint32_t mids[8], bake[16];
+    uint8_t sw[32];
+    nerd_mids(mids, hdr);
+    nerd_sha256_bake(mids, hdr+64, bake);
+    if (!nerd_sha256d_baked(mids, hdr+64, bake, sw)) {
+      st = 3;
+    } else {
+      st = 1;
+      for (int i = 0; i < 32; ++i)
+        if (hash[i] != sw[i]) { st = 4; break; }
+    }
+  }
+  race_kat_state = st;
+  Serial.printf("KAT: etat %d (bloc 125552)\n", (int)st);
+}
+#endif
+
 void minerWorkerHw(void * task_id)
 {
   unsigned int miner_id = (uint32_t)task_id;
@@ -924,6 +1065,9 @@ void minerWorkerHw(void * task_id)
 #endif
 
       esp_sha_acquire_hardware();
+#if defined(VALIDATION) && RACE_KAT
+      { static bool kat_done = false; if (!kat_done) { kat_done = true; nerd_s3_kat(); } }
+#endif
       REG_WRITE(SHA_MODE_REG, SHA2_256);
       {
         //Zero SHA_TEXT[9..14] once per job so the per-nonce fast fill can skip them
@@ -932,6 +1076,39 @@ void minerWorkerHw(void * task_id)
         for (int i = 9; i <= 14; ++i)
           REG_WRITE(&reg_addr_buf[i], 0x00000000);
       }
+#if RACE_ASM_LOOP_S3
+      //Meme decoupage qu'ailleurs : la boucle vit dans l'assembleur, le C ne revient
+      //que sur un candidat ou toutes les 256 iterations pour voir si le job a change.
+      {
+        uint32_t nonce = job->nonce_start;
+        uint32_t done = 0;
+        while (done < job->nonce_count)
+        {
+          uint32_t chunk = job->nonce_count - done;
+          if (chunk > 256) chunk = 256;
+          done += chunk - nerd_sha_s3_run_asm(sha_buffer, (const uint32_t*)digest_mid, &nonce, chunk);
+          if (nerd_sha_ll_read_digest_if(hash))
+          {
+            const uint32_t nonce_hit = job->nonce_start + done - 1;
+#ifdef VALIDATION
+            ((uint32_t*)(job->sha_buffer+64+12))[0] = nonce_hit;
+            nerd_sha256d_baked(diget_mid, job->sha_buffer+64, bake, doubleHash);
+            for (int i = 0; i < 32; ++i)
+              if (hash[i] != doubleHash[i]) { race_sha_mismatch++; break; }
+#endif
+            double diff_hash = diff_from_target(hash);
+            if (diff_hash > result->difficulty && isSha256Valid(hash))
+            {
+              result->difficulty = diff_hash;
+              result->nonce = nonce_hit;
+              memcpy(result->hash, hash, sizeof(hash));
+            }
+          }
+          if (s_working_current_job_id != job_in_work) break;
+        }
+        result->nonce_count = done;
+      }
+#else
       uint32_t nend = job->nonce_start + job->nonce_count;
       for (uint32_t n = job->nonce_start; n < nend; ++n)
       {
@@ -1016,6 +1193,7 @@ void minerWorkerHw(void * task_id)
           break;
         }
       }
+#endif
 #if RACE_BENCH
       if (++s_race_acc.jobs >= RACE_BENCH_JOBS) {
         uint32_t nn = s_race_acc.nonces ? s_race_acc.nonces : 1;
@@ -1585,7 +1763,7 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
 //compilee : bloc 125552, en-tete et nonce publics, digest connu. Verdict immediat en
 //une ligne de log, la ou attendre le compteur de desaccords demande des minutes de
 //statistiques. Le padding corrompu du 7 aout aurait ete vu en vingt secondes.
-static void nerd_classic_kat(void)
+static void __attribute__((noinline)) nerd_classic_kat(void)
 {
   static const uint8_t kat[80] = {
     0x00,0x00,0x00,0x01,0xab,0x02,0xcd,0x81,0x8b,0x9e,0x56,0x7e,0xe2,0x17,0x93,0xcd,
@@ -1630,6 +1808,7 @@ static void nerd_classic_kat(void)
   bool ok = true;
   for (int i = 0; i < 8; ++i)
     if (_DPORT_REG_READ(SHA_TEXT_BASE + i*4) != want[i]) ok = false;
+  race_kat_state = ok ? 1 : 0;
   if (ok) {
     Serial.println("KAT: ok (bloc 125552)");
   } else {
@@ -1740,11 +1919,21 @@ void minerWorkerHw(void * task_id)
           const uint32_t nonce_hit = nonce_start + n - 1;
 #ifdef VALIDATION
           ((uint32_t*)(hdr+64+12))[0] = nonce_hit;
-          if (!nerd_sha256d_baked(digest_mid_v, hdr+64, bake, doubleHash))
-            race_sha_mismatch++;
-          else
+          bool bad = !nerd_sha256d_baked(digest_mid_v, hdr+64, bake, doubleHash);
+          if (!bad)
             for (int i = 0; i < 32; ++i)
-              if (hash[i] != doubleHash[i]) { race_sha_mismatch++; break; }
+              if (hash[i] != doubleHash[i]) { bad = true; break; }
+          if (bad) {
+            //Les trois premiers desaccords sont detailles : on cherche a savoir si
+            //l'evenement unique observe est lie au demarrage (premier candidat, premier
+            //job) ou reparti au hasard dans la plage de nonces.
+            if (race_sha_mismatch < 3)
+              Serial.printf("MISM nonce=%08lx base=%08lx idx=%lu n=%lu up=%lus\n",
+                            (unsigned long)nonce_hit, (unsigned long)base,
+                            (unsigned long)(nonce_hit - base), (unsigned long)n,
+                            (unsigned long)(millis()/1000));
+            race_sha_mismatch++;
+          }
 #endif
           double diff_hash = diff_from_target(hash);
           if (diff_hash > result->difficulty && isSha256Valid(hash))

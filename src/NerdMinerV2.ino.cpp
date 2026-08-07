@@ -349,11 +349,11 @@ static void postTelemetry(uint32_t hashrateHs) {
   snprintf(body, sizeof(body),
            "{\"worker\":\"%s\",\"hashrateHs\":%u,\"tempC\":%.1f,\"rssi\":%d,"
            "\"uptimeS\":%lu,\"freeHeap\":%u,\"sinceLastPoolJobS\":%ld,"
-           "\"khsHw\":%.1f,\"khsSw\":%.1f,\"shaMismatch\":%u,"
+           "\"khsHw\":%.1f,\"khsSw\":%.1f,\"shaMismatch\":%u,\"kat\":%d,"
            "\"resetReason\":\"%s\",\"version\":\"%s\"}",
            worker.c_str(), (unsigned)hashrateHs, temperatureRead(), (int)WiFi.RSSI(),
            (unsigned long)(millis() / 1000), (unsigned)ESP.getFreeHeap(), sinceJob,
-           khs_hw, khs_sw, (unsigned)race_sha_mismatch,
+           khs_hw, khs_sw, (unsigned)race_sha_mismatch, (int)race_kat_state,
            resetReasonStr(), CURRENT_VERSION);
 
   //Same pattern as monitor.cpp's working HTTPS calls: let HTTPClient manage the

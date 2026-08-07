@@ -39,6 +39,10 @@ extern volatile uint32_t race_hashes_hw;
 extern volatile float race_khs_hw, race_khs_sw;
 extern volatile uint32_t race_hashes_sw;
 extern volatile uint32_t race_sha_mismatch;
+//Resultat du test a reponse connue joue au demarrage : -1 pas encore joue, 0 echec,
+//1 succes. Remonte dans la telemetrie parce que les cartes S3 sont au rack, sans
+//port serie : un autotest dont on ne peut pas lire le verdict ne sert a rien.
+extern volatile int8_t race_kat_state;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);
