@@ -21,15 +21,23 @@ hash cross-checked against a software implementation.
 xychart-beta
     title "ESP32 classic, one board, cumulative (kH/s)"
     x-axis ["upstream", "raw DPORT + asm fills", "block 2 overlap", "no per-nonce IRQ mask", "nonce loop in asm"]
-    y-axis "kH/s" 300 --> 800
+    y-axis "kH/s" 200 --> 800
     line [354, 522, 608, 643, 755]
     bar [354, 522, 608, 643, 755]
 ```
 
-| Chip | Upstream | This branch | Gain |
+| Chip | Upstream `main` | This branch | Gain |
 |---|---|---|---|
 | ESP32 classic (D0WD-V3, bare DevKit) | 354 kH/s | **755 kH/s** | **+113%** |
-| ESP32-S3 (T-Display-S3) | 304.6 kH/s | **315.4 kH/s** | **+3.6%** |
+| ESP32-S3 (T-Display-S3) | 253.6 kH/s | **303.0 kH/s** | **+19.5%** |
+
+Both rows are the same board before and after, never one board against another.
+The S3 pair was measured back to back on one T-Display-S3 with the display driven in
+both builds, five minutes each, about 290 samples per build: upstream 253.6 kH/s
+(251.7 to 255.3), this branch 303.0 kH/s (300.2 to 305.7). That board has a dead panel,
+which costs both builds the same few percent, so the absolute numbers run a little low
+and the ratio is what to read. On a board with a healthy panel, and with the display
+options below, the same firmware reaches 315.4 kH/s.
 
 The gap between the two is not an accident. The S3 spends most of a nonce waiting on
 the APB bus, roughly 16 cycles per register access and about 39 accesses per nonce, so
@@ -163,6 +171,34 @@ Honesty matters more than the numbers here, so:
   from the second core should verify it.
 - We got things wrong along the way and corrected them in public. If something here
   does not hold up, open an issue on this fork.
+
+## Other boards
+
+Everything here was measured on the two chips we own, ESP32-S3 (T-Display-S3) and
+ESP32 classic (bare DevKit). The techniques are not specific to those boards, but the
+numbers are, and we will not guess at figures for hardware we cannot run.
+
+If you have a supported board that is not one of those two and you want it looked at,
+we are happy to do the work: profile the hot path, port what applies, and publish the
+before and after the same way. Send one and we will measure it properly. Open an issue
+on this fork and we can sort out the details.
+
+Boards where there is a good chance of finding something: anything on ESP32-C3 or
+ESP32-S2, where the SHA peripheral differs again, and any board whose display sits on
+the same bus as something in the mining path.
+
+## Display options, worth a few percent
+
+Two flags, both off by default, both measured:
+
+```
+-D SCREEN_TIMEOUT_S=120   # blank the panel after two minutes, any button wakes it
+-D RACE_DRAW_EVERY_S=3    # full redraw every 3 s instead of every second
+```
+
+Together they are worth about 1.8% on a healthy panel, and they spare a screen nobody
+is looking at. On a board whose panel is dead or absent they matter more, because the
+SPI traffic happens regardless.
 
 ---
 
