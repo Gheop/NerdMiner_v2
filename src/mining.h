@@ -52,6 +52,11 @@ extern volatile uint32_t race_mism_reread_ok;
 //calcul plutot que la lecture. Sans ce second compteur, un mismRe a zero ne permet pas
 //de trancher, il recouvre aussi le cas ou la relecture ne passe plus le filtre.
 extern volatile uint32_t race_mism_same;
+//Le moteur avait en fait hache le nonce PRECEDENT : signature d'une ecriture du nonce
+//qui n'a pas atterri. C'est le seul mot du message dont la perte se voie, tous les
+//autres sont identiques d'un nonce au suivant et le registre contient deja la bonne
+//valeur.
+extern volatile uint32_t race_mism_prevnonce;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);

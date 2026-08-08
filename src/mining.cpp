@@ -105,6 +105,7 @@ volatile uint32_t race_sha_mismatch = 0;
 volatile int8_t race_kat_state = -1;
 volatile uint32_t race_mism_reread_ok = 0;
 volatile uint32_t race_mism_same = 0;
+volatile uint32_t race_mism_prevnonce = 0;
 
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
@@ -1943,6 +1944,21 @@ void minerWorkerHw(void * task_id)
               if (same_as_sw) race_mism_reread_ok++;
               else if (same_as_first) race_mism_same++;
             }
+#if RACE_ASM_LOOP
+            //Test de l'ecriture perdue : on refait passer le nonce PRECEDENT dans le
+            //moteur et on compare au hash qu'on avait obtenu. S'ils sont egaux, le
+            //moteur avait bien haché n-1, donc l'ecriture du nonce n s'est perdue.
+            {
+              nerd_sha_nonce_run_asm(sha_buffer, __builtin_bswap32(nonce_hit - 1), 1);
+              uint8_t prev[32];
+              for (int i = 0; i < 8; ++i)
+                ((uint32_t*)prev)[i] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + i*4));
+              bool eq = true;
+              for (int i = 0; i < 32; ++i)
+                if (prev[i] != hash[i]) { eq = false; break; }
+              if (eq) race_mism_prevnonce++;
+            }
+#endif
             //Les trois premiers desaccords sont detailles : on cherche a savoir si
             //l'evenement unique observe est lie au demarrage (premier candidat, premier
             //job) ou reparti au hasard dans la plage de nonces.
