@@ -48,6 +48,10 @@ extern volatile int8_t race_kat_state;
 //Separe une panne de lecture d'une panne de calcul, ce que le compteur global ne dit
 //pas. Ne tourne que sur le chemin rare, cout nul.
 extern volatile uint32_t race_mism_reread_ok;
+//Relecture identique a la premiere : la valeur fausse est stable, ce qui accuse le
+//calcul plutot que la lecture. Sans ce second compteur, un mismRe a zero ne permet pas
+//de trancher, il recouvre aussi le cas ou la relecture ne passe plus le filtre.
+extern volatile uint32_t race_mism_same;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);

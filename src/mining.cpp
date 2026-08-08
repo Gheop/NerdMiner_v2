@@ -104,6 +104,7 @@ volatile uint32_t race_hashes_sw = 0;
 volatile uint32_t race_sha_mismatch = 0;
 volatile int8_t race_kat_state = -1;
 volatile uint32_t race_mism_reread_ok = 0;
+volatile uint32_t race_mism_same = 0;
 
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
@@ -1930,10 +1931,17 @@ void minerWorkerHw(void * task_id)
             //logiciel, le calcul etait bon et seule la lecture avait fauté.
             uint8_t again[32];
             if (nerd_sha_ll_read_digest_swap_if(again)) {
-              bool same_as_sw = true;
-              for (int i = 0; i < 32; ++i)
-                if (again[i] != doubleHash[i]) { same_as_sw = false; break; }
+              bool same_as_sw = true, same_as_first = true;
+              for (int i = 0; i < 32; ++i) {
+                if (again[i] != doubleHash[i]) same_as_sw = false;
+                if (again[i] != hash[i])       same_as_first = false;
+              }
+              //Trois issues distinctes, et il faut les separer pour conclure :
+              //  reread_ok   la relecture donne le bon resultat -> lecture fautive
+              //  same        la relecture redonne la meme valeur fausse -> calcul fautif
+              //  ni l'un ni l'autre, ou filtre non repasse -> encore autre chose
               if (same_as_sw) race_mism_reread_ok++;
+              else if (same_as_first) race_mism_same++;
             }
             //Les trois premiers desaccords sont detailles : on cherche a savoir si
             //l'evenement unique observe est lie au demarrage (premier candidat, premier
