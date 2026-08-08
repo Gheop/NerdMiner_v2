@@ -68,6 +68,47 @@ silicon allows.
 | Nonce loop inside the assembly | +19% | every asm block clobbers memory, so returning to C between them forced gcc to reload everything, five times per nonce |
 | Per-nonce DPORT interrupt mask dropped | +5.7% | it only ever protected the two-read DPORT sequence, which the raw read no longer uses |
 
+## A silicon limitation on ESP32 classic, and where we are with it
+
+Running this firmware with a software cross-check on every candidate, we see rare
+disagreements on ESP32 classic: the hardware engine returns a hash that a software
+implementation does not reproduce for the same header and nonce. Around **0.3 per hour
+per board**, against roughly 41,000 candidates checked per hour, so about **one in
+130,000**. The six ESP32-S3 boards show none at all over 1.96 million checked
+candidates, where the classic rate predicted 6.3.
+
+What it is not, measured rather than assumed:
+
+- Not the register read. Re-reading the digest on a disagreement returns the same wrong
+  value every time, six times out of six.
+- Not our nonce accounting. None of the neighbouring nonces reproduces the hash either.
+- Not the raw DPORT read this firmware uses. Putting the protected DPORT sequence back
+  made it **worse**, twice, on two different boards: 5.96 disagreements per hour against
+  0.32 and 0.00 on the untouched controls.
+
+Espressif documents the mechanism. Erratum **CPU-3.16**, "There Are Limitations to the
+CPU Access to 0x3ff0_0000 ~ 0x3ff1_efff and 0x3ff4_0000 ~ 0x3ff7_ffff Address Spaces",
+states that simultaneous access by the two CPUs can lose some accesses, and prescribes
+inserting a `MEMW` instruction before the access. `SHA_TEXT_BASE` on ESP32 classic sits
+at 0x3FF03000, inside that range, and the second core runs the software miner flat out.
+Erratum **CPU-3.3** adds that consecutive writes to the same address may be lost, which
+matches the two message words this code writes twice per nonce, once for each block.
+
+A one-instruction barrier before the engine start command costs **1.4%** of hashrate and
+is under measurement on one board against two controls. It is **not** in this branch yet:
+we do not ship a mitigation before we can show it works. The criterion is at least eight
+disagreements on the two controls with none on the treated board, which takes a day or
+more at this rate.
+
+One thing that does not work, so nobody retries it: moving those two writes into the
+LOAD wait, which would have cost nothing. The engine refuses writes while a LOAD is in
+flight, the startup known-answer test failed within twenty seconds, and 3243
+disagreements followed.
+
+Worth keeping in proportion: at one candidate in 130,000, the odds of this costing a
+found block are far below the odds of finding one. It matters for understanding, not for
+earnings.
+
 ## Four silent failures
 
 The pattern that cost us the most time: the miner shows a normal hashrate, a normal
