@@ -103,6 +103,7 @@ bool screenNoteInput(void)
 volatile uint32_t race_hashes_sw = 0;
 volatile uint32_t race_sha_mismatch = 0;
 volatile int8_t race_kat_state = -1;
+volatile uint32_t race_mism_reread_ok = 0;
 
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
@@ -1924,6 +1925,16 @@ void minerWorkerHw(void * task_id)
             for (int i = 0; i < 32; ++i)
               if (hash[i] != doubleHash[i]) { bad = true; break; }
           if (bad) {
+            //Relecture immediate : le digest du candidat est encore dans SHA_TEXT, la
+            //boucle assembleur n'a pas repris. Si la seconde lecture concorde avec le
+            //logiciel, le calcul etait bon et seule la lecture avait fauté.
+            uint8_t again[32];
+            if (nerd_sha_ll_read_digest_swap_if(again)) {
+              bool same_as_sw = true;
+              for (int i = 0; i < 32; ++i)
+                if (again[i] != doubleHash[i]) { same_as_sw = false; break; }
+              if (same_as_sw) race_mism_reread_ok++;
+            }
             //Les trois premiers desaccords sont detailles : on cherche a savoir si
             //l'evenement unique observe est lie au demarrage (premier candidat, premier
             //job) ou reparti au hasard dans la plage de nonces.

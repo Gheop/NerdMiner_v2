@@ -327,6 +327,10 @@ static const char *resetReasonStr() {
   }
 }
 
+//Horodatage du dernier POST de telemetrie ayant recu une reponse. 0 = jamais depuis
+//le demarrage.
+static volatile uint32_t g_lastReportOkMs = 0;
+
 static void postTelemetry(uint32_t hashrateHs) {
   if (WiFi.status() != WL_CONNECTED) return;
 
@@ -349,11 +353,11 @@ static void postTelemetry(uint32_t hashrateHs) {
   snprintf(body, sizeof(body),
            "{\"worker\":\"%s\",\"hashrateHs\":%u,\"tempC\":%.1f,\"rssi\":%d,"
            "\"uptimeS\":%lu,\"freeHeap\":%u,\"sinceLastPoolJobS\":%ld,"
-           "\"khsHw\":%.1f,\"khsSw\":%.1f,\"shaMismatch\":%u,\"kat\":%d,"
+           "\"khsHw\":%.1f,\"khsSw\":%.1f,\"shaMismatch\":%u,\"mismRe\":%u,\"kat\":%d,"
            "\"resetReason\":\"%s\",\"version\":\"%s\"}",
            worker.c_str(), (unsigned)hashrateHs, temperatureRead(), (int)WiFi.RSSI(),
            (unsigned long)(millis() / 1000), (unsigned)ESP.getFreeHeap(), sinceJob,
-           khs_hw, khs_sw, (unsigned)race_sha_mismatch, (int)race_kat_state,
+           khs_hw, khs_sw, (unsigned)race_sha_mismatch, (unsigned)race_mism_reread_ok, (int)race_kat_state,
            resetReasonStr(), CURRENT_VERSION);
 
   //Same pattern as monitor.cpp's working HTTPS calls: let HTTPClient manage the
@@ -368,6 +372,9 @@ static void postTelemetry(uint32_t hashrateHs) {
 #endif
   int code = http.POST((uint8_t *)body, strlen(body));
   Serial.printf("Report -> HTTP %d\n", code);
+  //Sert de preuve de vie de la pile reseau au watchdog : un code negatif est un
+  //echec de connexion, seul un code HTTP recu prouve que la pile repond encore.
+  if (code > 0) g_lastReportOkMs = millis();
   http.end();
 }
 #endif
@@ -459,6 +466,36 @@ static void healthWatchdog(void *unused) {
                   temperatureRead(), (int)WiFi.RSSI(), (unsigned)sinceJobS);
 
     if (ota_active) continue;   //mining is intentionally idle during an OTA flash
+
+#ifdef NERDMINER_REPORT_URL
+    //Gel selectif observe le 8 aout sur une carte classic : le minage et la pile WiFi
+    //repondent encore (ping OK, jobs pool recus), mais la telemetrie et l'OTA sont
+    //mortes. Le declencheur "aucun job pool" ne voit rien, puisque stratum tourne. Le
+    //mineur devient invisible et injoignable, donc impossible a corriger a distance.
+    //On surveille donc aussi la remontee, en deux temps : reconnexion WiFi d'abord,
+    //redemarrage ensuite.
+    //
+    //Garde-fou contre la boucle de redemarrage : on n'agit que si un POST a deja
+    //abouti depuis le demarrage. Si le dashboard est en panne, aucun mineur ne
+    //redemarrera au boot, et ceux qui tournaient ne redemarreront qu'une seule fois.
+    if (WiFi.status() == WL_CONNECTED && g_lastReportOkMs != 0) {
+      uint32_t sinceRepS = (millis() - g_lastReportOkMs) / 1000;
+      static uint32_t s_reconnectAtMs = 0;
+      if (sinceRepS > 480 && (s_reconnectAtMs == 0 || (millis() - s_reconnectAtMs) > 600000)) {
+        Serial.printf("Health: aucune telemetrie depuis %us, reconnexion WiFi\n",
+                      (unsigned)sinceRepS);
+        s_reconnectAtMs = millis();
+        WiFi.reconnect();
+      }
+      if (sinceRepS > 900) {
+        Serial.printf("Health: aucune telemetrie depuis %us malgre la reconnexion, reboot\n",
+                      (unsigned)sinceRepS);
+        Serial.flush();
+        esp_restart();
+      }
+    }
+#endif
+
     if (WiFi.status() == WL_CONNECTED && (millis() - ref) > POOL_STALL_REBOOT_MS) {
       //Freeze diagnostic before the reboot: which task is stuck and on what.
       //state: 0=Running 1=Ready 2=Blocked 3=Suspended 4=Deleted 5=Invalid.

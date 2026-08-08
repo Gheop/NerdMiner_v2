@@ -43,6 +43,11 @@ extern volatile uint32_t race_sha_mismatch;
 //1 succes. Remonte dans la telemetrie parce que les cartes S3 sont au rack, sans
 //port serie : un autotest dont on ne peut pas lire le verdict ne sert a rien.
 extern volatile int8_t race_kat_state;
+//Sur un desaccord, on relit le digest et on recompare : si la seconde lecture tombe
+//juste, le moteur avait bien calcule et c'est la lecture des registres qui a fauté.
+//Separe une panne de lecture d'une panne de calcul, ce que le compteur global ne dit
+//pas. Ne tourne que sur le chemin rare, cout nul.
+extern volatile uint32_t race_mism_reread_ok;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);
