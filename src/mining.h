@@ -57,6 +57,11 @@ extern volatile uint32_t race_mism_same;
 //autres sont identiques d'un nonce au suivant et le registre contient deja la bonne
 //valeur.
 extern volatile uint32_t race_mism_prevnonce;
+//Le hash obtenu correspond a un nonce voisin : le decalage trouve (-4 a +4, 0 = aucun)
+//et le nombre de fois. Un decalage constant accuse notre attribution ; aucun decalage
+//accuse le message envoye au moteur.
+extern volatile int8_t   race_mism_offset;
+extern volatile uint32_t race_mism_offset_hits;
 void runMiner(void *name);
 
 void minerWorkerSw(void * task_id);

@@ -106,6 +106,8 @@ volatile int8_t race_kat_state = -1;
 volatile uint32_t race_mism_reread_ok = 0;
 volatile uint32_t race_mism_same = 0;
 volatile uint32_t race_mism_prevnonce = 0;
+volatile int8_t   race_mism_offset = 0;
+volatile uint32_t race_mism_offset_hits = 0;
 
 volatile uint32_t shares; // increase if blockhash has 32 bits of zeroes
 volatile uint32_t valids; // increased if blockhash <= target
@@ -1740,8 +1742,27 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"
         //Travail utile pendant le LOAD : preparer le padding du second sha.
         "movi    a11, 0x100\n\t"
-        "3: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 3b\n\t"
+#if RACE_PAD_EARLY
+        //Le LOAD n ecrit que les mots 0 a 7 du digest : les mots 8 et 15 sont
+        //libres pendant qu il travaille, et le bloc 2 est deja consomme. On y
+        //place donc le padding du second sha au lieu de l ecrire apres l attente.
+        //Ces deux ecritures avaient jusqu ici la seule fenetre serree du nonce ;
+        //elles ont maintenant tout le temps d atterrir, sans barriere et sans
+        //instruction en plus.
         "s32i.n  a10, %[sb], 32\n\t"  "s32i.n  a11, %[sb], 60\n\t"
+#endif
+        "3: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 3b\n\t"
+        //Seule fenetre serree du nonce : ces deux mots de padding sont ecrits
+        //entre la fin du LOAD et le START qui suit, alors que tous les autres ont
+        //largement le temps. Une barriere ici garantit qu ils sont visibles du
+        //peripherique avant le demarrage. Les trois barrieres coutaient 3,3 %,
+        //celle-ci seule est l objet du test.
+#if !RACE_PAD_EARLY
+        "s32i.n  a10, %[sb], 32\n\t"  "s32i.n  a11, %[sb], 60\n\t"
+#if RACE_FILL_BARRIER
+        "memw\n\t"
+#endif
+#endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"
         //Pendant le second sha : avancer le nonce et decrementer le compteur.
         "add     a13, a13, a12\n\t"
@@ -1948,15 +1969,25 @@ void minerWorkerHw(void * task_id)
             //Test de l'ecriture perdue : on refait passer le nonce PRECEDENT dans le
             //moteur et on compare au hash qu'on avait obtenu. S'ils sont egaux, le
             //moteur avait bien haché n-1, donc l'ecriture du nonce n s'est perdue.
-            {
-              nerd_sha_nonce_run_asm(sha_buffer, __builtin_bswap32(nonce_hit - 1), 1);
-              uint8_t prev[32];
+            //On refait passer les nonces voisins dans le moteur et on cherche lequel
+            //redonne le hash obtenu. Un voisin qui correspond veut dire que le calcul
+            //etait juste et que c'est notre attribution qui derape ; aucun voisin veut
+            //dire que le message envoye au moteur etait different de celui qu'on croit.
+            for (int8_t off = -4; off <= 4; ++off) {
+              if (off == 0) continue;
+              nerd_sha_nonce_run_asm(sha_buffer, __builtin_bswap32(nonce_hit + off), 1);
+              uint8_t cand[32];
               for (int i = 0; i < 8; ++i)
-                ((uint32_t*)prev)[i] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + i*4));
+                ((uint32_t*)cand)[i] = __builtin_bswap32(SHA_READ(SHA_TEXT_BASE + i*4));
               bool eq = true;
               for (int i = 0; i < 32; ++i)
-                if (prev[i] != hash[i]) { eq = false; break; }
-              if (eq) race_mism_prevnonce++;
+                if (cand[i] != hash[i]) { eq = false; break; }
+              if (eq) {
+                race_mism_offset = off;
+                race_mism_offset_hits++;
+                if (off == -1) race_mism_prevnonce++;
+                break;
+              }
             }
 #endif
             //Les trois premiers desaccords sont detailles : on cherche a savoir si
