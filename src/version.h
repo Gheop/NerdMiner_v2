@@ -1,6 +1,6 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define CURRENT_VERSION "V1.8.3-gheop8"
+#define CURRENT_VERSION "V2.0.0"
 
 #endif // VERSION_H
