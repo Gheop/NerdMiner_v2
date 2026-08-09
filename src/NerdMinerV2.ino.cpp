@@ -243,7 +243,11 @@ void setup()
   #endif
   esp_task_wdt_add(minerTask1);
 
-#if (SOC_CPU_CORES_NUM >= 2)
+//RACE_NO_SW_MINER : experience de cause, pas un reglage a livrer. L'erratum CPU-3.16
+//attribue la perte d'acces a des acces simultanes des deux coeurs. Le mineur logiciel
+//occupe le second coeur en permanence ; sans lui, si les desaccords disparaissent, la
+//concurrence entre coeurs est confirmee. Coute les ~40 kH/s du chemin logiciel.
+#if (SOC_CPU_CORES_NUM >= 2) && !RACE_NO_SW_MINER
   #if defined(CONFIG_IDF_TARGET_ESP32)
   xTaskCreate(minerWorkerSw, "MinerSw-1", 5000, (void*)1, 1, &minerTask2); // Reduced for ESP32 classic
   #else
@@ -487,7 +491,13 @@ static void healthWatchdog(void *unused) {
         s_reconnectAtMs = millis();
         WiFi.reconnect();
       }
-      if (sinceRepS > 900) {
+      //Seuil porte de 15 a 60 minutes apres l'incident du 9 aout : une simple
+      //indisponibilite de notre supervision, pod ou reseau, avait fait redemarrer les
+      //NEUF mineurs d'un coup. Le garde-fou limitait bien a un redemarrage par carte,
+      //mais le principe etait faux : une panne de monitoring ne doit pas couter du
+      //minage. A une heure, une coupure passagere est sans effet, et un vrai gel reste
+      //rattrape. La reconnexion WiFi a 8 minutes, elle, ne coute rien et reste.
+      if (sinceRepS > 3600) {
         Serial.printf("Health: aucune telemetrie depuis %us malgre la reconnexion, reboot\n",
                       (unsigned)sinceRepS);
         Serial.flush();
