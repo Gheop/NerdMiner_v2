@@ -94,11 +94,23 @@ at 0x3FF03000, inside that range, and the second core runs the software miner fl
 Erratum **CPU-3.3** adds that consecutive writes to the same address may be lost, which
 matches the two message words this code writes twice per nonce, once for each block.
 
-A one-instruction barrier before the engine start command costs **1.4%** of hashrate and
-is under measurement on one board against two controls. It is **not** in this branch yet:
-we do not ship a mitigation before we can show it works. The criterion is at least eight
-disagreements on the two controls with none on the treated board, which takes a day or
-more at this rate.
+Two mitigations were measured and neither works, so neither is in this branch:
+
+- A `MEMW` barrier before the engine start command, 1.4% of hashrate. The treated board
+  produced a disagreement within eighty minutes while the two controls stayed clean.
+- Stopping the software miner on the second core, 5.3% of hashrate, to test the erratum's
+  stated cause directly. Five disagreements in 6.9 board-hours, an unchanged rate.
+
+Two further things the instrumentation established, each from ten or more events. Re-reading
+the digest on a disagreement returns the same wrong value every time, so the registers
+really do hold a wrong result rather than a misread one. And no neighbouring nonce
+reproduces that hash, so the nonce accounting is not drifting either. The engine was fed
+something other than what we believe we wrote, and we have not found what.
+
+The defect discards about **one candidate in 100,000**, which is 0.02 kH/s across our
+whole fleet. The cheapest mitigation we found costs 32 kH/s, roughly 1400 times the
+damage. So we document it and leave it, with the per-candidate software check left on to
+catch any change of regime.
 
 One thing that does not work, so nobody retries it: moving those two writes into the
 LOAD wait, which would have cost nothing. The engine refuses writes while a LOAD is in
@@ -170,6 +182,7 @@ and then fails verification with no useful message.
 | Undefined behaviour in `to_byte_array`, two `*in++` in one expression | not reported | `fix/to-byte-array-ub` |
 | Skipping constant `SHA_TEXT` writes in the hardware miner: **+16.6%** hashrate, measured | [PR #802](https://github.com/BitMaker-hub/NerdMiner_v2/pull/802) | `perf/hw-sha-fast-fill` |
 | Rebuilt hardware SHA path, ESP32 and ESP32-S3 | this README | `perf/esp32-sha` |
+| OTA was dead on the ESP32 classic target: a single application slot meant the transfer succeeded and the board booted the old firmware again | this README | in `all-fixes` |
 | OTA firmware and config updates over WiFi | [PR #804](https://github.com/BitMaker-hub/NerdMiner_v2/pull/804) | `feat/ota-wifi` |
 
 ## Measure it yourself
@@ -196,10 +209,13 @@ Honesty matters more than the numbers here, so:
 
 - The hashrate figures come from this code running on our own fleet, three ESP32
   classic and six ESP32-S3, and are cross-checked against pool-side accepted shares.
-- **This branch itself has been compiled for `ESP32-devKitv1`, `NerdminerV2`,
-  `ESP32-S3-devKitv1` and `TTGO-T-Display`, but not yet run on hardware.** It is a
-  clean rebuild of the work on top of upstream, so it needs a real run on both chip
-  families before anyone should trust it in production.
+- **This branch has been run on hardware, on both chip families.** On an ESP32-S3 it
+  reached 315.4 kH/s and on an ESP32 classic 754.2 kH/s, in both cases matching our own
+  working firmware to within a tenth of a percent, with the startup known-answer test
+  green and no hash disagreement. Each run was measured against the untouched boards
+  next to it. For remote observation the test build carried our telemetry task on top;
+  the mining path under test is this branch's, and telemetry runs in its own task and
+  does not touch it.
 - The raw DPORT read assumes nothing else touches those registers while the engine
   lock is held. That holds in our configuration. Boards that drive a display or I2C
   from the second core should verify it.
