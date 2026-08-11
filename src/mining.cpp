@@ -44,8 +44,16 @@
 #ifndef RACE_ASM_LOOP
 #define RACE_ASM_LOOP 1
 #endif
+//L'assembleur Xtensa de cette boucle nomme les registres a8..a13 et la carte des
+//registres SHA du S3. Le C3 est un RISC-V (gcc rejette 'a8'), et le S2 a un autre
+//accelerateur : ils partagent pourtant le meme bloc de code, donc le defaut est
+//limite au S3.
 #ifndef RACE_ASM_LOOP_S3
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
 #define RACE_ASM_LOOP_S3 1
+#else
+#define RACE_ASM_LOOP_S3 0
+#endif
 #endif
 
 #if RACE_RATE
