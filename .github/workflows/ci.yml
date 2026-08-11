@@ -1,0 +1,77 @@
+name: CI
+
+# The upstream workflows only run on main and prerelease, where they publish
+# releases. This one checks the work branch of this fork: it runs the host tests
+# and builds one environment per chip family, so a change that breaks a family we
+# do not own hardware for still fails here.
+
+on:
+  push:
+    branches:
+      - all-fixes
+    paths-ignore:
+      - '**.md'
+      - '3d_files/**'
+      - 'images/**'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '3d_files/**'
+      - 'images/**'
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-tests
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+      - name: Fetch library dependencies
+        # One test parses pool JSON with ArduinoJson. Installing the packages for
+        # a single environment puts the headers under .pio/libdeps/.
+        run: pio pkg install -e ESP32-devKitv1
+      - name: Run host tests
+        run: ./test/run.sh
+
+  build:
+    name: Build ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # One per chip family, plus the two boards this fork measures on.
+        env:
+          - NerdminerV2         # ESP32-S3, LILYGO T-Display S3
+          - ESP32-devKitv1      # ESP32 classic, bare DevKit
+          - ESP32-C3-devKitmv1  # ESP32-C3, RISC-V
+          - ESP32-S2-mini-wemos # ESP32-S2
+          - ESP32-2432S028R     # ESP32 classic with a parallel display
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ matrix.env }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+      - name: Build
+        # No secrets are needed. The OTA password comes from the environment at
+        # build time and an empty value is valid: the firmware then refuses to
+        # start the OTA service instead of failing the build.
+        run: pio run -e ${{ matrix.env }}
