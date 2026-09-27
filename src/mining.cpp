@@ -21,7 +21,17 @@
 
 //10 Jobs per second
 #define NONCE_PER_JOB_SW 4096
+//Quatre jobs de 16K durent 92 ms a 715 kH/s sur classic, moins qu'un tour de la
+//tache stratum qui les remplit : le mineur materiel y attendait du travail 1,7 % du
+//temps (mesure awi81 sur ESP32-2432S028). 64K sur classic : +1 % mesure. Le S3, deux
+//fois plus lent, n'a pas ete mesure et garde 16K.
+#ifndef NONCE_PER_JOB_HW
+#if defined(CONFIG_IDF_TARGET_ESP32)
+#define NONCE_PER_JOB_HW 64*1024
+#else
 #define NONCE_PER_JOB_HW 16*1024
+#endif
+#endif
 
 //Optimisations du chemin SHA materiel, actives par defaut : elles n'exigent aucun
 //reglage cote platformio.ini. Chacune est mesurable independamment en la passant a 0.
@@ -44,6 +54,17 @@
 #ifndef RACE_ASM_LOOP
 #define RACE_ASM_LOOP 1
 #endif
+//Ecriture des mots 8 a 15 du bloc 1 pendant le bloc 3 du nonce precedent (classic,
+//boucle assembleur). +4,4 % mesure, 787,9 contre 754 kH/s sur la meme carte.
+//48 nop : awi81 voit des hashs faux a 24 et aucun a partir de 32 ; 48 coute 0,1 %.
+#ifndef RACE_B1_EARLY
+#define RACE_B1_EARLY 1
+#endif
+#ifndef RACE_B1_EARLY_NOPS
+#define RACE_B1_EARLY_NOPS 48
+#endif
+#define RACE_XSTR(x) #x
+#define RACE_STR(x) RACE_XSTR(x)
 //L'assembleur Xtensa de cette boucle nomme les registres a8..a13 et la carte des
 //registres SHA du S3. Le C3 est un RISC-V (gcc rejette 'a8'), et le S2 a un autre
 //accelerateur : ils partagent pourtant le meme bloc de code, donc le defaut est
@@ -1722,6 +1743,18 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
     __asm__ __volatile__(
         "mov     a13, %[n0]\n\t"
         "movi    a12, 0x01000000\n\t"
+#if RACE_B1_EARLY
+        //Premier tour : dans la boucle, les mots 8 a 15 du bloc 1 ne sont ecrits
+        //que pendant le bloc 3, pour le tour suivant.
+        "l32i.n  a8,  %[in], 32\n\t"  "s32i.n  a8,  %[sb], 32\n\t"
+        "l32i.n  a8,  %[in], 36\n\t"  "s32i.n  a8,  %[sb], 36\n\t"
+        "l32i.n  a8,  %[in], 40\n\t"  "s32i.n  a8,  %[sb], 40\n\t"
+        "l32i.n  a8,  %[in], 44\n\t"  "s32i.n  a8,  %[sb], 44\n\t"
+        "l32i.n  a8,  %[in], 48\n\t"  "s32i.n  a8,  %[sb], 48\n\t"
+        "l32i.n  a8,  %[in], 52\n\t"  "s32i.n  a8,  %[sb], 52\n\t"
+        "l32i.n  a8,  %[in], 56\n\t"  "s32i.n  a8,  %[sb], 56\n\t"
+        "l32i.n  a8,  %[in], 60\n\t"  "s32i.n  a8,  %[sb], 60\n\t"
+#endif
     "0:\n\t"
         "l32i.n  a8,  %[in], 0\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
         "l32i.n  a8,  %[in], 4\n\t"  "s32i.n  a8,  %[sb], 4\n\t"
@@ -1731,6 +1764,7 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
         "l32i.n  a8,  %[in], 20\n\t"  "s32i.n  a8,  %[sb], 20\n\t"
         "l32i.n  a8,  %[in], 24\n\t"  "s32i.n  a8,  %[sb], 24\n\t"
         "l32i.n  a8,  %[in], 28\n\t"  "s32i.n  a8,  %[sb], 28\n\t"
+#if !RACE_B1_EARLY
         "l32i.n  a8,  %[in], 32\n\t"  "s32i.n  a8,  %[sb], 32\n\t"
         "l32i.n  a8,  %[in], 36\n\t"  "s32i.n  a8,  %[sb], 36\n\t"
         "l32i.n  a8,  %[in], 40\n\t"  "s32i.n  a8,  %[sb], 40\n\t"
@@ -1739,6 +1773,7 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
         "l32i.n  a8,  %[in], 52\n\t"  "s32i.n  a8,  %[sb], 52\n\t"
         "l32i.n  a8,  %[in], 56\n\t"  "s32i.n  a8,  %[sb], 56\n\t"
         "l32i.n  a8,  %[in], 60\n\t"  "s32i.n  a8,  %[sb], 60\n\t"
+#endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"
         //Bloc 2 pendant que le moteur calcule le bloc 1.
         "l32i.n  a8,  %[in], 64\n\t"  "s32i.n  a8,  %[sb], 0\n\t"
@@ -1770,6 +1805,21 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
         //Pendant le second sha : avancer le nonce et decrementer le compteur.
         "add     a13, a13, a12\n\t"
         "addi    %[cnt], %[cnt], -1\n\t"
+#if RACE_B1_EARLY
+        //Mots 8 a 15 du bloc 1 du tour suivant, ecrits pendant que le moteur calcule
+        //le bloc 3 : ils ne dependent pas du nonce. Le moteur lit TEXT mot a mot
+        //pendant les premieres rondes, donc sans attente tous les hashs sont faux ;
+        //avec 8 a 24 nop environ 10 %, a partir de 32 aucun (awi81, ESP32-2432S028).
+        ".rept " RACE_STR(RACE_B1_EARLY_NOPS) "\n\t" "nop\n\t" ".endr\n\t"
+        "l32i.n  a8,  %[in], 32\n\t"  "s32i.n  a8,  %[sb], 32\n\t"
+        "l32i.n  a8,  %[in], 36\n\t"  "s32i.n  a8,  %[sb], 36\n\t"
+        "l32i.n  a8,  %[in], 40\n\t"  "s32i.n  a8,  %[sb], 40\n\t"
+        "l32i.n  a8,  %[in], 44\n\t"  "s32i.n  a8,  %[sb], 44\n\t"
+        "l32i.n  a8,  %[in], 48\n\t"  "s32i.n  a8,  %[sb], 48\n\t"
+        "l32i.n  a8,  %[in], 52\n\t"  "s32i.n  a8,  %[sb], 52\n\t"
+        "l32i.n  a8,  %[in], 56\n\t"  "s32i.n  a8,  %[sb], 56\n\t"
+        "l32i.n  a8,  %[in], 60\n\t"  "s32i.n  a8,  %[sb], 60\n\t"
+#endif
         "4: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 4b\n\t"
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"
         "5: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 5b\n\t"
