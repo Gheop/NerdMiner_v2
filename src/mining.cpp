@@ -72,6 +72,16 @@
 #ifndef RACE_B2_EARLY_NOPS
 #define RACE_B2_EARLY_NOPS 48
 #endif
+//Padding du second sha (mots 8 et 15) ecrit pendant le calcul du bloc 2 au lieu de
+//l'etre juste avant le START suivant. +2,2 % sur classic (793,5 -> 811,4), +2,1 % sur
+//S3 (351,8 -> 359,1), zero desaccord. En aout, l'ecrire pendant le LOAD corrompait :
+//la copie du digest n'est pas un calcul, et l'essai n'attendait pas.
+#ifndef RACE_PAD2_EARLY
+#define RACE_PAD2_EARLY 1
+#endif
+#ifndef RACE_PAD2_EARLY_NOPS
+#define RACE_PAD2_EARLY_NOPS 48
+#endif
 #define RACE_XSTR(x) #x
 #define RACE_STR(x) RACE_XSTR(x)
 //L'assembleur Xtensa de cette boucle nomme les registres a8..a13 et la carte des
@@ -975,6 +985,13 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
         "movi    a8, 0x80020000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
 #endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x14\n\t"
+#if RACE_PAD2_EARLY
+        //Pendant le bloc 2 : les mots 8 et 15 du second sha ne dependent de rien, et
+        //la copie du digest n'ecrit que 0 a 7. On les pose une fois le bloc 2 lu.
+        ".rept " RACE_STR(RACE_PAD2_EARLY_NOPS) "\n\t" "nop\n\t" ".endr\n\t"
+        "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0xA0\n\t"
+        "movi    a8, 0x00010000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+#endif
         "1: l32i a8, %[sc], 0x18\n\t" "bnez.n  a8, 1b\n\t"
         //Second sha : le digest passe de H vers TEXT, puis son padding.
         "l32i    a8, %[sc], 0x40\n\t"  "s32i    a8, %[sc], 0x80\n\t"
@@ -985,8 +1002,10 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
         "l32i    a8, %[sc], 0x54\n\t"  "s32i    a8, %[sc], 0x94\n\t"
         "l32i    a8, %[sc], 0x58\n\t"  "s32i    a8, %[sc], 0x98\n\t"
         "l32i    a8, %[sc], 0x5C\n\t"  "s32i    a8, %[sc], 0x9C\n\t"
+#if !RACE_PAD2_EARLY
         "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0xA0\n\t"
         "movi    a8, 0x00010000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+#endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x10\n\t"
 #if RACE_B2_EARLY
         //Pendant le second sha : TEXT n'est qu'une entree (le resultat sort dans H),
@@ -1838,12 +1857,22 @@ static inline uint32_t nerd_sha_nonce_run_asm(const void *in, uint32_t be_nonce0
         "movi    a11, 0x280\n\t"      "s32i.n  a11, %[sb], 60\n\t"
         "1: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 1b\n\t"
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x94\n\t"  "memw\n\t"
+#if RACE_PAD2_EARLY
+        //Pendant le bloc 2 : le padding du bloc 3 (mots 8 et 15) ne depend de rien et
+        //le LOAD n'ecrit que 0 a 7. On le pose une fois le bloc 2 lu par le moteur,
+        //au lieu de l'ecrire entre la fin du LOAD et le START, avant la barriere.
+        ".rept " RACE_STR(RACE_PAD2_EARLY_NOPS) "\n\t" "nop\n\t" ".endr\n\t"
+        "movi    a11, 0x100\n\t"
+        "s32i.n  a10, %[sb], 32\n\t"  "s32i.n  a11, %[sb], 60\n\t"
+#endif
         "2: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 2b\n\t"
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x98\n\t"  "memw\n\t"
         //Travail utile pendant le LOAD : preparer le padding du second sha.
         "movi    a11, 0x100\n\t"
         "3: l32i    a8, %[sb], 0x9C\n\t"  "bnez.n  a8, 3b\n\t"
+#if !RACE_PAD2_EARLY
         "s32i.n  a10, %[sb], 32\n\t"  "s32i.n  a11, %[sb], 60\n\t"
+#endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sb], 0x90\n\t"  "memw\n\t"
         //Pendant le second sha : avancer le nonce et decrementer le compteur.
         "add     a13, a13, a12\n\t"
