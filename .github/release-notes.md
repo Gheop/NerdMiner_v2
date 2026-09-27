@@ -1,4 +1,4 @@
-Prebuilt images of the `all-fixes` branch, for every board in `platformio.ini`.
+Prebuilt images of the `all-fixes` branch, for 34 of the 35 boards in `platformio.ini`. `ESP32-C3-spotpear` has no image in this release: its build did not produce one, fixed for the next release.
 
 **Measured:** ESP32 classic 354 → 811 kH/s against upstream `main` on the same board, and ESP32-S3 (T-Display-S3) 313 → 359 kH/s on our boards. Every candidate is re-checked in software during the measurements. Details and method are in the [README](https://github.com/Gheop/NerdMiner_v2/tree/all-fixes#hashrate).
 
