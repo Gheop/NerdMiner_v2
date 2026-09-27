@@ -42,6 +42,15 @@
 #ifndef RACE_B1_EARLY_NOPS
 #define RACE_B1_EARLY_NOPS 48
 #endif
+//Ecriture du bloc 2 du nonce suivant pendant le second sha (S3, boucle assembleur).
+//+12,3 % mesure sur la flotte, 313,0 -> 351,5 kH/s. 32 et 48 nop donnent le meme debit,
+//64 coutent 1,3 % : l'attente depasse alors le calcul du moteur. 48 garde une marge.
+#ifndef RACE_B2_EARLY
+#define RACE_B2_EARLY 1
+#endif
+#ifndef RACE_B2_EARLY_NOPS
+#define RACE_B2_EARLY_NOPS 48
+#endif
 #define RACE_XSTR(x) #x
 #define RACE_STR(x) RACE_XSTR(x)
 
@@ -909,6 +918,19 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
 {
     uint32_t remaining = count, nonce = *nonce_io;
     __asm__ __volatile__(
+#if RACE_B2_EARLY
+        //Premier tour : dans la boucle, le bloc 2 est ecrit pendant le second sha
+        //du nonce precedent.
+        "l32i    a8, %[in], 0\n\t"    "s32i    a8, %[sc], 0x80\n\t"
+        "l32i    a8, %[in], 4\n\t"    "s32i    a8, %[sc], 0x84\n\t"
+        "l32i    a8, %[in], 8\n\t"    "s32i    a8, %[sc], 0x88\n\t"
+        "s32i    %[nonce], %[sc], 0x8C\n\t"
+        "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0x90\n\t"
+        "movi.n  a9, 0\n\t"
+        "s32i    a9, %[sc], 0x94\n\t" "s32i    a9, %[sc], 0x98\n\t"
+        "s32i    a9, %[sc], 0x9C\n\t" "s32i    a9, %[sc], 0xA0\n\t"
+        "movi    a8, 0x80020000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+#endif
     "0:\n\t"
         //Midstate reinjecte : le moteur ecrase H a chaque hash.
         "l32i    a8, %[mid], 0\n\t"  "s32i    a8, %[sc], 0x40\n\t"
@@ -920,6 +942,7 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
         "l32i    a8, %[mid], 24\n\t"  "s32i    a8, %[sc], 0x58\n\t"
         "l32i    a8, %[mid], 28\n\t"  "s32i    a8, %[sc], 0x5C\n\t"
         //Bloc 2 : en-tete, nonce, puis le padding que inter() avait remplace.
+#if !RACE_B2_EARLY
         "l32i    a8, %[in], 0\n\t"    "s32i    a8, %[sc], 0x80\n\t"
         "l32i    a8, %[in], 4\n\t"    "s32i    a8, %[sc], 0x84\n\t"
         "l32i    a8, %[in], 8\n\t"    "s32i    a8, %[sc], 0x88\n\t"
@@ -929,6 +952,7 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
         "s32i    a9, %[sc], 0x94\n\t" "s32i    a9, %[sc], 0x98\n\t"
         "s32i    a9, %[sc], 0x9C\n\t" "s32i    a9, %[sc], 0xA0\n\t"
         "movi    a8, 0x80020000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+#endif
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x14\n\t"
         "1: l32i a8, %[sc], 0x18\n\t" "bnez.n  a8, 1b\n\t"
         //Second sha : le digest passe de H vers TEXT, puis son padding.
@@ -943,12 +967,31 @@ static inline uint32_t nerd_sha_s3_run_asm(const void *in, const uint32_t *mid,
         "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0xA0\n\t"
         "movi    a8, 0x00010000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
         "movi.n  a8, 1\n\t"           "s32i    a8, %[sc], 0x10\n\t"
+#if RACE_B2_EARLY
+        //Pendant le second sha : TEXT n'est qu'une entree (le resultat sort dans H),
+        //donc une fois ses mots lus par le moteur on y ecrit le bloc 2 du nonce
+        //suivant. Le moteur lit TEXT pendant ses premieres rondes : attente d'abord.
+        "addi    %[nonce], %[nonce], 1\n\t"
+        "addi    %[cnt], %[cnt], -1\n\t"
+        ".rept " RACE_STR(RACE_B2_EARLY_NOPS) "\n\t" "nop\n\t" ".endr\n\t"
+        "l32i    a8, %[in], 0\n\t"    "s32i    a8, %[sc], 0x80\n\t"
+        "l32i    a8, %[in], 4\n\t"    "s32i    a8, %[sc], 0x84\n\t"
+        "l32i    a8, %[in], 8\n\t"    "s32i    a8, %[sc], 0x88\n\t"
+        "s32i    %[nonce], %[sc], 0x8C\n\t"
+        "movi    a8, 0x80\n\t"        "s32i    a8, %[sc], 0x90\n\t"
+        "movi.n  a9, 0\n\t"
+        "s32i    a9, %[sc], 0x94\n\t" "s32i    a9, %[sc], 0x98\n\t"
+        "s32i    a9, %[sc], 0x9C\n\t" "s32i    a9, %[sc], 0xA0\n\t"
+        "movi    a8, 0x80020000\n\t"  "s32i    a8, %[sc], 0xBC\n\t"
+#endif
         "2: l32i a8, %[sc], 0x18\n\t" "bnez.n  a8, 2b\n\t"
         //Rejet precoce : candidat quand les 16 bits de poids fort de H[7] sont nuls.
         "l32i    a8, %[sc], 0x5C\n\t"
         "extui   a8, a8, 16, 16\n\t"
+#if !RACE_B2_EARLY
         "addi    %[nonce], %[nonce], 1\n\t"
         "addi    %[cnt], %[cnt], -1\n\t"
+#endif
         "beqz    a8, 9f\n\t"
         "bnez    %[cnt], 0b\n\t"
     "9:\n\t"
