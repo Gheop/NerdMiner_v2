@@ -200,12 +200,15 @@ a software implementation.
 
 ![Hashrate comparison](images/hashrate.svg)
 
-The S3 row uses upstream's own settings, so the comparison isolates the SHA path. The
-display options and core pinning below take the same firmware to 315.4 kH/s.
+The S3 row uses upstream's own settings, so the comparison isolates the SHA path. It was
+measured before the block 2 change below. With the display options and core pinning, our
+S3 boards ran at 313.0 kH/s, and writing the next block 2 during the second hash took them
+to 351.5 kH/s, +12.3%.
 
-The two chips differ because the S3 spends most of a nonce on the APB bus, near 16 cycles
-per register access and about 39 accesses per nonce. Little software cost remains there.
-On the classic, software overhead dominated.
+That change works because the S3 spends most of a nonce on the APB bus, near 16 cycles per
+register access. Its digest comes out in `H`, so `TEXT` is only an input: once the engine
+has read it, the loop writes the next nonce's block 2 there while the second hash runs.
+On the classic, software overhead dominated instead.
 
 Where the gains come from on the classic path:
 
@@ -299,6 +302,8 @@ The performance flags default to on and need no change in `platformio.ini`. Set 
 | `RACE_PREFILL` | `1` | Writes block 2 while the engine hashes block 1 |
 | `RACE_ASM_LOOP` | `1` | Runs the whole nonce loop in assembly, classic path |
 | `RACE_ASM_LOOP_S3` | `1` on ESP32-S3, `0` elsewhere | Same, S3 path. The assembly names Xtensa registers, so the C3 and the S2 build without it |
+| `RACE_B2_EARLY` | `1` | Writes block 2 of the next nonce during the second hash, S3 path |
+| `RACE_B2_EARLY_NOPS` | `48` | Cycles to wait before those writes. 64 cost 1.3% on the S3 |
 | `RACE_B1_EARLY` | `1` | Writes words 8 to 15 of block 1 during block 3 of the previous nonce, classic path |
 | `RACE_B1_EARLY_NOPS` | `48` | Cycles to wait before those writes. Wrong hashes appear below 32 |
 | `NONCE_PER_JOB_HW` | `65536` on ESP32 classic, `16384` elsewhere | Nonces per hardware job |
