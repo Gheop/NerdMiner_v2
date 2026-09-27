@@ -119,7 +119,8 @@ three places:
 - The `OTA password` field of the WiFi portal. The field is always empty: leave it empty
   to keep the current password, or type `off` to remove it.
 - The configuration file: `otaPassword` in SPIFFS, `OtaPassword` on an SD card.
-- The `OTA_PASSWORD` build flag. It overrides the configuration.
+- The `OTA_PASSWORD` build flag. It overrides the configuration, and the 8 character
+  minimum does not apply to it.
 
 Without a password, the board mines normally and prints
 `OTA disabled: set an OTA password of 8 characters or more in the configuration`.

@@ -279,11 +279,15 @@ static void setupOTA() {
   //Never expose an unauthenticated OTA endpoint: anyone on the LAN could flash the
   //device. A password set at build time wins; otherwise the one from the
   //configuration is used, and without either OTA stays off.
+  //The length rule only applies to the configuration: a build-time password is the
+  //builder's own choice, and a shorter one used to work.
   const char *otaPassword = OTA_PASSWORD;
-  if (!*otaPassword) otaPassword = Settings.OtaPassword;
-  if (strlen(otaPassword) < OTA_PASSWORD_MIN_LEN) {
-    Serial.printf("OTA disabled: set an OTA password of %d characters or more in the configuration\n", OTA_PASSWORD_MIN_LEN);
-    return;
+  if (!*otaPassword) {
+    otaPassword = Settings.OtaPassword;
+    if (strlen(otaPassword) < OTA_PASSWORD_MIN_LEN) {
+      Serial.printf("OTA disabled: set an OTA password of %d characters or more in the configuration\n", OTA_PASSWORD_MIN_LEN);
+      return;
+    }
   }
   ArduinoOTA.setPassword(otaPassword);
   ArduinoOTA.onStart([]() {
