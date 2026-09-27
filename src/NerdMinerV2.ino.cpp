@@ -25,6 +25,9 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 #include "version.h"
+#include "drivers/storage/storage.h"
+
+extern TSettings Settings;
 
 #ifndef OTA_PASSWORD
 #define OTA_PASSWORD ""
@@ -274,12 +277,15 @@ static void setupOTA() {
   snprintf(host, sizeof(host), "nerdminer-%02x%02x", mac[4], mac[5]);
   ArduinoOTA.setHostname(host);
   //Never expose an unauthenticated OTA endpoint: anyone on the LAN could flash the
-  //device. Builds that do not define OTA_PASSWORD simply run without OTA.
-  if (sizeof(OTA_PASSWORD) <= 1) {
-    Serial.println("OTA disabled: no OTA_PASSWORD set at build time");
+  //device. A password set at build time wins; otherwise the one from the
+  //configuration is used, and without either OTA stays off.
+  const char *otaPassword = OTA_PASSWORD;
+  if (!*otaPassword) otaPassword = Settings.OtaPassword;
+  if (strlen(otaPassword) < OTA_PASSWORD_MIN_LEN) {
+    Serial.printf("OTA disabled: set an OTA password of %d characters or more in the configuration\n", OTA_PASSWORD_MIN_LEN);
     return;
   }
-  ArduinoOTA.setPassword(OTA_PASSWORD);
+  ArduinoOTA.setPassword(otaPassword);
   ArduinoOTA.onStart([]() {
     //Ask the miners to idle at a safe point and release the SHA engine lock,
     //then give in-flight jobs a moment to finish. Suspending them mid-hash would

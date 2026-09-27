@@ -35,6 +35,7 @@
 #define JSON_KEY_STATS2NV	"SaveStats"
 #define JSON_KEY_INVCOLOR	"invertColors"
 #define JSON_KEY_BRIGHTNESS	"Brightness"
+#define JSON_KEY_OTAPASS	"OtaPassword"
 
 // JSON config file SPIFFS (different for backward compatibility with existing devices)
 #define JSON_SPIFFS_KEY_POOLURL		"poolString"
@@ -45,6 +46,9 @@
 #define JSON_SPIFFS_KEY_STATS2NV	"saveStatsToNVS"
 #define JSON_SPIFFS_KEY_INVCOLOR	"invertColors"
 #define JSON_SPIFFS_KEY_BRIGHTNESS	"Brightness"
+#define JSON_SPIFFS_KEY_OTAPASS	"otaPassword"
+
+#define OTA_PASSWORD_MIN_LEN	8
 
 // settings
 struct TSettings
@@ -61,6 +65,9 @@ struct TSettings
 	bool saveStats{ DEFAULT_SAVESTATS };
 	bool invertColors{ DEFAULT_INVERTCOLORS };
 	int Brightness{ DEFAULT_BRIGHTNESS };
+	//OTA stays off while this is shorter than OTA_PASSWORD_MIN_LEN: a public binary
+	//cannot carry a password, so each user sets their own in the configuration.
+	char OtaPassword[64]{ "" };
 };
 
 #endif // _STORAGE_H_

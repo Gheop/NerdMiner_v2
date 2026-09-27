@@ -1,0 +1,64 @@
+name: Fork release
+
+# Builds every environment and attaches the images to a DRAFT release. Nothing is
+# public until someone reviews the draft and publishes it by hand. Started by hand
+# from the Actions tab, on the commit that carries the version in src/version.h.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag, matching CURRENT_VERSION in src/version.h (e.g. v2.2.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # post_build_merge.py names the output folder from git describe
+      - name: Check the version
+        # A tag that disagrees with the firmware would publish images that report
+        # another version than the release they come from.
+        run: |
+          want="${{ inputs.version }}"
+          have="v$(grep CURRENT_VERSION src/version.h | awk -F\" '{print $2}' | sed 's/^V//')"
+          echo "tag $want, firmware $have"
+          [ "$want" = "$have" ]
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-release
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+      - name: Run the host tests
+        run: pio pkg install -e ESP32-devKitv1 && ./test/run.sh
+      - name: Build every environment
+        # No OTA password is set at build time: each user sets their own in the
+        # configuration, and OTA stays off until they do.
+        run: pio run
+      - name: Collect the images
+        run: |
+          mkdir -p release
+          find firmware -name '*_factory.bin' -exec cp {} release/ \;
+          find firmware -name '*_firmware.bin' -exec cp {} release/ \;
+          ls -l release
+          [ "$(ls release/*_factory.bin | wc -l)" -ge 30 ]
+      - uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          tag_name: ${{ inputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: NerdMiner ${{ inputs.version }} (Gheop fork)
+          body_path: .github/release-notes.md
+          fail_on_unmatched_files: true
+          files: release/*.bin

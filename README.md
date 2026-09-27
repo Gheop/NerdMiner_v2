@@ -56,14 +56,24 @@ Do not run `pio run` without `-e`. The default target builds 35 environments.
 
 ### From a prebuilt binary
 
-The `bin/` folder holds binaries for three boards only: DUO, ESP32-devKit, and
-LILYGO T-Display S3.
+Each release of this fork carries images for every environment in `platformio.ini`. See
+[Releases](https://github.com/Gheop/NerdMiner_v2/releases).
 
-**These binaries date from before this fork. They contain none of the changes described
-here.** Build from source if you want the fixes and the performance work.
+1. Download `YOUR_ENV_factory.bin` from the latest release.
+2. Open the [online ESP tool](https://espressif.github.io/esptool-js/) in Chrome,
+   Chromium, or Brave.
+3. Connect the board with USB. Click Connect.
+4. Set the flash address to `0x0`. Select the file.
+5. Click Program.
+6. Configure the board with the WiFi portal.
 
-To flash a prebuilt binary, use the [online ESP tool](https://espressif.github.io/esptool-js/)
-with Chrome, Chromium, or Brave. Select each `.bin` file from the folder for your board.
+To update a board that already runs this fork, send `YOUR_ENV_firmware.bin` over WiFi.
+See [Update a board over WiFi](#update-a-board-over-wifi).
+
+Two boards are measured: the LILYGO T-Display S3 (`NerdminerV2`) and a bare ESP32 DevKit
+(`ESP32-devKitv1`). The other images build in CI, but they have not run on hardware here.
+
+The `bin/` folder predates this fork. It contains none of these changes.
 
 ### Flash problems
 
@@ -103,10 +113,21 @@ pio run -e YOUR_ENV -t uploadfs
 
 ### Update a board over WiFi
 
-Two environments support OTA: `NerdminerV2-OTA` and `ESP32-devKitv1-OTA`. Both read the
-password from the `NERDMINER_OTA_PWD` variable.
+OTA stays off until the board has a password of 8 characters or more. Set it in one of
+three places:
 
-1. Export the password:
+- The `OTA password` field of the WiFi portal. The field is always empty: leave it empty
+  to keep the current password, or type `off` to remove it.
+- The configuration file: `otaPassword` in SPIFFS, `OtaPassword` on an SD card.
+- The `OTA_PASSWORD` build flag. It overrides the configuration.
+
+Without a password, the board mines normally and prints
+`OTA disabled: set an OTA password of 8 characters or more in the configuration`.
+
+Two environments send firmware over OTA: `NerdminerV2-OTA` and `ESP32-devKitv1-OTA`. Both
+read the password from the `NERDMINER_OTA_PWD` variable.
+
+1. Export the password that the board uses:
 
    ```bash
    export NERDMINER_OTA_PWD='YOUR_PASSWORD'
@@ -131,9 +152,6 @@ password from the `NERDMINER_OTA_PWD` variable.
    ```bash
    pio run -e NerdminerV2-OTA -t uploadfs --upload-port MINER_IP
    ```
-
-OTA starts only when `OTA_PASSWORD` is set at build time. Without it, the board mines
-normally and prints `OTA disabled: no OTA_PASSWORD set at build time`.
 
 OTA listens on UDP port 3232. A TCP probe such as `nc -z HOST 3232` reports the port
 closed even when OTA works. Test with a real upload.
@@ -285,6 +303,7 @@ The two files use different key names, for compatibility with existing devices.
 | Save stats to NVS | `SaveStats` | `saveStatsToNVS` | `false` |
 | Invert screen colours | `invertColors` | `invertColors` | `false` |
 | Screen brightness | `Brightness` | `Brightness` | `250` |
+| OTA password | `OtaPassword` | `otaPassword` | empty, OTA off |
 
 The time zone accepts fractions, so `5.5`, `5.75`, and `9.5` work.
 
@@ -315,7 +334,7 @@ The performance flags default to on and need no change in `platformio.ini`. Set 
 | `RACE_DRAW_EVERY_S` | `1` | Seconds between full screen redraws. `3` is worth about 0.7% |
 | `VALIDATION` | off | Recomputes every candidate in software and counts disagreements |
 | `RACE_KAT` | off | Runs a known-answer test at startup. Needs `VALIDATION` |
-| `OTA_PASSWORD` | unset | Password for OTA updates. OTA stays off without it |
+| `OTA_PASSWORD` | unset | Password for OTA updates. Overrides the one in the configuration |
 
 ### Environment variables
 
@@ -378,11 +397,12 @@ Build with `-D VALIDATION=1 -D RACE_KAT=1` to run this test at startup.
 
 ### Continuous integration
 
-Three workflows live in `.github/workflows/`.
+Four workflows live in `.github/workflows/`.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `ci.yml` | pushes to `all-fixes`, pull requests | Runs the host tests, then builds one environment per chip family |
+| `fork-release.yml` | started by hand, with a version | Builds every environment and attaches the images to a draft release |
 | `release.yml` | pushes to `main` | Builds every environment and publishes a release |
 | `prerelease.yml` | pushes to `prerelease` | Same, as a prerelease |
 
@@ -393,7 +413,7 @@ C3 is RISC-V and rejects the Xtensa assembly, so a change to the SHA path that f
 guard fails here rather than in someone else's build.
 
 The build jobs need no secrets. `OTA_PASSWORD` comes from the environment and an empty
-value is valid, because the firmware then refuses to start the OTA service.
+value is valid, because the firmware then reads the password from its configuration.
 
 ### Measure a change
 
@@ -441,3 +461,15 @@ Original project: [valerio-vaccaro/HAN](https://github.com/valerio-vaccaro/HAN).
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
+
+## Changelog
+
+### v2.2.0 - First release of this fork (2026-09-27)
+
+- ESP32 classic: 354 to 811 kH/s against upstream `main`, measured on the same board.
+- ESP32-S3: 313 to 359 kH/s on our boards, +14.7% in one day. The SHA engine reads its input during its first rounds only, so the next block can be written while it computes.
+- Classic hardware jobs of 64K nonces instead of 16K: the hardware miner no longer waits for work.
+- OTA password in the configuration or the WiFi portal, so public images can enable OTA. OTA stays off without it. New in this release: tested through the configuration file on one ESP32 classic, the portal field is untested.
+- Fixed: nonce sent without its leading zeros (#750), coinbase over 255 bytes truncated (#809), USB serial blocking the pool connection (#810), pool password buffer overflow (#811), `checkValid()` reading the wrong memory (#797), pool statistics always read from public-pool.io (#710), WiFi never reconnecting after a lost link (#583).
+- Fixed: the C3 and S2 builds, broken by the S3 assembly.
+- Known limit: rare hash disagreements on ESP32 classic, about 1 candidate in 100,000.

@@ -128,6 +128,18 @@ void reset_configuration()
     ESP.restart();
 }
 
+//Portal field for the OTA password. The field starts empty so the portal never
+//shows the current password: empty keeps it, "off" clears it and disables OTA.
+static void applyOtaPasswordField(const char *value)
+{
+  if (!value || !*value) return;
+  if (strcmp(value, "off") == 0) {
+    Settings.OtaPassword[0] = '\0';
+    return;
+  }
+  strlcpy(Settings.OtaPassword, value, sizeof(Settings.OtaPassword));
+}
+
 void init_WifiManager()
 {
 #ifdef MONITOR_SPEED
@@ -235,11 +247,14 @@ void init_WifiManager()
   WiFiManagerParameter save_stats_to_nvs("SaveStatsToNVS", "Save mining statistics to flash memory.", "T", 2, checkboxParams, WFM_LABEL_AFTER);
   // Text box (String) - 80 characters maximum
   WiFiManagerParameter password_text_box("Poolpassword - Optional", "Pool password", Settings.PoolPassword, 80);
+  //Never prefilled: see applyOtaPasswordField().
+  WiFiManagerParameter ota_text_box("OtaPassword", "OTA password, 8 characters or more. Empty keeps the current one, off disables OTA", "", 63);
 
   // Add all defined parameters
   wm.addParameter(&pool_text_box);
   wm.addParameter(&port_text_box_num);
   wm.addParameter(&password_text_box);
+  wm.addParameter(&ota_text_box);
   wm.addParameter(&addr_text_box);
   wm.addParameter(&time_text_box_num);
   wm.addParameter(&features_html);
@@ -279,6 +294,7 @@ void init_WifiManager()
             Settings.PoolPort = atoi(port_text_box_num.getValue());
             strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
             Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
+            applyOtaPasswordField(ota_text_box.getValue());
             strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
             Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
             Settings.Timezone = atof(time_text_box_num.getValue());
@@ -320,6 +336,7 @@ void init_WifiManager()
                 Settings.PoolPort = atoi(port_text_box_num.getValue());
                 strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
                 Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
+                applyOtaPasswordField(ota_text_box.getValue());
                 strncpy(Settings.BtcWallet, addr_text_box.getValue(), sizeof(Settings.BtcWallet));
                 Settings.BtcWallet[sizeof(Settings.BtcWallet) - 1] = '\0';
                 Settings.Timezone = atof(time_text_box_num.getValue());
@@ -363,6 +380,7 @@ void init_WifiManager()
         // Copy the string value
         strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
         Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
+        applyOtaPasswordField(ota_text_box.getValue());
         Serial.print("poolPassword: ");
         Serial.println(Settings.PoolPassword);
 
@@ -407,6 +425,7 @@ void init_WifiManager()
     // Copy the string value
     strncpy(Settings.PoolPassword, password_text_box.getValue(), sizeof(Settings.PoolPassword));
     Settings.PoolPassword[sizeof(Settings.PoolPassword) - 1] = '\0';
+    applyOtaPasswordField(ota_text_box.getValue());
     Serial.print("poolPassword: ");
     Serial.println(Settings.PoolPassword);
 

@@ -37,6 +37,7 @@ bool nvMemory::saveConfig(TSettings* Settings)
         json[JSON_SPIFFS_KEY_STATS2NV] = Settings->saveStats;
         json[JSON_SPIFFS_KEY_INVCOLOR] = Settings->invertColors;
         json[JSON_SPIFFS_KEY_BRIGHTNESS] = Settings->Brightness;
+        json[JSON_SPIFFS_KEY_OTAPASS] = Settings->OtaPassword;
 
         // Open config file
         File configFile = SPIFFS.open(JSON_CONFIG_FILE, "w");
@@ -86,6 +87,13 @@ bool nvMemory::loadConfig(TSettings* Settings)
                 StaticJsonDocument<512> json;
                 DeserializationError error = deserializeJson(json, configFile);
                 configFile.close();
+                //Read the OTA password, then drop it from the document: the dump
+                //below goes to the serial port.
+                if (!error)
+                {
+                    strlcpy(Settings->OtaPassword, json[JSON_SPIFFS_KEY_OTAPASS] | Settings->OtaPassword, sizeof(Settings->OtaPassword));
+                    json.remove(JSON_SPIFFS_KEY_OTAPASS);
+                }
                 serializeJsonPretty(json, Serial);
                 Serial.print('\n');
                 if (!error)

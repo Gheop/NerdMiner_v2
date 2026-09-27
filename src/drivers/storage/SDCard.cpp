@@ -106,6 +106,10 @@ bool SDCard::loadConfigFile(TSettings* Settings)
                 Serial.println("SDCard: Loading config file");
                 if (!error)
                 {
+                    //Read the OTA password, then drop it from the document: the dump
+                    //below goes to the serial port.
+                    strlcpy(Settings->OtaPassword, json[JSON_KEY_OTAPASS] | Settings->OtaPassword, sizeof(Settings->OtaPassword));
+                    json.remove(JSON_KEY_OTAPASS);
                     serializeJsonPretty(json, Serial);
                     Serial.print('\n');    
                     if (json.containsKey(JSON_KEY_SSID)) {                
