@@ -195,15 +195,15 @@ a software implementation.
 
 | Chip | Upstream `main` | This branch | Gain |
 |---|---|---|---|
-| ESP32 classic (D0WD-V3 DevKit) | 354.0 kH/s | 794.3 kH/s | +124% |
+| ESP32 classic (D0WD-V3 DevKit) | 354.0 kH/s | 811.4 kH/s | +129% |
 | ESP32-S3 (T-Display-S3) | 253.6 kH/s | 303.0 kH/s | +19.5% |
 
 ![Hashrate comparison](images/hashrate.svg)
 
 The S3 row uses upstream's own settings, so the comparison isolates the SHA path. It was
 measured before the block 2 change below. With the display options and core pinning, our
-S3 boards ran at 313.0 kH/s, and writing the next block 2 during the second hash took them
-to 351.5 kH/s, +12.3%.
+S3 boards ran at 313.0 kH/s. Writing the next block 2 during the second hash took them to
+351.5 kH/s, +12.3%, and writing the second hash padding during block 2 to 359.1 kH/s.
 
 That change works because the S3 spends most of a nonce on the APB bus, near 16 cycles per
 register access. Its digest comes out in `H`, so `TEXT` is only an input: once the engine
@@ -223,8 +223,9 @@ Where the gains come from on the classic path:
 | Per-nonce DPORT interrupt mask dropped | +5.7% | It protected the two-read DPORT sequence, which the raw read no longer uses |
 | Block 1 words 8 to 15 written during block 3 | +4.4% | They do not depend on the nonce. The engine reads its input word by word during the first rounds, so the writes wait 48 cycles |
 | Hardware jobs of 64K nonces instead of 16K | +1% | Four 16K jobs lasted 92 ms, less than one refill cycle of the stratum task, so the hardware miner waited for work |
+| Block 3 padding written during block 2 | +2.2% | Words 8 and 15 depend on nothing, and the LOAD that follows block 2 only writes words 0 to 7 |
 
-The last two steps come from [@awi81](https://github.com/awi81), who ported the assembly
+The block 1 and job size steps come from [@awi81](https://github.com/awi81), who ported the assembly
 loop to four ESP32-2432S028 boards and measured them in the
 [PR #727 thread](https://github.com/BitMaker-hub/NerdMiner_v2/pull/727). We reproduced
 both on our own boards before adopting them.
@@ -304,6 +305,8 @@ The performance flags default to on and need no change in `platformio.ini`. Set 
 | `RACE_ASM_LOOP_S3` | `1` on ESP32-S3, `0` elsewhere | Same, S3 path. The assembly names Xtensa registers, so the C3 and the S2 build without it |
 | `RACE_B2_EARLY` | `1` | Writes block 2 of the next nonce during the second hash, S3 path |
 | `RACE_B2_EARLY_NOPS` | `48` | Cycles to wait before those writes. 64 cost 1.3% on the S3 |
+| `RACE_PAD2_EARLY` | `1` | Writes the second hash padding during block 2, both chips |
+| `RACE_PAD2_EARLY_NOPS` | `48` | Cycles to wait before those writes |
 | `RACE_B1_EARLY` | `1` | Writes words 8 to 15 of block 1 during block 3 of the previous nonce, classic path |
 | `RACE_B1_EARLY_NOPS` | `48` | Cycles to wait before those writes. Wrong hashes appear below 32 |
 | `NONCE_PER_JOB_HW` | `65536` on ESP32 classic, `16384` elsewhere | Nonces per hardware job |
