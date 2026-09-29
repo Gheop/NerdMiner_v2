@@ -285,6 +285,16 @@ mitigations were measured and neither works: a `MEMW` barrier before the start c
 costs 1.4% of the hashrate, and stopping the software miner on the second core costs
 5.3%. The defect costs 0.02 kH/s across a nine-board fleet, so it is documented and left.
 
+The rate depends on what the other core does. [@awi81](https://github.com/awi81) measured
+four ESP32-2432S028 boards, which drive a display and fetch pool statistics over HTTPS
+every 15 minutes: 2.6 to 3.5 disagreements per hour, about three times the 0.3 to 1.0 of
+our headless DevKits, which make no HTTPS request. On his boards, a third of the
+disagreements fell within 30 seconds of a request, in windows that cover 8% of the time.
+Pausing the hardware miner during each request removed that cluster and left about 1.8
+per hour. The pause costs 0.3% of the hardware time, more than the disagreements it
+avoids, so it is not enabled. See the
+[PR #727 thread](https://github.com/BitMaker-hub/NerdMiner_v2/pull/727).
+
 ## Configuration
 
 ### Runtime settings
